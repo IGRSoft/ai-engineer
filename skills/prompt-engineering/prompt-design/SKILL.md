@@ -61,7 +61,7 @@ Ordering matters because attention is not uniform:
 - **Role first** — everything after it is interpreted through the role; a role stated late cannot re-frame instructions already read.
 - **Output contract last** — the format spec sits closest to generation (recency), which is where format compliance is decided.
 - **Examples after instructions** — examples disambiguate rules; when they conflict, models tend to imitate examples over prose, so the pair must agree.
-- **Load-bearing rules at the edges** — models under-attend to the middle of long prompts (see [context-engineering](../context-engineering/SKILL.md) § placement); bury nothing critical mid-prompt.
+- **Load-bearing rules at the edges** — models under-attend to the middle of long prompts (see [window-management](../context-engineering/references/window-management.md) § Placement: Lost in the Middle); bury nothing critical mid-prompt.
 
 | Segment | Question it answers | Typical failure when missing |
 |---|---|---|

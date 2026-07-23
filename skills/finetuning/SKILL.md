@@ -32,7 +32,7 @@ untracked run is an unreproducible run (see
 
 | I need to... | Use this skill |
 |--------------|----------------|
-| Decide fine-tune vs prompt vs RAG | [peft-lora/SKILL.md](peft-lora/SKILL.md) (when-adapters-win) + `ai-engineer:ai-architector` |
+| Decide fine-tune vs prompt vs RAG | [peft-lora/SKILL.md](peft-lora/SKILL.md) (Is LoRA the Right Tool?) + `ai-engineer:ai-architector` |
 | Turn raw logs/tickets/docs into training JSONL | [dataset-curation/SKILL.md](dataset-curation/SKILL.md) |
 | Chase an inflated eval score / suspected leakage | [dataset-curation/SKILL.md](dataset-curation/SKILL.md) (decontamination) |
 | Pick messages-schema / chat-template formatting | [dataset-curation/references/data-formats.md](dataset-curation/references/data-formats.md) |
@@ -47,7 +47,7 @@ untracked run is an unreproducible run (see
 
 ```
 Fine-tuning task?
-├── Should we fine-tune at all? → peft-lora § when-adapters-win + ai-engineer:ai-architector
+├── Should we fine-tune at all? → peft-lora § Is LoRA the Right Tool? + ai-engineer:ai-architector
 ├── Data not yet in clean messages-JSONL → dataset-curation/SKILL.md
 │   └── SFT vs preference record formats → dataset-curation/references/data-formats.md
 ├── Configuring or debugging an adapter run → peft-lora/SKILL.md

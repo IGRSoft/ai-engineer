@@ -88,7 +88,7 @@ following stay orchestrator-owned and are deliberately **not** implemented here:
   (decreasing, no NaN), and document the full-run launch plan (command, data,
   expected duration/cost) in `development-N.md`. DR fails a DV artifact whose
   transcripts show an uncapped training invocation. Canonical text in
-  `skills/_shared/workflow-integration/SKILL.md § DV Contract`; training
+  `skills/_shared/workflow-integration/references/stage-details.md § DV Contract for AI Work`; training
   examples across the finetuning skills follow it.
 - **`validate.sh` `ALLOWED_PREFIX_RE` keeps `system-developer`** — the
   subagent-type prefix whitelist is

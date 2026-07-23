@@ -40,7 +40,7 @@ evidence-freshness rule, and the smoke-scale training rule for DV.
   training-optimization, preference-tuning), `mlops` (experiment-tracking,
   model-serving, model-monitoring, ml-pipelines), `evals` (eval-design,
   llm-judge, regression-gates), plus domain entry skills, a root routing
-  skill, 7 `_index.md` indexes, 13 deep `references/` files, and the
+  skill, 7 `_index.md` indexes, 20 deep `references/` files, and the
   `_shared` references (`workflow-integration` + 3 DV/DR/QA templates,
   `framework-detection`, `model-selection`, `severity-matrix`).
   House rules baked in: no hardcoded model IDs/prices (hedge-and-verify via

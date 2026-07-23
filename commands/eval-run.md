@@ -93,14 +93,18 @@ For each gated metric record its direction (higher-better vs lower-better), abso
 
 ### Phase 3: Run (Bash)
 
-1. Run each selected suite as a **single command**, teeing to the log:
+1. Create the log dir first — `tee` will not, and `.context/` is gitignored:
+   ```bash
+   mkdir -p .context/logs
+   ```
+2. Run each selected suite as a **single command**, teeing to the log:
    ```bash
    uv run pytest -m eval -q 2>&1 | tee -a .context/logs/eval-run-<timestamp>.log
    ```
-   Capture `${PIPESTATUS[0]}` per run.
-2. A harness crash (nonzero exit with no metrics output) is an **infrastructure failure** — report that suite as ERROR, not as a regression and not as a pass; the other suites still run.
-3. Parse metrics from the harness's native output (pytest metrics artifact, promptfoo JSON, deepeval results). Record the eval-set version, temperature/seeds, and model revisions **actually used** — read from run output/config, never assumed.
-4. With `--judge`: run judge suites after the programmatic ones; record the judge model + rubric version and the per-case cost basis (calls × cases).
+   Read `${PIPESTATUS[0]}` in that same invocation — `tee` masks the suite's exit status.
+3. A harness crash (nonzero exit with no metrics output) is an **infrastructure failure** — report that suite as ERROR, not as a regression and not as a pass; the other suites still run.
+4. Parse metrics from the harness's native output (pytest metrics artifact, promptfoo JSON, deepeval results). Record the eval-set version, temperature/seeds, and model revisions **actually used** — read from run output/config, never assumed.
+5. With `--judge`: run judge suites after the programmatic ones; record the judge model + rubric version and the per-case cost basis (calls × cases).
 
 ### Phase 4: Compare & Report
 

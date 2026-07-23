@@ -152,8 +152,15 @@ def test_retrieval_regression() -> None:
         ranked_chunks = retrieve(str(case["query"]), k=max(K, 20))  # retrieve wide
         ranked_docs = [cid.split("#")[0] for cid in ranked_chunks]  # "{doc_id}#{n}" → doc
         relevant = {str(d) for d in case["relevant_doc_ids"]}  # doc-level labels
+        if not relevant:
+            # no-answer archetype: no labels means no recall to compute. Score it
+            # as must-not-retrieve and keep it out of the means it would distort.
+            forbidden = {str(d) for d in case.get("must_not_retrieve", [])}
+            assert not (set(ranked_docs[:K]) & forbidden)
+            continue
         recalls.append(recall_at_k(ranked_docs, relevant, K))
         rrs.append(reciprocal_rank(ranked_docs, relevant))
+    assert recalls, "eval set contains no labeled cases"
     assert sum(recalls) / len(recalls) >= THRESHOLDS["mean_recall_at_k"]
     assert sum(rrs) / len(rrs) >= THRESHOLDS["mrr"]
 ```

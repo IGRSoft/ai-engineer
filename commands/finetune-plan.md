@@ -66,7 +66,8 @@ Collect and **print a "Context Detected" block** before any delegation:
 3. **Current prompt/RAG setup** — `prompts/` dir and versioned prompt files; Grep `pyproject.toml`/`uv.lock` for `anthropic|openai|litellm|langchain|llama-index|chromadb|qdrant|pgvector|faiss`; note what the cheaper layers already do.
 4. **Eval assets** — `evals/` harnesses, golden-set manifests, judge configs; no eval set is a planning input, not a blocker.
 5. **Training stack** — `torch|transformers|peft|trl|accelerate|bitsandbytes` in `uv.lock`.
-6. **GPU probe** — `nvidia-smi --query-gpu=name,memory.total --format=csv,noheader`. Absent binary → record "no CUDA on this box", note the two-host workflow (Mac/MPS smoke loop, Linux/CUDA full run per `skills/finetuning/training-optimization`), and use `--target-gpu` or ask (Rule 3). Never a failure.
+6. **Base model** — take `--base` when given, else Grep training configs and `pyproject.toml` for an existing base id; record it with its parameter count, which is the input Phase 2 step 3's memory arithmetic is instantiated against. No candidate from either source → recommend one in Phase 2 and mark it "unpinned". Never assert a revision from memory — tag whatever is recorded with "verify ID and revision against current provider/hub docs".
+7. **GPU probe** — `nvidia-smi --query-gpu=name,memory.total --format=csv,noheader`. Absent binary → record "no CUDA on this box", note the two-host workflow (Mac/MPS smoke loop, Linux/CUDA full run per `skills/finetuning/training-optimization`), and use `--target-gpu` or ask (Rule 3). Never a failure.
 
 ### Phase 1: Method Verdict
 
@@ -80,7 +81,7 @@ Prompt: "Feasibility consultation — do NOT implement anything. Task: {task}. D
 
 1. **Data requirements** — per `skills/finetuning/dataset-curation`: messages-format JSONL (one system-turn policy, strict role alternation, completion-only masking); size range by task class (style/persona ~200–2k · format enforcer ~500–5k · domain assistant ~1k–20k · DPO pairs ~2k–20k); gap = range minus curated inventory; the eight curation gates the data must pass (collect→normalize→dedupe→decontaminate→scrub→license→split→version, fail-closed on scrub/license).
 2. **Method selection** — per `skills/finetuning/peft-lora` and `skills/finetuning/preference-tuning`: LoRA (behavior/format/domain from gold outputs) vs QLoRA (same job under the VRAM budget from step 3) vs SFT→DPO (directional "better vs worse" targets — needs a competent SFT baseline first). Include the config starting point for the scenario (r, alpha ≈ 2r, target_modules, dropout).
-3. **GPU memory budget** — symbolic formulas per `skills/finetuning/training-optimization` `references/gpu-memory-math.md` (weights + gradients + optimizer states + activations + ≥10–15% headroom), instantiated **only** against probed or declared hardware; verdict fits / tight / doesn't-fit plus which fit-ladder rungs to plan (accumulation, checkpointing, QLoRA). No hardware known → keep it symbolic and mark "instantiate on the training host".
+3. **GPU memory budget** — symbolic formulas per `skills/finetuning/training-optimization` `references/gpu-memory-math.md` (weights + gradients + optimizer states + activations + ≥10–15% headroom), instantiated from the Phase 0 base-model parameter count and **only** against probed or declared hardware; verdict fits / tight / doesn't-fit plus which fit-ladder rungs to plan (accumulation, checkpointing, QLoRA). No hardware known → keep it symbolic and mark "instantiate on the training host".
 4. **Hyperparameter starting points** — LR (~2e-4 LoRA-class, sweep), cosine schedule + warmup, effective batch = micro × accumulation (retune LR when it changes), fixed seed; DPO: beta ~0.1 swept against held-out win rate, never training loss. All labeled sweep origins; TRL/PEFT arg names to be verified via context7 (Rule 6).
 5. **Eval plan + success criteria** — per `skills/evals/eval-design`: baseline run on the pinned eval set **before** training (temperature 0, eval-set version recorded); target metrics by task type with explicit pass thresholds; a **general-capability regression slice** that must not regress (the catastrophic-forgetting detector); gate wiring per `skills/evals/regression-gates`; subjective quality via `skills/evals/llm-judge`.
 6. **Launch plan** — two runs, both as printed commands: **smoke** (capped `max_steps`, ~256-record subsample, fixed seed; duration class: minutes; success = falling loss, no NaN, sane trainable-param %, peak memory recorded vs estimate) then **full** (command + dataset version + CUDA host; duration class + cost drivers: GPU-hours ≈ steps × sec/step, spend scales with params, sequence length, epochs — no absolute prices, Rule 4).
@@ -98,6 +99,7 @@ Print the plan (Output Format A) to stdout. Close with the execution route: `ai-
 
 **Verdict:** FINE-TUNE ({LoRA | QLoRA | SFT→DPO}) | HYBRID ({RAG for facts + adapter for form}) — per ai-engineer:ai-architector
 **Context detected:** data {inventory summary} · prompt/RAG {stack} · evals {present/absent} · hardware {probed | declared | none → two-host}
+**Base model:** {org/model-id} ({param count}) · revision {pinned value | unpinned — verify against current provider/hub docs} · source {--base | repo config | recommended}
 
 ### Method Decision
 {decision, deciding criteria with project inputs, rejected options + killing criterion}

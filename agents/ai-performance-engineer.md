@@ -5,7 +5,7 @@ model: sonnet
 effort: high
 maxTurns: 50
 color: orange
-tools: Read, Glob, Grep, Bash(git:*), Bash(py-spy:*), Bash(hyperfine:*), Bash(nvidia-smi:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(time:*), mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
+tools: Read, Glob, Grep, Bash(git:*), Bash(py-spy:*), Bash(hyperfine:*), Bash(nvidia-smi:*), Bash(top:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(time:*), mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 disallowed-tools: Write, Edit
 inherits: _base/ai-agent.md
 ---

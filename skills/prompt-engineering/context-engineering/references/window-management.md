@@ -134,7 +134,7 @@ What MUST survive compaction — as a structured note, not a prose blob:
 
 What can go: greetings, superseded drafts, resolved errors, duplicate retrievals, exploratory dead ends.
 
-Compaction discipline: run the summarizer at temperature 0; validate the survival note against a schema before it replaces history ([structured-outputs](../structured-outputs/SKILL.md)); log the pre-compaction transcript so compaction never destroys evidence; never compact segments 1-2.
+Compaction discipline: run the summarizer at temperature 0; validate the survival note against a schema before it replaces history ([structured-outputs](../../structured-outputs/SKILL.md)); log the pre-compaction transcript so compaction never destroys evidence; never compact segments 1-2.
 
 ## Placement: Lost in the Middle
 

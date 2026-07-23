@@ -70,7 +70,7 @@ Resolve the set of files under review **once**, top-down — the first applicabl
 1. **Explicit args** — a file, directory, PR number, or branch named on the command line.
    - File or directory → review those paths directly.
    - PR number (bare integer) → `gh pr diff <N> --name-only` for the file list (and `gh pr diff <N>` for the patch). If `gh` is unavailable, print the install hint and fall back to rule 3 against the PR's base branch.
-   - Branch name → diff against the merge-base with the default branch: `git diff --name-only $(git merge-base HEAD <branch>)..<branch>`.
+   - Branch name → diff against the merge-base with the default branch: `git diff --name-only $(git merge-base origin/HEAD <branch>)..<branch>`. Resolve the default branch first (`git symbolic-ref --short refs/remotes/origin/HEAD`, falling back to `origin/main`/`origin/master`) — never `HEAD`, which yields an empty range when the command runs from the branch under review.
 2. **Working changes** (no args) — staged and unstaged tracked changes:
    `git diff --name-only HEAD` (plus `git diff --cached --name-only`). This is the default.
 3. **Branch/PR diff** (fallback) — when neither explicit paths nor working changes apply, diff the current branch against the default branch's merge-base.

@@ -34,9 +34,9 @@ IDs follow the OWASP Top 10 for LLM Applications; category numbering shifts acro
 
 | ID | Domain | What to hunt | CWE (where applicable) |
 |---|---|---|---|
-| LLM01 | **Prompt injection** | Direct: user text concatenated into system/instruction segments. Indirect: retrieved docs, tool results, file/web content entering privileged prompt segments unmarked; missing delimiting/privilege separation | CWE-77 (injection) |
+| LLM01 | **Prompt injection** | Direct: user text concatenated into system/instruction segments. Indirect: retrieved docs, tool results, file/web content entering privileged prompt segments unmarked; missing delimiting/privilege separation | CWE-1427, CWE-77 (injection) |
 | LLM02 | **Insecure output handling** | Model output flowing to `exec`/`eval`, `subprocess`, SQL, shell, HTML/Markdown render, or file paths without validation/parameterization/escaping | CWE-78, CWE-89, CWE-79, CWE-94 |
-| LLM03 | **Training-data poisoning** | Unvetted scraped/user-submitted data entering fine-tune sets; no dataset provenance/versioning; no dedup or content screening before training | CWE-1427 class |
+| LLM03 | **Training-data poisoning** | Unvetted scraped/user-submitted data entering fine-tune sets; no dataset provenance/versioning; no dedup or content screening before training | CWE-345, CWE-349 (data authenticity) |
 | LLM04 | **Model DoS / unbounded spend** | No `max_tokens` caps, unbounded agent loops/recursion, no per-request context truncation, missing rate limits or spend budgets on retry paths | CWE-400 |
 | LLM05 | **Supply chain** | Unpinned HF downloads (no `revision=` commit hash), `trust_remote_code=True`, pickle checkpoints (`torch.load` on untrusted files, `pickle.load`) vs safetensors, dependency CVEs in `uv.lock` | CWE-502, CWE-829 |
 | LLM06 | **Sensitive info disclosure** | Secrets/API keys or PII in prompts, prompt templates, logs, telemetry, eval sets, and training datasets; verbose error messages echoing prompt internals | CWE-798, CWE-532, CWE-359 |

@@ -110,7 +110,7 @@ skills/
 | `llm-judge` | Pointwise vs pairwise selection, anchored rubrics, bias mitigations, calibration against human labels (Cohen's kappa), judge regression tests. |
 | `regression-gates` | Pre-commit→PR→nightly→release gate ladder, floors plus relative thresholds, baseline update ritual, flake policy, pytest integration, escape hatch. |
 
-Deep detail lives in `references/` next to each SKILL.md (13 files: judge prompt templates, data formats, hyperparameter guide, GPU memory math, distributed training, tool design, provider matrix, chunking strategies, retrieval evaluation, serving-stack matrix, Claude prompting, prompt patterns, schema patterns), plus 3 workflow handoff templates under `_shared/workflow-integration/templates/`.
+Deep detail lives in `references/` next to each SKILL.md (21 files: eval methodology, judge prompt templates, gate implementation, data formats, hyperparameter guide, DPO and preference data, GPU memory math, distributed training, tool design, provider matrix, chunking strategies, retrieval evaluation, tracking implementation, versioning and CI/CD, observability and drift, serving-stack matrix, window management, Claude prompting, prompt patterns, schema patterns, and workflow stage details), plus 3 workflow handoff templates under `_shared/workflow-integration/templates/`.
 
 ## Model & Effort
 

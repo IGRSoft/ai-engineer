@@ -63,7 +63,7 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 
 Same precedence as `/ai-engineer:code-review`, applied **once**:
 
-1. **Explicit args** — file/dir reviewed directly; PR number via `gh pr diff <N> --name-only` (`gh` missing → install hint, fall back to rule 3); branch via `git diff --name-only $(git merge-base HEAD <branch>)..<branch>`.
+1. **Explicit args** — file/dir reviewed directly; PR number via `gh pr diff <N> --name-only` (`gh` missing → install hint, fall back to rule 3); branch via `git diff --name-only $(git merge-base origin/HEAD <branch>)..<branch>` (default branch, never `HEAD` — else an empty range).
 2. **Working changes** (default) — `git diff --name-only HEAD` plus `git diff --cached --name-only`.
 3. **Fallback** — current branch vs the default branch's merge-base.
 

@@ -170,7 +170,7 @@ every document you rely on. If the documents conflict, the higher-priority
 </instructions>
 ```
 
-Orientation first, bulk data in the middle, full instructions restated at the end — the two attention-favored edges both carry the task. Placement rules: `../../context-engineering/SKILL.md` § Lost in the Middle.
+Orientation first, bulk data in the middle, full instructions restated at the end — the two attention-favored edges both carry the task. Placement rules: `../../context-engineering/references/window-management.md` § Placement: Lost in the Middle.
 
 **Failure mode:** instructions stated only before the documents get diluted by the time generation starts; the model answers from priors instead of the docs. The end-restatement plus mandatory citations force grounding.
 
