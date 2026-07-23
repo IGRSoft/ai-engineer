@@ -1,0 +1,96 @@
+{
+  "name": "ai-engineer",
+  "description": "AI engineering toolkit with specialized agents for LLM application development (RAG, agents, structured outputs), prompt engineering, LLM fine-tuning (LoRA/QLoRA/DPO), MLOps (serving, experiment tracking, monitoring, pipelines), and LLM evaluation. Full igrsoft v3.36.0 11-stage workflow integration (PL→AR→TL→DV→DR→SR→QA→DC→RE→FN→ST): handoff-protocol (development-N.md, state.json, frontmatter schema), requires_screenshots:false / cli-fallback evidence norm, scoped Bash toolchain allowlists, qualified Task() delegation, and plugin-scoped audit/checkpoint hooks.",
+  "version": "1.0.0",
+  "author": {
+    "name": "IGRSoft",
+    "email": "support@igrsoft.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "ai",
+    "llm",
+    "ml",
+    "rag",
+    "agents",
+    "prompt-engineering",
+    "context-engineering",
+    "structured-outputs",
+    "fine-tuning",
+    "lora",
+    "qlora",
+    "peft",
+    "dpo",
+    "rlhf",
+    "distillation",
+    "dataset-curation",
+    "mlops",
+    "model-serving",
+    "vllm",
+    "tgi",
+    "ollama",
+    "triton",
+    "quantization",
+    "gguf",
+    "experiment-tracking",
+    "mlflow",
+    "dvc",
+    "model-monitoring",
+    "drift-detection",
+    "evals",
+    "llm-judge",
+    "regression-gates",
+    "owasp-llm-top-10",
+    "prompt-injection",
+    "pytorch",
+    "transformers",
+    "huggingface",
+    "anthropic",
+    "openai",
+    "uv",
+    "ruff",
+    "pytest",
+    "workflow-integration",
+    "cli-fallback-evidence",
+    "fable-5"
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|TaskUpdate|TaskCreate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/audit-tooluse.sh",
+            "args": [
+              "--kind",
+              "tool"
+            ],
+            "continueOnBlock": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/audit-subagent.sh",
+            "continueOnBlock": true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/precompact-checkpoint.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
