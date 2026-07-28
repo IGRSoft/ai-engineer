@@ -103,6 +103,8 @@ class BatchExtraction(BaseModel):
     skipped: list[SkippedItem]
 
 
+# ExtractionError is defined in § 4 below; to run this snippet on its own, add:
+#     class ExtractionError(Exception): ...
 def check_coverage(batch: BatchExtraction, input_ids: list[str]) -> None:
     """Every input id appears exactly once across items + skipped."""
     seen = sorted(

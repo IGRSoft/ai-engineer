@@ -47,7 +47,9 @@ Gate (both required for `go` — workflow-integration/references/stage-details.m
 
 <go | no-go — one-line justification; on no-go list blocking defects>
 
-Blocking defects (no-go only — these become `metadata.gate_blockers[]` verbatim on DV re-dispatch):
+## blocking-defects
+
+<no-go only — these become `metadata.gate_blockers[]` verbatim on DV re-dispatch; omit the section on go>
 - <self-contained, actionable string with file:line / failing test name / regressed metric vs. baseline>
 ```
 

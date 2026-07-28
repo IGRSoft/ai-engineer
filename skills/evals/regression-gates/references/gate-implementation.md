@@ -200,7 +200,7 @@ or the gate itself is wrong. Overrides are legitimate **only when recorded**:
 ```yaml
 # evals/overrides/2026-07-22-hotfix-1382.yaml
 gate: field_f1                # 0.87 vs floor 0.85, max_drop breached
-by: korich.vi.p@gmail.com
+by: qa-lead@example.com
 reason: P0 hotfix for prod incident 1382 outranks a warn-band regression
 follow_up: repo#1391          # re-run + fix scheduled
 expires: 2026-07-29

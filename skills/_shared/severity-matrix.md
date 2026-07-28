@@ -34,8 +34,7 @@ Used by the Implementation/Review response formats of all ai-engineer agents:
 | P0 | Critical | Any | Immediate remediation |
 | P1 | High | Low | Do first (quick wins) |
 | P2 | High | High | Plan and schedule |
-| P3 | Medium | Low | Batch together |
-| P4 | Low | High | Deprioritize or skip |
+| P3 | Low | Low | Batch together |
 
 ## Effort/Impact Quadrant
 
@@ -45,7 +44,7 @@ High Impact ┌──────────────┬──────�
             │  (P2: Plan)  │ (P1: Quick)  │
             ├──────────────┼──────────────┤
             │    AVOID     │  FILL-INS    │
-            │ (P4: Defer)  │ (P3: Batch)  │
+            │  (no tier)   │ (P3: Batch)  │
 Low Impact  └──────────────┴──────────────┘
              High Effort    Low Effort
 ```

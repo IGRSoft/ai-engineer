@@ -62,8 +62,10 @@ total ≈ weights + gradients + optimizer states + activations + overhead
 | Overhead | framework/CUDA context, fragmentation | keep ≥10–15% headroom | same | same |
 
 Rules of thumb: mixed-precision AdamW full FT lands around 12–16 bytes/param
-*before* activations; LoRA ≈ 2 B/param + activations; QLoRA ≈ 0.6 B/param +
-activations. Worked 7B byte-accounting, activation drivers, and the
+*before* activations; LoRA ≈ 2 B/param + activations; QLoRA ≈ 0.55–0.7 B/param
+for the frozen 4-bit base *plus* a roughly fixed ~1.25 GB of adapter, paged
+optimizer and dequantization buffers — ≈5–6 GB for a 7B before activations,
+not 0.6 B/param all-in. Worked 7B byte-accounting, activation drivers, and the
 estimate→verify loop: read `references/gpu-memory-math.md` before any
 launch on new hardware.
 

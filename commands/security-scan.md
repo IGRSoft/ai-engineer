@@ -75,7 +75,7 @@ Probe with `command -v <tool>` and build the availability report the auditor rec
 
 | Scanner | Lens | Install hint (if missing) |
 |---------|------|---------------------------|
-| `pip-audit` | Python dependency CVEs from `uv.lock`/requirements | `uv tool install pip-audit` |
+| `pip-audit` | Python dependency CVEs from the ambient environment or a requirements-format file; it does not read `uv.lock` natively — export first (`uv export --format requirements-txt`) or use `osv-scanner`, which parses the lockfile directly | `uv tool install pip-audit` |
 | `osv-scanner` | cross-ecosystem CVE lookup over lockfiles | `brew install osv-scanner` |
 | `gitleaks` | secrets in working tree + git history | `brew install gitleaks` |
 | `trufflehog` | secret detection with credential verification | `brew install trufflehog` |

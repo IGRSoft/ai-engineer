@@ -73,14 +73,16 @@ messages = [
 - **Format forcing**: prefill `{` (or `<answer>`) to skip preambles and markdown fences around JSON.
 - **Scaffold forcing**: prefill a template opening (e.g. `## Summary\n`) to lock a report structure.
 - **Parser note**: the response continues *after* the prefill — re-attach the prefilled characters before parsing.
-- **Caveats** (verify current constraints in provider docs): a prefill ending in trailing whitespace is rejected; prefilling is **not available with extended thinking enabled** — pick one mechanism per call.
+- **Availability is itself model-dependent** — do not assume prefilling exists. Current-generation models may reject an assistant-turn prefill outright, not merely when thinking is on. Verify support **per model** with the documentation-lookup tool (context7) against current provider docs before designing around it.
+- **Fallbacks when prefill is unavailable**: state the format contract in the system prompt, use the provider's structured-outputs mode, or set the output-format configuration field — all three achieve format forcing without an assistant-turn prefix.
+- **Caveats** (verify current constraints in provider docs): a prefill ending in trailing whitespace is rejected; where prefilling is supported it is **not available with extended thinking enabled** — pick one mechanism per call.
 
 ## Extended Thinking Interaction
 
 When extended thinking is enabled, the model reasons in dedicated thinking blocks before the visible reply. Prompting changes:
 
 - **Remove manual CoT scaffolds** — "think step by step" and `<analysis>`-first conventions duplicate or fight native thinking. Prompt at the level of goals and constraints instead ([prompt-patterns.md](prompt-patterns.md) § 5).
-- **Budget via API parameter**, not prose: thinking depth is controlled by a token-budget parameter (name and bounds per current docs), so "think really hard" belongs in config, not the prompt.
+- **Budget via API parameter**, not prose: thinking depth is controlled in config, so "think really hard" belongs there and not in the prompt. Which control applies is **model-dependent**: some models take an explicit token-budget parameter, while current-generation models may reject it and instead expose adaptive thinking governed by an effort setting. Confirm which mode the target model supports — and the parameter's name and bounds — with the documentation-lookup tool (context7) before coding to it.
 - **Never inject into or prefill thinking blocks** — unsupported; treat thinking content as model-owned.
 - **Tool loops**: current APIs may require passing prior thinking blocks back verbatim during tool-use turns — verify the current multi-turn contract in provider docs before building an agent loop.
 - **Sampling constraints** (temperature/top_p) can be restricted while thinking is on — verify before assuming temperature 0 is available; for deterministic evals of thinking-enabled configs, pin whatever sampling the API permits and record it with the eval run.
@@ -139,8 +141,8 @@ relevant quotes into <quotes> with their document index, then answer in
 | XML tags | Always — house delimiter idiom | — |
 | System vs user split | Always — privilege + caching | Cache prefix mechanics |
 | `<example>` multishot | Format/judgment tasks | — |
-| Prefill | JSON/format forcing without native modes | Whitespace rule; thinking incompatibility |
-| Extended thinking | Multi-step reasoning tasks | Budget param, tool-loop contract, sampling limits |
+| Prefill | JSON/format forcing without native modes | Availability per model (may be rejected outright — fall back to system prompt, structured outputs, or output-format field); whitespace rule; thinking incompatibility |
+| Extended thinking | Multi-step reasoning tasks | Budget param **or** adaptive thinking + effort setting — verify which per model; tool-loop contract, sampling limits |
 | Tool descriptions | Any tool use / tool-based extraction | Tool-choice forcing parameter |
 | Docs-first, query-last | Long documents in the prompt | — |
 

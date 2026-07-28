@@ -225,7 +225,7 @@ Respond with JSON only.
     "supported_ratio": {"type": "number"},
     "verdict": {"enum": ["faithful", "unfaithful"]}
   },
-  "required": ["claims", "supported_ratio", "verdict"]
+  "required": ["claims"]
 }
 ```
 

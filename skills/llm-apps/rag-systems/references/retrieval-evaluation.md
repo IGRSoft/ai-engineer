@@ -30,7 +30,8 @@ A useful set is small, labeled, versioned, and honestly sourced.
 - **Labels:** for each query, the set of relevant document ids — plus chunk
   ids only if your chunking is stable. Label at document level and map to
   chunks at eval time; chunk-level labels die on every re-chunk. Binary
-  relevance (0/1) is enough to start; graded (0-3) unlocks nDCG.
+  relevance (0/1) is enough to start and already supports nDCG; graded (0-3)
+  makes nDCG more discriminating.
 - **Versioning:** ship as `evals/retrieval-vN.jsonl` with a changelog. Metrics
   are only comparable within one version; bump N on any label or query change
   and re-baseline.
@@ -65,7 +66,7 @@ Worked example — relevant `R = {c2, c5}`, system returns `[c7, c2, c9, c5, c1]
 Reading them: **recall@k** answers "is the evidence findable at all" (gate this
 first — k should match how many chunks your prompt actually receives), **MRR**
 answers "does the best evidence rank early", **nDCG** weighs graded relevance
-across the whole cutoff. A healthy recall@50 with poor recall@5 is the
+across the whole cutoff. A healthy recall@50 with poor precision@5 is the
 signature that a reranker (or fusion fix) will pay off.
 
 ## End-to-End: Faithfulness vs Answer Relevance

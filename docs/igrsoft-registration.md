@@ -177,7 +177,11 @@ Insert a new `#### AI platform` table after
 | Deps (`pyproject.toml`/`requirements*.txt`/`uv.lock`): `anthropic`, `openai`, `langchain`, `llama-index`, `litellm` | ai | `ai-engineer:llm-engineer` |
 | Deps in a training context: `torch`, `transformers`, `peft`, `trl`, `accelerate`, `bitsandbytes` | ai | `ai-engineer:ml-engineer` |
 | Deps: `vllm`, `mlflow`, `wandb`, `dvc` | ai | `ai-engineer:mlops-engineer` |
-| Files: `*.ipynb`, `dvc.yaml`, `*.safetensors`, `*.gguf`, CUDA `Dockerfile` (`FROM nvidia/cuda:…`), `chat_template.jinja` | ai | producing/training → `ai-engineer:ml-engineer`; serving/pipelines → `ai-engineer:mlops-engineer` |
+| Files: `dvc.yaml`, `.dvc/` (data/pipeline versioning) | ai | `ai-engineer:mlops-engineer` |
+| Files: CUDA `Dockerfile` (`FROM nvidia/cuda:…`, GPU torch/vLLM base images) | ai | `ai-engineer:mlops-engineer` |
+| Files: `chat_template.jinja` (tokenizer chat template — dataset formatting / SFT alignment) | ai | `ai-engineer:ml-engineer` |
+| Files: `*.ipynb` (experimentation — classify by the notebook's imports against the deps rows above) | ai | owning domain agent; mixed → `ai-engineer:ai-engineer` |
+| Files: `*.safetensors`, `*.gguf` (model weights / quantized artifacts) | ai | producing them (training, merge, quantize) → `ai-engineer:ml-engineer`; serving/loading them → `ai-engineer:mlops-engineer` |
 | Dirs: `prompts/` (prompt assets), `evals/` (eval harnesses) | ai | `ai-engineer:ai-prompt-engineer` / `ai-engineer:ai-test-generator` |
 | Mixed / ambiguous AI stack | ai | `ai-engineer:ai-engineer` (router) |
 ```
