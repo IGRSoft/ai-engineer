@@ -25,7 +25,7 @@ done
 
 read_stdin() {
   if [ "$SELF_TEST" -eq 1 ]; then
-    printf '%s' '{"tool_name":"Write","tool_use_id":"toolu_test","duration_ms":42,"session_id":"sess_test","effort":{"level":"medium"}}'
+    printf '%s' '{"tool_name":"Write","tool_use_id":"toolu_test","duration_ms":42,"session_id":"sess_test","effort":{"level":"medium"},"parent_agent_id":"agt_parent"}'
   else
     cat
   fi
@@ -55,7 +55,8 @@ ROW=$(printf '%s' "$PAYLOAD" | jq -c \
       advisory: true,
       duration_ms: ((.duration_ms // 0) | tonumber? // 0),
       effort: (.effort.level // env.CLAUDE_EFFORT // "unknown"),
-      dedupe_key: ((.session_id // "nosession") + ":" + (.tool_use_id // "notoolid"))
+      dedupe_key: ((.session_id // "nosession") + ":" + (.tool_use_id // "notoolid")),
+      dedupe_key_extended: ((.parent_agent_id // "none") + ":" + (.session_id // "nosession") + ":" + (.tool_use_id // "notoolid"))
     }
   }') || {
     echo "audit-tooluse: jq parse failed" >&2
@@ -63,11 +64,14 @@ ROW=$(printf '%s' "$PAYLOAD" | jq -c \
   }
 
 if [ "$SELF_TEST" -eq 1 ]; then
-  printf '%s\n' "$ROW" | jq -e '.metadata.dedupe_key == "sess_test:toolu_test" and .metadata.duration_ms == 42 and .metadata.effort == "medium" and .metadata.advisory == true and .actor == "ai-engineer:hook:audit-tooluse"' >/dev/null \
+  printf '%s\n' "$ROW" | jq -e '.metadata.dedupe_key == "sess_test:toolu_test" and .metadata.dedupe_key_extended == "agt_parent:sess_test:toolu_test" and .metadata.duration_ms == 42 and .metadata.effort == "medium" and .metadata.advisory == true and .actor == "ai-engineer:hook:audit-tooluse"' >/dev/null \
     || { echo "audit-tooluse: self-test FAIL"; exit 1; }
   echo "audit-tooluse: self-test OK"
   exit 0
 fi
 
-printf '%s\n' "$ROW" >> "$LOG_DIR/audit.jsonl"
+# jq exits 0 on empty stdin, yielding an empty ROW; never append a blank line.
+if [ -n "$ROW" ]; then
+  printf '%s\n' "$ROW" >> "$LOG_DIR/audit.jsonl"
+fi
 exit 0

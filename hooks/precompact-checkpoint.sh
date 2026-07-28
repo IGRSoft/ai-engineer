@@ -18,17 +18,40 @@ CONTEXT_DIR="$PROJECT_DIR/.context"
 LOG_DIR="$CONTEXT_DIR/logs"
 STATE_FILE="$CONTEXT_DIR/state.json"
 
-mkdir -p "$LOG_DIR"
+mkdir -p "$LOG_DIR" || true
 
 TS=$(date -u +%Y%m%d-%H%M%S)
 CHECKPOINT="$CONTEXT_DIR/state.checkpoint-$TS.json"
 
 if [ "$SELF_TEST" -eq 1 ]; then
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "precompact-checkpoint: self-test SKIP (jq not found)"
+    exit 0
+  fi
+  # Drive the real code path: seeded project dir, no args (so --self-test does
+  # not recurse), then assert named fields of the row actually emitted.
   TMP=$(mktemp -d)
-  echo '{"run_index":0,"stages":{}}' > "$TMP/state.json"
-  cp "$TMP/state.json" "$TMP/state.checkpoint-test.json"
-  [ -f "$TMP/state.checkpoint-test.json" ] || { echo "precompact-checkpoint: self-test FAIL"; rm -rf "$TMP"; exit 1; }
+  mkdir -p "$TMP/.context"
+  echo '{"run_index":7,"stages":{}}' > "$TMP/.context/state.json"
+  CLAUDE_PROJECT_DIR="$TMP" bash "$0" </dev/null >/dev/null 2>&1 || true
+
+  ST_FAIL=0
+  ls "$TMP"/.context/state.checkpoint-*.json >/dev/null 2>&1 || ST_FAIL=1
+  EMITTED=$(tail -n 1 "$TMP/.context/logs/audit.jsonl" 2>/dev/null || true)
+  [ -n "$EMITTED" ] || ST_FAIL=1
+  if [ "$ST_FAIL" -eq 0 ]; then
+    printf '%s\n' "$EMITTED" | jq -e '
+      .actor == "ai-engineer:hook:precompact"
+      and .action == "precompact_checkpoint"
+      and .result == "ok"
+      and .metadata.advisory == true
+      and .metadata.run_index == "7"
+      and (.metadata.state_file | test("^\\.context/state\\.checkpoint-[0-9]{8}-[0-9]{6}\\.json$"))
+      and (.metadata.artifacts | type) == "array"
+    ' >/dev/null || ST_FAIL=1
+  fi
   rm -rf "$TMP"
+  [ "$ST_FAIL" -eq 0 ] || { echo "precompact-checkpoint: self-test FAIL"; exit 1; }
   echo "precompact-checkpoint: self-test OK"
   exit 0
 fi
@@ -46,7 +69,7 @@ if [ ! -f "$STATE_FILE" ]; then
   exit 0
 fi
 
-cp -p "$STATE_FILE" "$CHECKPOINT"
+cp -p "$STATE_FILE" "$CHECKPOINT" || true
 
 ARTIFACTS=$(find "$CONTEXT_DIR" -maxdepth 1 -type f \( \
   -name 'planning-*.md' -o -name 'coordination-*.md' -o -name 'development-*.md' \

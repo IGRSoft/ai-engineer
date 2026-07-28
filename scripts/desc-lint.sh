@@ -46,8 +46,9 @@ def desc_len(path):
     try:
         t = open(path, encoding='utf-8').read()
     except OSError as e:
+        # Usage error, not a "no frontmatter" skip — mirrors section-lint.sh.
         print(f"desc-lint: cannot read {path}: {e}", file=sys.stderr)
-        return None
+        sys.exit(2)
     m = re.match(r'^---\r?\n(.*?)\r?\n---', t, re.S)
     if not m:
         return None  # no frontmatter — nothing to lint

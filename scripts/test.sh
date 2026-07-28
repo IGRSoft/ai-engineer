@@ -68,6 +68,7 @@ skip() {
 	if [[ "${STRICT}" -eq 1 ]]; then
 		printf 'FAIL  %s (required under --strict; %s)\n' "$1" "$2" >&2
 		FAIL_COUNT=$((FAIL_COUNT + 1))
+		RAN_COUNT=$((RAN_COUNT + 1))
 	else
 		printf 'SKIP  %s (%s)\n' "$1" "$2"
 		SKIP_COUNT=$((SKIP_COUNT + 1))

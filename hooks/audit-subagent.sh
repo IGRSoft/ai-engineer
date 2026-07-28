@@ -66,5 +66,8 @@ if [ "$SELF_TEST" -eq 1 ]; then
   exit 0
 fi
 
-printf '%s\n' "$ROW" >> "$LOG_DIR/audit.jsonl"
+# jq exits 0 on empty stdin, yielding an empty ROW; never append a blank line.
+if [ -n "$ROW" ]; then
+  printf '%s\n' "$ROW" >> "$LOG_DIR/audit.jsonl"
+fi
 exit 0

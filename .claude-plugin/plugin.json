@@ -87,7 +87,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/precompact-checkpoint.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/precompact-checkpoint.sh",
+            "continueOnBlock": true
           }
         ]
       }
