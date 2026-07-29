@@ -4,10 +4,10 @@
 
 | Field | Value |
 |-------|-------|
-| Plugin version | 1.0.0 |
+| Plugin version | 1.1.0 |
 | igrsoft compatibility | v3.36.0 |
 | Claude Code min required | — (not pinned in the manifests) |
-| Last updated | 2026-07-23 |
+| Last updated | 2026-07-29 |
 
 Version strings move together (plugin.json, marketplace.json metadata, README
 header, this table) per the igrsoft `/cc-update` convention.

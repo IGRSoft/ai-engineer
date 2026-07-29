@@ -191,7 +191,7 @@ Flag the suite: its results are not gate-grade. Point to the flake policy in `sk
 - `skills/evals/eval-design` — designing the eval set and metrics this command runs.
 - `skills/evals/llm-judge` — judge rubrics and calibration behind `--judge` suites.
 - `skills/_shared/framework-detection.md` — the shared eval-harness markers this discovery table syncs with.
-- `/ai-engineer:code-review` — expects this command's output as eval evidence for prompt/model/retrieval changes.
+- `/ai-engineer:review-code` — expects this command's output as eval evidence for prompt/model/retrieval changes.
 - `ai-engineer:ai-test-generator` — builds or extends harnesses beyond the minimal scaffold.
 
 If the numbers are bad, report them bad — a red eval that reaches the developer is this command working, not failing.

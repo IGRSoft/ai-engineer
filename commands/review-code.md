@@ -36,21 +36,21 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 
 ```bash
 # Review your current working changes (staged + unstaged)
-/ai-engineer:code-review
+/ai-engineer:review-code
 
 # Review a specific directory or file
-/ai-engineer:code-review src/rag/
-/ai-engineer:code-review training/sft_config.yaml
+/ai-engineer:review-code src/rag/
+/ai-engineer:review-code training/sft_config.yaml
 
 # Review a branch or PR against the base
-/ai-engineer:code-review feature/reranker-v2
-/ai-engineer:code-review 87              # PR number
+/ai-engineer:review-code feature/reranker-v2
+/ai-engineer:review-code 87              # PR number
 
 # Fast single-pass review for quick feedback
-/ai-engineer:code-review src/agents/ --quick
+/ai-engineer:review-code src/agents/ --quick
 
 # Review, then auto-fix the P0/P1 findings
-/ai-engineer:code-review --fix
+/ai-engineer:review-code --fix
 ```
 
 ## Options
@@ -208,7 +208,7 @@ Suggestion: For pure Python/C/C++/Bash changes use /system-developer:code-review
 ### No changes detected (default scope)
 ```
 Note: No staged or unstaged changes to review.
-Suggestion: Name a path, branch, or PR number, e.g. /ai-engineer:code-review src/rag/
+Suggestion: Name a path, branch, or PR number, e.g. /ai-engineer:review-code src/rag/
 ```
 
 ### `gh` unavailable for a PR scope
@@ -238,7 +238,7 @@ If a file matches no surface cleanly, apply the `skills/_shared/framework-detect
 - `skills/_shared/severity-matrix.md` — P0-P3 definitions used by the synthesis ranking.
 - `skills/evals/regression-gates` — the eval-evidence contract behind Rule 6.
 - `/ai-engineer:eval-run` — produce the eval evidence this review expects for prompt/model/retrieval changes.
-- `/ai-engineer:security-scan` — the deeper, scanner-backed OWASP LLM Top 10 sweep when security is the point.
+- `/ai-engineer:analyze-security` — the deeper, scanner-backed OWASP LLM Top 10 sweep when security is the point.
 - `/system-developer:code-review` — language-level review for changes with no AI surface.
 
 If there are no material issues, say that directly instead of manufacturing feedback.

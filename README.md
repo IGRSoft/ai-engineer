@@ -2,9 +2,9 @@
 
 Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops, structured outputs), **prompt engineering**, **LLM fine-tuning** (LoRA/QLoRA/DPO), **MLOps** (serving, experiment tracking, monitoring, pipelines), and **LLM evaluation** — with specialized agents, commands, and skills. Collaborates with the igrsoft (company-workflow) plugin v3.36.0 for full 11-stage workflow orchestration (PL→AR→TL→DV→**DR**→SR→QA→DC→RE→FN→ST) including the handoff-protocol (planning-N.md, state.json ledger, `handoff:` frontmatter schema). AI and CLI work defaults to `requires_screenshots: false`; when an evidence gate demands proof, agents attach `cli-fallback` transcripts (eval reports, loss-curve summaries, test transcripts) instead of screenshots.
 
-**Version**: 1.0.0 | **igrsoft Compatibility**: v3.36.0
+**Version**: 1.1.0 | **igrsoft Compatibility**: v3.36.0
 
-## What's in 1.0.0
+## What's in 1.1.0
 
 - **11 agents + `_base/ai-agent.md`** — an `ai-engineer` router, four domain implementers (`llm-engineer`, `ml-engineer`, `mlops-engineer`, `ai-prompt-engineer`), `ai-architector` (AR consultant), and five Tier-2 specialists (`ai-test-generator`, `ai-security-auditor`, `ai-performance-engineer`, `ai-code-fixer`, `ai-dependency-manager`). All inherit the shared base.
 - **8 commands** — AI-aware code review, eval running, eval-driven prompt optimization, RAG auditing, fine-tune planning, dataset auditing, serving readiness gating, and an OWASP LLM Top 10 sweep, each with restrictive `allowed-tools` and an `estimated-cost` band.
@@ -34,16 +34,25 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 
 | Command | Description |
 |---------|-------------|
-| `/ai-engineer:code-review` | AI-aware review — parallel surface reviewers (LLM app, training, serving, prompts) plus an always-on AI security pass, synthesized into a P0-P3 report. Supports `--quick` and `--fix`. |
+| `/ai-engineer:review-code` | AI-aware review — parallel surface reviewers (LLM app, training, serving, prompts) plus an always-on AI security pass, synthesized into a P0-P3 report. Supports `--quick` and `--fix`. |
 | `/ai-engineer:eval-run` | Discover and run the repo's LLM eval suites (pytest markers, promptfoo, deepeval, custom scripts), compare metrics vs baseline or thresholds, report regressions with provenance. |
 | `/ai-engineer:prompt-optimize` | Eval-driven prompt optimization — baseline on a pinned eval set, draft single-variable variants, measure and rank; `--apply` ships the winner with a version bump. |
 | `/ai-engineer:rag-audit` | Read-only RAG pipeline audit — map ingest→chunk→embed→index→retrieve→rerank→generate→cite from code, grade each stage, run retrieval evals where a harness exists. |
 | `/ai-engineer:finetune-plan` | Read-only fine-tuning feasibility plan — prompt-vs-RAG-vs-finetune verdict, data requirements, LoRA/QLoRA/DPO method choice, GPU memory math, eval gates, smoke-then-full launch plan. Never starts training. |
 | `/ai-engineer:data-audit` | Read-only dataset quality audit — schema, dedup, train/test contamination, PII/secret scan, license/provenance, distribution stats into a P0-P3 report. |
 | `/ai-engineer:deploy-check` | Serving readiness gate for vLLM/TGI/Ollama/Triton deploys — pins, quantization evals, KV-cache math, gateway controls, probes, rollback, monitoring — returning GO / NO-GO / GO-WITH-RISKS. |
-| `/ai-engineer:security-scan` | OWASP LLM Top 10 sweep of AI code, prompts, and dependencies via `ai-engineer:ai-security-auditor` — scanner-backed, mapped to LLM01-LLM10 + CWE with P0-P3. |
+| `/ai-engineer:analyze-security` | OWASP LLM Top 10 sweep of AI code, prompts, and dependencies via `ai-engineer:ai-security-auditor` — scanner-backed, mapped to LLM01-LLM10 + CWE with P0-P3. |
 
 All commands degrade gracefully when a tool is missing: they print an install hint (for example `uv tool install ruff`, `brew install jq`), reduce depth, and never hard-fail. GPU-optional discipline applies throughout: no `nvidia-smi` → reduced-depth note, never a hard failure.
+
+**Migration (1.0.0 → 1.1.0)** — two commands were renamed to the `<verb>-<noun>` standard shared with the igrsoft dev plugins; the old names no longer resolve, and there is no alias.
+
+| Old | New |
+|-----|-----|
+| `/ai-engineer:code-review` | `/ai-engineer:review-code` |
+| `/ai-engineer:security-scan` | `/ai-engineer:analyze-security` |
+
+`/system-developer:code-review` is a different plugin's command and is unaffected.
 
 ## Skills (24)
 
@@ -165,7 +174,7 @@ After editing `settings.json`, run `/plugins` (or restart the session) to load t
 ### Smoke test
 
 1. `/plugin marketplace add /path/to/ai-engineer`, then install `ai-engineer` and reload the session.
-2. Verify the command surface resolves: `/ai-engineer:code-review` appears in the slash-command list and runs against working changes.
+2. Verify the command surface resolves: `/ai-engineer:review-code` appears in the slash-command list and runs against working changes.
 3. Verify agent resolution: a `Task` call with `subagent_type: "ai-engineer:ai-engineer"` dispatches the router (which can further delegate to `ai-engineer:llm-engineer` etc.).
 
 Standalone installation gives you the slash commands, the skills, and direct `Task(ai-engineer:*)` delegation. **igrsoft auto-routing** (the `igrsoft:developer` DV stage detecting AI stacks and dispatching ai-engineer specialists, plus `--platform ai` on `/worktask`) additionally requires the companion edits to the company-workflow plugin documented in [`docs/igrsoft-registration.md`](docs/igrsoft-registration.md) — applied via a company-workflow PR, not from this repo.
@@ -191,7 +200,7 @@ This plugin collaborates with the **igrsoft** (company-workflow) plugin v3.36.0.
 
 ```bash
 # AI-aware review of the working changes, then auto-apply minimal-diff fixes
-/ai-engineer:code-review --fix
+/ai-engineer:review-code --fix
 
 # Run every discovered eval suite and compare against the baseline
 /ai-engineer:eval-run --baseline main

@@ -6,6 +6,25 @@ adheres to [Semantic Versioning](https://semver.org/). Version strings move
 together across `plugin.json`, `marketplace.json`, `README.md`, and `MEMORY.md`
 per the igrsoft `/cc-update` convention.
 
+## [1.1.0] — 2026-07-29
+
+### Changed
+
+- **`code-review` → `review-code`** and **`security-scan` → `analyze-security`**
+  — the two commands whose names overlapped the igrsoft dev-plugin surface are
+  renamed to the `<verb>-<noun>` command standard shared with
+  `apple-developer`, so a qualified name is no longer needed to disambiguate
+  intent. The six domain-specific commands (`eval-run`, `prompt-optimize`,
+  `rag-audit`, `finetune-plan`, `data-audit`, `deploy-check`) keep their names.
+  Behavior, `allowed-tools`, and `estimated-cost` bands are unchanged;
+  `analyze-security` remains read-only (no `Write`/`Edit`).
+
+  **Migration**: replace `/ai-engineer:code-review` with
+  `/ai-engineer:review-code`, and `/ai-engineer:security-scan` with
+  `/ai-engineer:analyze-security`. There is no deprecation alias — the old
+  names stop resolving on upgrade. References to `/system-developer:code-review`
+  are unaffected: that is a different plugin's command.
+
 ## [1.0.0] — 2026-07-23
 
 Initial release. The plugin is born on the igrsoft (company-workflow) v3.36.0
