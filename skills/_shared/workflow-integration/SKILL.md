@@ -29,6 +29,18 @@ PL → AR → TL → DV → DR → SR → QA → DC → RE → FN → ST
 | FN | Finalization | project-manager | — |
 | ST | Stakeholder | stakeholder | — |
 
+## DV-Support Roles
+
+Three specialists are consulted *within* DV rather than owning a stage. They match `igrsoft:cross-plugin-handoff § ai-engineer` exactly — keep the two in lockstep:
+
+| Support role | Agent | Handoff data |
+|--------------|-------|--------------|
+| Performance | `ai-performance-engineer` | inference latency and throughput profiles under `.context/logs/` |
+| Prompts | `ai-prompt-engineer` | prompt-tuning scope + eval baselines |
+| Dependencies | `ai-dependency-manager` | ML dependency manifests + CVE audit scope |
+
+`ai-performance-engineer` and `ai-security-auditor` are review-only (`disallowed-tools: Write, Edit`) — their findings route to `ai-code-fixer` for application, never applied in place.
+
 ## Worktask Invocation (v3.36.0)
 
 Launch is **only** via the `/worktask` slash command (or `Skill igrsoft:worktask`) plus flags. Message-prefix triggers (`micro:`/`quick:`/`worktask:`/`fworktask:`/`emergency:`) are **removed**. PL0 dynamic sizing selects which of the 9 stages run.
@@ -57,7 +69,9 @@ ai-engineer agents are **invoked specialists that run between the gates** — th
 
 ## Per-Stage Contracts (Deep Dive)
 
-Read [references/stage-details.md](references/stage-details.md) before writing any stage artifact — DV contract + AI Build Evidence, screenshot-gate cli-fallback, per-agent error files, DR criteria, QA gate, SR/RE contributions, handoff frontmatter schema, gate-feedback rework contract, token budgets, PL0 dynamic sizing.
+Read [references/stage-details.md](references/stage-details.md) before writing any stage artifact — AR consultation model, DV contract + AI Build Evidence, screenshot-gate cli-fallback, per-agent error files, DR criteria, QA gate, SR/RE contributions, handoff frontmatter schema, gate-feedback rework contract, token budgets, PL0 dynamic sizing.
+
+For a filled-in end-to-end handoff with real values, read [references/dv-worked-example.md](references/dv-worked-example.md) — a DV takeover by `ai-engineer:llm-engineer`, from dispatch metadata through emitted frontmatter, Build Evidence, and gate re-dispatch.
 
 ## Artifact Filename Contract (v3.36.0)
 

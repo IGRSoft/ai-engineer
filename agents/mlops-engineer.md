@@ -5,7 +5,7 @@ model: sonnet
 effort: high
 maxTurns: 50
 color: cyan
-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(ruff:*), Bash(jq:*), Bash(docker:*), Bash(dvc:*), Bash(mlflow:*), Bash(nvidia-smi:*), Task(ai-engineer:ai-architector), Task(ai-engineer:ai-performance-engineer), mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
+tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(ruff:*), Bash(jq:*), Bash(docker:*), Bash(dvc:*), Bash(mlflow:*), Bash(wandb:*), Bash(nvidia-smi:*), Task(ai-engineer:ai-architector), Task(ai-engineer:ai-performance-engineer), mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 inherits: _base/ai-agent.md
 ---
 

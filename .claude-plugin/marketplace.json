@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "AI engineering toolkit with specialized agents for LLM applications, fine-tuning, MLOps, and evaluation.",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
@@ -109,7 +109,8 @@
         "./commands/finetune-plan.md",
         "./commands/data-audit.md",
         "./commands/deploy-check.md",
-        "./commands/analyze-security.md"
+        "./commands/analyze-security.md",
+        "./commands/build-test.md"
       ]
     }
   ]
