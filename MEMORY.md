@@ -4,10 +4,10 @@
 
 | Field | Value |
 |-------|-------|
-| Plugin version | 1.0.0 |
+| Plugin version | 1.2.0 |
 | igrsoft compatibility | v3.36.0 |
 | Claude Code min required | — (not pinned in the manifests) |
-| Last updated | 2026-07-23 |
+| Last updated | 2026-07-29 |
 
 Version strings move together (plugin.json, marketplace.json metadata, README
 header, this table) per the igrsoft `/cc-update` convention.
@@ -33,7 +33,7 @@ capability set from the start rather than migrating into it:
 - **Scoped `Bash(cmd:*)` allowlists** — each agent's `tools:` enumerates only
   the toolchain binaries it needs (core set `git`, `uv`, `python3`, `pytest`,
   `ruff`, `jq`; role-specific additions like `nvidia-smi`, `docker`, `dvc`,
-  `mlflow`, `pip-audit`, `osv-scanner`, `bandit`, `semgrep`, `gitleaks`,
+  `mlflow`, `wandb`, `pip-audit`, `osv-scanner`, `bandit`, `semgrep`, `gitleaks`,
   `trufflehog`, `hf`/`huggingface-cli`, `py-spy`, `hyperfine`).
 - **context7 MCP pair** — `mcp__plugin_context7_context7__resolve-library-id` +
   `query-docs` on every agent for library-docs lookups; the load-bearing half of

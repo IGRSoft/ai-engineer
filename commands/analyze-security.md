@@ -26,7 +26,7 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 3. **Probe scanners before delegating.** Check `pip-audit`, `osv-scanner`, `gitleaks`, `trufflehog`, `bandit`, `semgrep` with `command -v` and pass the availability report to the auditor. A missing scanner = a named reduced-depth note in the final report — never a hard failure, never a silent gap.
 4. **No exploit code.** Findings describe the attack path, impact, and fix. NEVER generate working exploit payloads, jailbreak strings, or injection strings beyond the minimal fragment needed to locate the flaw.
 5. **Secrets are pointers.** A discovered secret is reported as `file:line` + secret type + detecting scanner. NEVER echo the secret value (or a decodable fragment) into the report, the log, or a delegation prompt. Recommend immediate rotation regardless of any history cleanup.
-6. **Dedupe against same-session review.** If `/ai-engineer:code-review` ran earlier this session, merge overlapping security findings at `{file, line}` — keep the higher severity, mark provenance "also flagged by code review" — so the user gets one list, not two.
+6. **Dedupe against same-session review.** If `/ai-engineer:review-code` ran earlier this session, merge overlapping security findings at `{file, line}` — keep the higher severity, mark provenance "also flagged by code review" — so the user gets one list, not two.
 7. **No manufactured findings.** A clean scan is a valid result: report posture and the controls verified, not invented P3s.
 8. **Never enter plan mode.** This command IS the procedure — execute it.
 
@@ -34,34 +34,34 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 
 ```bash
 # Sweep your current working changes
-/ai-engineer:security-scan
+/ai-engineer:analyze-security
 
 # Sweep a directory or the whole repo
-/ai-engineer:security-scan src/agents/
-/ai-engineer:security-scan .
+/ai-engineer:analyze-security src/agents/
+/ai-engineer:analyze-security .
 
 # Sweep a PR or branch
-/ai-engineer:security-scan 87
-/ai-engineer:security-scan feature/tool-use
+/ai-engineer:analyze-security 87
+/ai-engineer:analyze-security feature/tool-use
 
 # Dependency / supply-chain surface only
-/ai-engineer:security-scan --deps-only
+/ai-engineer:analyze-security --deps-only
 
 # Prompt-injection / leakage surface only
-/ai-engineer:security-scan --prompts-only
+/ai-engineer:analyze-security --prompts-only
 ```
 
 ## Options
 
 | Option | Default | Effect |
 |--------|---------|--------|
-| `scope` | working changes | File, directory, PR number, or branch. Same precedence as `/ai-engineer:code-review` Phase 0. |
+| `scope` | working changes | File, directory, PR number, or branch. Same precedence as `/ai-engineer:review-code` Phase 0. |
 | `--deps-only` | off | Restrict to the supply-chain surface: manifests + lockfiles (`pyproject.toml`, `uv.lock`, `requirements*.txt`), model-artifact loading (`from_pretrained` pins, pickle vs safetensors, `trust_remote_code`), CVE scans. Findings concentrate in LLM05; remediation routes to `ai-engineer:ai-dependency-manager`. |
 | `--prompts-only` | off | Restrict to prompt assets plus prompt-assembly and output-handling code: injection paths (LLM01), insecure output handling (LLM02), secrets/PII in prompts, templates, and logs (LLM06). |
 
 ## Scope Resolution
 
-Same precedence as `/ai-engineer:code-review`, applied **once**:
+Same precedence as `/ai-engineer:review-code`, applied **once**:
 
 1. **Explicit args** — file/dir reviewed directly; PR number via `gh pr diff <N> --name-only` (`gh` missing → install hint, fall back to rule 3); branch via `git diff --name-only $(git merge-base origin/HEAD <branch>)..<branch>` (default branch, never `HEAD` — else an empty range).
 2. **Working changes** (default) — `git diff --name-only HEAD` plus `git diff --cached --name-only`.
@@ -102,7 +102,7 @@ For deep threat modeling of a large agent/tool surface, override per `skills/_sh
 ### Phase 3: Synthesis & Routing
 
 1. **Collect** the auditor's findings; drop anything speculative or unverified (Rule 7).
-2. **Dedupe** against same-session `/ai-engineer:code-review` security findings (Rule 6).
+2. **Dedupe** against same-session `/ai-engineer:review-code` security findings (Rule 6).
 3. **Group** by LLM01-LLM10 and rank P0-P3 within each group.
 4. **Route remediation**: mechanical code fixes → `ai-engineer:ai-code-fixer`; dependency/pin/lockfile fixes (CVE bumps, HF revision pins) → `ai-engineer:ai-dependency-manager`; design-level items (agent topology, trust-zone redesign) → the owning domain engineer with an `ai-engineer:ai-architector` consult. This command routes — it does not apply fixes (Rule 1); there is deliberately no `--fix` flag.
 5. **Emit** the Output Format report.
@@ -200,7 +200,7 @@ Redact it before emitting the report and restate Rule 5 in any follow-up prompt 
 
 - `skills/_shared/severity-matrix.md` — P0-P3 definitions used for ranking.
 - `skills/_shared/framework-detection.md` — AI-surface markers used for scope relevance.
-- `/ai-engineer:code-review` — includes an always-on security pass; this command is the deeper, scanner-backed sweep.
+- `/ai-engineer:review-code` — includes an always-on security pass; this command is the deeper, scanner-backed sweep.
 - `ai-engineer:ai-security-auditor` — the review-only agent this command delegates to (its LLM01-LLM10 domain table is the canonical hunt list).
 - `ai-engineer:ai-code-fixer` / `ai-engineer:ai-dependency-manager` — the two remediation routes.
 - `igrsoft:security-review-process` — the SR-stage checklist this scan feeds inside a worktask.

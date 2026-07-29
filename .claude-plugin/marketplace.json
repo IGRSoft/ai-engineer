@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "AI engineering toolkit with specialized agents for LLM applications, fine-tuning, MLOps, and evaluation.",
-    "version": "1.0.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
@@ -102,14 +102,15 @@
         "./agents/ai-dependency-manager.md"
       ],
       "commands": [
-        "./commands/code-review.md",
+        "./commands/review-code.md",
         "./commands/eval-run.md",
         "./commands/prompt-optimize.md",
         "./commands/rag-audit.md",
         "./commands/finetune-plan.md",
         "./commands/data-audit.md",
         "./commands/deploy-check.md",
-        "./commands/security-scan.md"
+        "./commands/analyze-security.md",
+        "./commands/build-test.md"
       ]
     }
   ]

@@ -10,10 +10,10 @@ ai-engineer repo**, and nothing here is applied automatically.
 
 **Works today, standalone (no company-workflow change needed):**
 
-- Slash commands: `/ai-engineer:code-review`, `/ai-engineer:eval-run`,
+- Slash commands: `/ai-engineer:review-code`, `/ai-engineer:eval-run`,
   `/ai-engineer:prompt-optimize`, `/ai-engineer:rag-audit`,
   `/ai-engineer:finetune-plan`, `/ai-engineer:data-audit`,
-  `/ai-engineer:deploy-check`, `/ai-engineer:security-scan`.
+  `/ai-engineer:deploy-check`, `/ai-engineer:analyze-security`.
 - Direct delegation: `Task(ai-engineer:ai-engineer)` and every other
   `Task(ai-engineer:<agent>)` target, including from an igrsoft worktask when
   PL0 stamps `metadata.agent: "ai-engineer:ai-engineer"` explicitly.

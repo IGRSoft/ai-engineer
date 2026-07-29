@@ -6,6 +6,101 @@ adheres to [Semantic Versioning](https://semver.org/). Version strings move
 together across `plugin.json`, `marketplace.json`, `README.md`, and `MEMORY.md`
 per the igrsoft `/cc-update` convention.
 
+## [1.2.0] — 2026-07-29
+
+### Added
+
+- **`/ai-engineer:build-test`** — the `ai` platform's build gate. igrsoft's
+  build-delegation table (`company-workflow/agents/developer.md § Build
+  Verification`) routes every platform's DV/DR/QA build through
+  `/<plugin>:build-test`, and its `ai` row pointed at a command that did not
+  exist, leaving the platform with no build gate at all. Detects the Python
+  environment by manifest priority (`uv.lock` → `pyproject.toml` → Poetry →
+  `requirements*.txt` → conda `environment.yml` → `setup.py`), syncs, verifies
+  the package imports, and runs pytest — absorbing the log and returning a
+  verdict plus a classified excerpt rather than dumping output. Failures are
+  classified `env` / `import` / `test` and delegated to the one matching domain
+  agent (`llm-engineer` / `ml-engineer` / `mlops-engineer`) resolved through
+  `skill: framework-detection`, never a forked copy of that table.
+
+  AI/ML projects have no compile step, so "build" here is *sync + import*, and
+  the command says so rather than fabricating one: repos whose real build is a
+  DVC pipeline, an eval harness, or notebooks are detected and routed to the
+  right command instead of being reported as a build failure. `--no-test` is
+  the compile-only gate igrsoft's DR stage depends on. Poetry and conda are
+  detected and run faithfully but explicitly *not* mastered — the summary says
+  the plugin's guidance assumes uv rather than rewriting the project manifest.
+
+  This does **not** reverse the "ai-engineer keeps its own command set"
+  exception recorded in `compatible-plugins.md`; it adds the single command the
+  orchestrator structurally requires for the `ai` platform to be routable.
+  Registered in `marketplace.json` `commands[]`.
+
+- **AR consultation model documented** in `workflow-integration` — closing the
+  last open item of the igrsoft dev-plugin compatibility contract (§ A.6). The
+  skill now states explicitly that `igrsoft:software-architector` **owns** the
+  AR stage and `analyzing-N.md`, while `ai-architector` is *consulted*: it
+  writes `.context/ai-architecture.md` and returns a ≤500-token recommendation
+  that the owner merges. The stage-owner exception (`task.metadata.agent` names
+  `ai-engineer:ai-architector`) is spelled out so the two modes are not
+  conflated. Previously this was implied by a single table cell in `SKILL.md`
+  and by `ai-architector`'s own frontmatter, with no artifact path recorded
+  anywhere in the plugin.
+- **AR row in the per-stage handoff frontmatter matrix**
+  (`references/stage-details.md`) — `key_decisions`, `next_stage_focus`,
+  `open_questions`; verdict ∈ ok/blocked/escalate. The matrix previously
+  covered DV, DR, and QA only.
+- **`templates/ar-consultation.md`** — copy-paste AR artifact skeleton
+  (context, options table, decision, consequences, revisit-when, eval-plan),
+  joining the existing DV/DR/QA templates.
+- **`references/dv-worked-example.md`** — a filled-in end-to-end DV takeover by
+  `ai-engineer:llm-engineer` with real values: dispatch metadata (including
+  `error_file` derivation and `requires_screenshots: false`), emitted `handoff:`
+  frontmatter, the Build Evidence block supplied *instead of* screenshots, the
+  ≤500-token return, and the gate re-dispatch path. The existing templates show
+  the shape; this shows one concrete instance end to end.
+- **`§ DV-Support Roles` in `workflow-integration/SKILL.md`** — the stage table
+  named `ai-prompt-engineer` and `ai-dependency-manager` but omitted
+  `ai-performance-engineer` entirely and never labelled any of the three as
+  DV-support, so it did not agree with the `ai-engineer` stage→agent table in
+  `igrsoft:cross-plugin-handoff` (which lists all three as DV-support rows).
+  The new section restores exact agreement and records the review-only
+  constraint on `ai-performance-engineer` / `ai-security-auditor`.
+
+### Fixed
+
+- **`mlops-engineer` can now actually operate W&B**, not just MLflow. The agent
+  advertises `MLflow/W&B tracking` in its description, requires
+  "MLflow/W&B configured … no anonymous runs" in its own checklist, and owns
+  `skills/mlops/experiment-tracking`, whose `MLflow ↔ W&B Mapping` table treats
+  the two as equals — but its `tools:` allowlist granted `Bash(mlflow:*)` with
+  no `Bash(wandb:*)`. On a W&B-tracked repo the CLI-shaped operations that
+  skill prescribes (`wandb login`, `wandb offline`, `wandb sync`) failed
+  silently on a permission mismatch rather than a stated limitation. Added
+  `Bash(wandb:*)`; `MEMORY.md`'s toolchain inventory is synced to match.
+  Every other ecosystem this agent claims was already granted symmetrically
+  (`docker`, `dvc`, `nvidia-smi`) or withheld symmetrically (no engine binary
+  for any of vLLM/TGI/Ollama/Triton) — tracking was the sole asymmetric pair.
+
+## [1.1.0] — 2026-07-29
+
+### Changed
+
+- **`code-review` → `review-code`** and **`security-scan` → `analyze-security`**
+  — the two commands whose names overlapped the igrsoft dev-plugin surface are
+  renamed to the `<verb>-<noun>` command standard shared with
+  `apple-developer`, so a qualified name is no longer needed to disambiguate
+  intent. The six domain-specific commands (`eval-run`, `prompt-optimize`,
+  `rag-audit`, `finetune-plan`, `data-audit`, `deploy-check`) keep their names.
+  Behavior, `allowed-tools`, and `estimated-cost` bands are unchanged;
+  `analyze-security` remains read-only (no `Write`/`Edit`).
+
+  **Migration**: replace `/ai-engineer:code-review` with
+  `/ai-engineer:review-code`, and `/ai-engineer:security-scan` with
+  `/ai-engineer:analyze-security`. There is no deprecation alias — the old
+  names stop resolving on upgrade. References to `/system-developer:code-review`
+  are unaffected: that is a different plugin's command.
+
 ## [1.0.0] — 2026-07-23
 
 Initial release. The plugin is born on the igrsoft (company-workflow) v3.36.0

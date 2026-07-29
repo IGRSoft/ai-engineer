@@ -19,7 +19,7 @@
 #                   (prefix-matched: several agents suffix the heading, e.g.
 #                   "## Response Approach (Update Workflow)"; ai-architector
 #                   uses "## Core Workflow"). agents/_base/* are exempt.
-#   commands/*.md — must carry the code-review exemplar skeleton H2s:
+#   commands/*.md — must carry the review-code exemplar skeleton H2s:
 #                   CRITICAL BEHAVIORAL RULES, Usage, Options, Output Format,
 #                   Error Handling, See Also.
 #

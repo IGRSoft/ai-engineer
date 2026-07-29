@@ -2,6 +2,20 @@
 
 Per-stage contracts for ai-engineer agents inside the igrsoft worktask pipeline. Read alongside [../SKILL.md](../SKILL.md) (pipeline, invocation, artifact filename contract, agent names).
 
+## AR Consultation Model
+
+`igrsoft:software-architector` **owns the AR stage** and its `analyzing-N.md` artifact. `ai-architector` is consulted, never handed ownership:
+
+1. It writes the full analysis to `.context/ai-architecture.md` — ADR-style: chosen option, rejected options with the criterion each failed, consequences, revisit triggers.
+2. It returns a compressed recommendation of **≤500 tokens**, not the document body.
+3. `software-architector` merges that return into `analyzing-N.md` and stays the handoff author for the `PL→AR` edge.
+
+`.context/ai-architecture.md` carries its own `handoff:` frontmatter (`stage: AR`, `key_decisions` required) so the consultation survives a lost merge.
+
+**Stage-owner exception**: when `task.metadata.agent` names `ai-engineer:ai-architector`, it owns `analyzing-N.md` directly; the ≤500-token cap then bounds the return summary only.
+
+Template: [../templates/ar-consultation.md](../templates/ar-consultation.md).
+
 ## DV Contract for AI Work
 
 The DV agent writes `.context/development-N.md`. Mandatory H2 anchors are fixed by igrsoft's anchor allow-list (`handoff-protocol.md#anchor-allow-list`): `## files-changed`, `## tests-added`, `## deviations`, `## follow-ups`. AI-specific sections nest as H3 under them:
@@ -90,6 +104,7 @@ Every stage artifact MUST start with a YAML block between `---` markers. Budgets
 
 | Stage | Required beyond base | Verdict vocabulary |
 |-------|----------------------|--------------------|
+| AR | `key_decisions`, `next_stage_focus`, `open_questions` | ok / blocked / escalate |
 | DV | `files_touched`, `next_stage_focus` | ok / blocked / escalate |
 | DR | `key_decisions` (= findings) | pass / fail |
 | QA | `files_touched` (= tests added), `key_decisions` (= results) | go / no-go |
