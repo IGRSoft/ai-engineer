@@ -9,7 +9,7 @@ for the routing entry point.
 
 | Directory | Index | Skills | Description |
 |-----------|-------|--------|-------------|
-| [_shared/](_shared/_index.md) | [`_index.md`](_shared/_index.md) | 1 + refs | Cross-cutting references: igrsoft workflow integration, AI-stack agent routing, model selection, severity matrix |
+| [_shared/](_shared/_index.md) | [`_index.md`](_shared/_index.md) | 1 + refs | Cross-cutting references: company-workflow workflow integration, AI-stack agent routing, model selection, severity matrix |
 | [prompt-engineering/](prompt-engineering/SKILL.md) | [`_index.md`](prompt-engineering/_index.md) | 1 + 3 leaves | Production prompt design, context-window engineering, reliable structured outputs |
 | [llm-apps/](llm-apps/SKILL.md) | [`_index.md`](llm-apps/_index.md) | 1 + 3 leaves | RAG pipelines, bounded agent loops, production provider-API integration |
 | [finetuning/](finetuning/SKILL.md) | [`_index.md`](finetuning/_index.md) | 1 + 4 leaves | Dataset curation, LoRA/QLoRA adapters, training optimization, preference tuning |
@@ -22,7 +22,7 @@ for the routing entry point.
 
 | Skill | Path | Description |
 |-------|------|-------------|
-| **workflow-integration** | [`_shared/workflow-integration/SKILL.md`](_shared/workflow-integration/SKILL.md) | Guide for integrating with the igrsoft 11-stage workflow system (v3.36.0) — DV contract for AI work, AI Build Evidence, screenshot cli-fallback, gate feedback |
+| **workflow-integration** | [`_shared/workflow-integration/SKILL.md`](_shared/workflow-integration/SKILL.md) | Guide for integrating with the company-workflow 11-stage workflow system (v4.0.0) — DV contract for AI work, AI Build Evidence, screenshot cli-fallback, gate feedback |
 | framework-detection | [`_shared/framework-detection.md`](_shared/framework-detection.md) | AI-stack marker → domain → agent routing table: detection priority, dependency/file markers, mixed-stack tie-breaks, sibling-plugin precedence |
 | model-selection | [`_shared/model-selection.md`](_shared/model-selection.md) | Per-agent model/effort/maxTurns assignments, cost tiers, and opus+xhigh override paths |
 | severity-matrix | [`_shared/severity-matrix.md`](_shared/severity-matrix.md) | Severity levels, P0-P3 review priorities with AI examples, effort/impact quadrant, coverage requirements |

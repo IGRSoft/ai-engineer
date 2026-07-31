@@ -1,6 +1,6 @@
 {
   "name": "ai-engineer",
-  "description": "AI engineering toolkit with specialized agents for LLM application development (RAG, agents, structured outputs), prompt engineering, LLM fine-tuning (LoRA/QLoRA/DPO), MLOps (serving, experiment tracking, monitoring, pipelines), and LLM evaluation. Full igrsoft v3.36.0 11-stage workflow integration (PL→AR→TL→DV→DR→SR→QA→DC→RE→FN→ST): handoff-protocol (development-N.md, state.json, frontmatter schema), requires_screenshots:false / cli-fallback evidence norm, scoped Bash toolchain allowlists, qualified Task() delegation, and plugin-scoped audit/checkpoint hooks.",
+  "description": "AI engineering toolkit with specialized agents for LLM application development (RAG, agents, structured outputs), prompt engineering, LLM fine-tuning (LoRA/QLoRA/DPO), MLOps (serving, experiment tracking, monitoring, pipelines), and LLM evaluation. Full company-workflow v4.0.0 11-stage workflow integration (PL→AR→TL→DV→DR→SR→QA→DC→RE→FN→ST): handoff-protocol (development-N.md, state.json, frontmatter schema), requires_screenshots:false / cli-fallback evidence norm, scoped Bash toolchain allowlists, qualified Task() delegation, and plugin-scoped audit/checkpoint hooks.",
   "version": "1.2.0",
   "author": {
     "name": "IGRSoft",

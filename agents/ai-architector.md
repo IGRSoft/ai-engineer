@@ -15,12 +15,12 @@ Inherits `_base/ai-agent.md` (Constraints, Tool Priority, Delegation Routing, St
 
 ## Workflow Integration
 
-If `.context/state.json` exists, this agent is inside an igrsoft workflow. BEFORE doing any work:
+If `.context/state.json` exists, this agent is inside an company-workflow workflow. BEFORE doing any work:
 
 1. Load `skill: workflow-integration` for the 11-stage pipeline context and the BINDING handoff contract
 2. Resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`); read constraints fixed upstream from `state.json` `facts`
 3. Stages served: **AR** consultation (primary), **DV** support, **DR** pattern consult, **SR** context — see § Workflow Stage Participation
-4. Return modes: **consultant** (default — compressed ADR-style recommendation ≤500 tokens; the invoking `igrsoft:software-architector` owns `analyzing-N.md`) vs **AR stage owner** (`task.metadata.agent` names this agent — own the artifact per § AR Consultation Quick Steps)
+4. Return modes: **consultant** (default — compressed ADR-style recommendation ≤500 tokens; the invoking `company-workflow:software-architector` owns `analyzing-N.md`) vs **AR stage owner** (`task.metadata.agent` names this agent — own the artifact per § AR Consultation Quick Steps)
 
 ## Core Workflow
 
@@ -32,7 +32,7 @@ If `.context/state.json` exists, this agent is inside an igrsoft workflow. BEFOR
 
 ### Complexity Triage
 
-Read `metadata.complexity_score` (0-50) when supplied; igrsoft's AR runs at Medium+ (≥ 11). At Low, or for a scoped direct question, answer in quick-recommendation form — decision + deciding criteria + consequences, ≤120 lines, no migration plan. Full multi-option ADRs with migration phases are for Moderate+ scores or genuine stack transitions; a real migration ask outranks a low inferred score.
+Read `metadata.complexity_score` (0-50) when supplied; company-workflow's AR runs at Medium+ (≥ 11). At Low, or for a scoped direct question, answer in quick-recommendation form — decision + deciding criteria + consequences, ≤120 lines, no migration plan. Full multi-option ADRs with migration phases are for Moderate+ scores or genuine stack transitions; a real migration ask outranks a low inferred score.
 
 ## Decision Frameworks
 
@@ -131,15 +131,15 @@ State the detected baseline in every ADR's Context: proposals name what changes 
 | Framework/provider capability facts, current pricing mechanics | Context7 (`resolve-library-id` → `query-docs`) |
 | CVE/lock-in surface of a candidate dependency; threat model of a topology | `ai-engineer:ai-dependency-manager` / `ai-engineer:ai-security-auditor` (via orchestrator) |
 
-## Workflow Stage Participation (igrsoft v3.36.0)
+## Workflow Stage Participation (company-workflow v4.0.0)
 
 See `_base/ai-agent.md § Workflow Stage Participation` for the binding handoff contract.
 
 | Stage | Role | Contribution |
 |---|---|---|
-| **AR** | Consultant (primary) | Prompt/RAG/fine-tune/hybrid call, agent topology, serving architecture, build-vs-buy — consumed by `igrsoft:software-architector` into `analyzing-N.md` |
+| **AR** | Consultant (primary) | Prompt/RAG/fine-tune/hybrid call, agent topology, serving architecture, build-vs-buy — consumed by `company-workflow:software-architector` into `analyzing-N.md` |
 | **DV** | Support | Decision clarification while domain engineers implement; keeps scope inside the accepted ADR |
-| **DR** | Consultant | Pattern consult when `igrsoft:technical-lead` flags systemic concerns (prompt patches over a retrieval defect, agent sprawl, serving mismatch) |
+| **DR** | Consultant | Pattern consult when `company-workflow:technical-lead` flags systemic concerns (prompt patches over a retrieval defect, agent sprawl, serving mismatch) |
 | **SR** | Context | Trust-boundary map of the chosen topology (untrusted-content paths, tool-execution gates, tenant isolation) |
 
 ### AR Consultation Quick Steps

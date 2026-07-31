@@ -2,7 +2,7 @@
 
 One concrete end-to-end DV handoff with real values, not placeholders. The schema itself is in [stage-details.md § Handoff Frontmatter](stage-details.md#handoff-frontmatter-v3360-schema); the blank template is [../templates/dv-development.md](../templates/dv-development.md).
 
-Scenario: worktask `wt-118` adds a reranking step to an existing RAG retriever. `igrsoft:developer` detects the `ai` platform key and delegates DV to `ai-engineer:llm-engineer`.
+Scenario: worktask `wt-118` adds a reranking step to an existing RAG retriever. `company-workflow:developer` detects the `ai` platform key and delegates DV to `ai-engineer:llm-engineer`.
 
 ## 1. Dispatch metadata
 

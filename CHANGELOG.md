@@ -4,13 +4,13 @@ All notable changes to the **ai-engineer** plugin are documented here. The
 format follows [Keep a Changelog](https://keepachangelog.com/) and the project
 adheres to [Semantic Versioning](https://semver.org/). Version strings move
 together across `plugin.json`, `marketplace.json`, `README.md`, and `MEMORY.md`
-per the igrsoft `/cc-update` convention.
+per the company-workflow `/cc-update` convention.
 
 ## [1.2.0] — 2026-07-29
 
 ### Added
 
-- **`/ai-engineer:build-test`** — the `ai` platform's build gate. igrsoft's
+- **`/ai-engineer:build-test`** — the `ai` platform's build gate. company-workflow's
   build-delegation table (`company-workflow/agents/developer.md § Build
   Verification`) routes every platform's DV/DR/QA build through
   `/<plugin>:build-test`, and its `ai` row pointed at a command that did not
@@ -27,7 +27,7 @@ per the igrsoft `/cc-update` convention.
   the command says so rather than fabricating one: repos whose real build is a
   DVC pipeline, an eval harness, or notebooks are detected and routed to the
   right command instead of being reported as a build failure. `--no-test` is
-  the compile-only gate igrsoft's DR stage depends on. Poetry and conda are
+  the compile-only gate company-workflow's DR stage depends on. Poetry and conda are
   detected and run faithfully but explicitly *not* mastered — the summary says
   the plugin's guidance assumes uv rather than rewriting the project manifest.
 
@@ -37,8 +37,8 @@ per the igrsoft `/cc-update` convention.
   Registered in `marketplace.json` `commands[]`.
 
 - **AR consultation model documented** in `workflow-integration` — closing the
-  last open item of the igrsoft dev-plugin compatibility contract (§ A.6). The
-  skill now states explicitly that `igrsoft:software-architector` **owns** the
+  last open item of the company-workflow dev-plugin compatibility contract (§ A.6). The
+  skill now states explicitly that `company-workflow:software-architector` **owns** the
   AR stage and `analyzing-N.md`, while `ai-architector` is *consulted*: it
   writes `.context/ai-architecture.md` and returns a ≤500-token recommendation
   that the owner merges. The stage-owner exception (`task.metadata.agent` names
@@ -63,7 +63,7 @@ per the igrsoft `/cc-update` convention.
   named `ai-prompt-engineer` and `ai-dependency-manager` but omitted
   `ai-performance-engineer` entirely and never labelled any of the three as
   DV-support, so it did not agree with the `ai-engineer` stage→agent table in
-  `igrsoft:cross-plugin-handoff` (which lists all three as DV-support rows).
+  `company-workflow:cross-plugin-handoff` (which lists all three as DV-support rows).
   The new section restores exact agreement and records the review-only
   constraint on `ai-performance-engineer` / `ai-security-auditor`.
 
@@ -87,7 +87,7 @@ per the igrsoft `/cc-update` convention.
 ### Changed
 
 - **`code-review` → `review-code`** and **`security-scan` → `analyze-security`**
-  — the two commands whose names overlapped the igrsoft dev-plugin surface are
+  — the two commands whose names overlapped the company-workflow dev-plugin surface are
   renamed to the `<verb>-<noun>` command standard shared with
   `apple-developer`, so a qualified name is no longer needed to disambiguate
   intent. The six domain-specific commands (`eval-run`, `prompt-optimize`,
@@ -103,7 +103,7 @@ per the igrsoft `/cc-update` convention.
 
 ## [1.0.0] — 2026-07-23
 
-Initial release. The plugin is born on the igrsoft (company-workflow) v3.36.0
+Initial release. The plugin is born on the company-workflow (company-workflow) v3.36.0
 baseline — sibling to `system-developer` and `apple-developer` — so it adopts
 the current workflow contract from the start: numbered `<stage>-N.md`
 artifacts, unconditional `handoff:` frontmatter, the `state-patch.sh` pointer
@@ -145,7 +145,7 @@ evidence-freshness rule, and the smoke-scale training rule for DV.
   training examples, and `uv`/ruff-clean type-hinted Python.
 - **Plugin-scoped advisory hooks** — `audit-tooluse.sh` (PostToolUse),
   `audit-subagent.sh` (SubagentStop), `precompact-checkpoint.sh` (PreCompact),
-  wired in `plugin.json`; igrsoft-compatible `dedupe_key` shape,
+  wired in `plugin.json`; company-workflow-compatible `dedupe_key` shape,
   `metadata.advisory: true` rows, `--self-test` on each script; never merges
   `state.json` (orchestrator-owned).
 - **Scripts** — `validate.sh` (release gate: manifests, frontmatter, link and
@@ -157,16 +157,16 @@ evidence-freshness rule, and the smoke-scale training rule for DV.
   list) and `.claude-plugin/marketplace.json` (directory-source marketplace
   registering agents, commands, and every skill directory; keywords
   duplicated from `plugin.json` per house convention).
-- **igrsoft v3.36.0 integration** — `skills/_shared/workflow-integration/`
+- **company-workflow v3.36.0 integration** — `skills/_shared/workflow-integration/`
   documents the DV contract for AI work (AI Build Evidence: `python -VV`,
   framework versions from `uv.lock`, ruff/type status, test transcript under
   `.context/logs/`, eval metrics vs baseline when prompts/models/retrieval
   change), the screenshot cli-fallback procedure with the evidence-freshness
   rule, DR AI review criteria, the QA eval-regression gate, SR/RE
   contributions, dynamic worktask sizing, and qualified-name delegation.
-  Registration of ai-engineer as a routable igrsoft platform (`--platform ai`,
+  Registration of ai-engineer as a routable company-workflow platform (`--platform ai`,
   DV auto-routing) is a companion change to the company-workflow repo,
-  specified in `docs/igrsoft-registration.md`.
+  specified in `docs/company-workflow-registration.md`.
 
 ### Notes
 

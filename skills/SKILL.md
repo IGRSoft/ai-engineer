@@ -17,7 +17,7 @@ description: >-
 This collection provides guidance for AI engineering across five domains —
 prompt engineering, LLM applications, fine-tuning, MLOps, and evals — plus the
 shared routing, model-selection, severity, and workflow references that tie
-them into the igrsoft pipeline. The emphasis is on **mechanisms over
+them into the company-workflow pipeline. The emphasis is on **mechanisms over
 snapshots**: volatile facts (model IDs, prices, context-window sizes, library
 minor versions) are never hardcoded — skills name the lever and say "verify
 against current provider docs (context7)". Every quality claim is backed by an
@@ -59,7 +59,7 @@ eval, not vibes, and everything degrades gracefully without CUDA.
 | A CI gate for prompt changes so quality cannot silently regress | [evals/regression-gates/SKILL.md](evals/regression-gates/SKILL.md) |
 | Routing a task, file, or repo to the right ai-engineer agent | [_shared/framework-detection.md](_shared/framework-detection.md) |
 | Picking model/effort for a delegation | [_shared/model-selection.md](_shared/model-selection.md) |
-| Participating in an igrsoft workflow stage | [_shared/workflow-integration/SKILL.md](_shared/workflow-integration/SKILL.md) |
+| Participating in an company-workflow workflow stage | [_shared/workflow-integration/SKILL.md](_shared/workflow-integration/SKILL.md) |
 
 ---
 
@@ -98,7 +98,7 @@ Full leaf table: [evals/SKILL.md](evals/SKILL.md).
 ## Shared
 
 Cross-cutting references used by every agent, command, and skill:
-workflow-integration (igrsoft 11-stage contract), framework-detection
+workflow-integration (company-workflow 11-stage contract), framework-detection
 (agent routing), model-selection, severity-matrix.
 Full file table: [_shared/_index.md](_shared/_index.md).
 
