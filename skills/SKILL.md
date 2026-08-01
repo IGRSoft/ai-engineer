@@ -59,7 +59,7 @@ eval, not vibes, and everything degrades gracefully without CUDA.
 | A CI gate for prompt changes so quality cannot silently regress | [evals/regression-gates/SKILL.md](evals/regression-gates/SKILL.md) |
 | Routing a task, file, or repo to the right ai-engineer agent | [_shared/framework-detection.md](_shared/framework-detection.md) |
 | Picking model/effort for a delegation | [_shared/model-selection.md](_shared/model-selection.md) |
-| Participating in an company-workflow workflow stage | [_shared/workflow-integration/SKILL.md](_shared/workflow-integration/SKILL.md) |
+| Participating in a company-workflow workflow stage | [_shared/workflow-integration/SKILL.md](_shared/workflow-integration/SKILL.md) |
 
 ---
 

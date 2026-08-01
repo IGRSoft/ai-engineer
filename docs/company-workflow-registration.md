@@ -1,7 +1,7 @@
-# Registering ai-engineer as an company-workflow platform (company-workflow companion edits)
+# Registering ai-engineer as a company-workflow platform (company-workflow companion edits)
 
 This document specifies the exact edits that register **ai-engineer** as a
-routable platform (`ai`) in the **company-workflow company-workflow plugin**
+routable platform (`ai`) in the **company-workflow plugin**
 (v4.0.0, separate repo: `/Volumes/internal/Projects/igrsoft/ai-agents/company-workflow`).
 Apply them via a company-workflow PR — **nothing in this file changes the
 ai-engineer repo**, and nothing here is applied automatically.
@@ -15,7 +15,7 @@ ai-engineer repo**, and nothing here is applied automatically.
   `/ai-engineer:finetune-plan`, `/ai-engineer:data-audit`,
   `/ai-engineer:deploy-check`, `/ai-engineer:analyze-security`.
 - Direct delegation: `Task(ai-engineer:ai-engineer)` and every other
-  `Task(ai-engineer:<agent>)` target, including from an company-workflow worktask when
+  `Task(ai-engineer:<agent>)` target, including from a company-workflow worktask when
   PL0 stamps `metadata.agent: "ai-engineer:ai-engineer"` explicitly.
 - All 24 skills and the workflow-integration contract
   (`skills/_shared/workflow-integration/SKILL.md`) — ai-engineer agents already

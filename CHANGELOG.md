@@ -103,7 +103,7 @@ per the company-workflow `/cc-update` convention.
 
 ## [1.0.0] — 2026-07-23
 
-Initial release. The plugin is born on the company-workflow (company-workflow) v3.36.0
+Initial release. The plugin is born on the igrsoft (company-workflow) v3.36.0
 baseline — sibling to `system-developer` and `apple-developer` — so it adopts
 the current workflow contract from the start: numbered `<stage>-N.md`
 artifacts, unconditional `handoff:` frontmatter, the `state-patch.sh` pointer

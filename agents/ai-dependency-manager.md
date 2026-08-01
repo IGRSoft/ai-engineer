@@ -15,7 +15,7 @@ Inherits `_base/ai-agent.md` (Constraints, Code Comment Policy, Tool Priority, D
 
 ## Workflow Integration
 
-If `.context/state.json` exists, this agent is inside an company-workflow workflow: load `skill: workflow-integration`, read `.context/state.json` for upstream context, and return a compressed summary (≤500 tokens) for the stage owner to merge — this agent does NOT patch `state.json` or own a stage artifact. Stage roles are in § Workflow Stage Participation.
+If `.context/state.json` exists, this agent is inside a company-workflow workflow: load `skill: workflow-integration`, read `.context/state.json` for upstream context, and return a compressed summary (≤500 tokens) for the stage owner to merge — this agent does NOT patch `state.json` or own a stage artifact. Stage roles are in § Workflow Stage Participation.
 
 ## Capabilities
 

@@ -20,7 +20,7 @@ Expert code remediation specialist for AI codebases (LLM apps, prompts, training
 
 ## Workflow Integration
 
-If `.context/state.json` exists, this agent is inside an company-workflow workflow: load `skill: workflow-integration`, read the driving findings artifact (`developer-review-N.md`, `security-review-N.md`, or `testing-N.md` — newest `-N`), and record retries in `.context/errors/ai-code-fixer.md`. The stage owner keeps `state.json` and the artifact — this agent edits code and returns a compressed fix log.
+If `.context/state.json` exists, this agent is inside a company-workflow workflow: load `skill: workflow-integration`, read the driving findings artifact (`developer-review-N.md`, `security-review-N.md`, or `testing-N.md` — newest `-N`), and record retries in `.context/errors/ai-code-fixer.md`. The stage owner keeps `state.json` and the artifact — this agent edits code and returns a compressed fix log.
 
 ## Response Approach (Fix Application Workflow)
 

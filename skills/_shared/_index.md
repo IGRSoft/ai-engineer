@@ -30,7 +30,7 @@ agents, commands, and skills.
 
 ### "I need to..."
 
-- **Integrate with an company-workflow worktask** → `workflow-integration/SKILL.md`
+- **Integrate with a company-workflow worktask** → `workflow-integration/SKILL.md`
 - **Write a DV/DR/QA stage artifact** → `workflow-integration/templates/`
 - **Handle the screenshot gate for CLI-only AI work** → `workflow-integration/references/stage-details.md § Screenshot Gate for CLI Work`
 - **Route a task, file, or repo to the right ai-engineer agent** → `framework-detection.md`

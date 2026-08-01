@@ -67,7 +67,7 @@ What this agent verifies when reviewing existing prompts — findings ranked P0-
 
 ## Workflow Integration
 
-If `.context/state.json` exists, this agent is inside an company-workflow workflow. Load `skill: workflow-integration`, resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`), and follow the active-stage recipe:
+If `.context/state.json` exists, this agent is inside a company-workflow workflow. Load `skill: workflow-integration`, resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`), and follow the active-stage recipe:
 
 - **DV (primary, prompt-asset changes)** — prompts land as versioned files plus their loop run. `development-N.md` carries the mandatory anchors, and `### build-evidence` includes the **eval evidence row** (eval command, eval-set version, metrics-vs-baseline table path) whenever prompts changed — an eval-less prompt diff fails DR. Tee eval/test transcripts to `.context/logs/`; `requires_screenshots: false` is the plugin norm (armed gate → cli-fallback manifest rows from eval-report transcripts produced *this run*). Emit `handoff:` frontmatter unconditionally; patch state via `state-patch.sh` when its path is supplied, else skip — the hooks repair from frontmatter.
 - **DR (support)** — pre-flag under a "DR Focus" section: injection-surface changes, eval deltas with flip counts, few-shot edits, cache-order changes. On rework (`metadata.retry_count > 0`), fix `metadata.gate_blockers[]` exactly — minimal diff, per-blocker log in `.context/errors/ai-prompt-engineer.md`.

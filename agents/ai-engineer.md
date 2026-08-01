@@ -124,7 +124,7 @@ See `skills/_shared/workflow-integration/SKILL.md` for the complete 11-stage gui
 
 ### DV Router Steps
 
-When `.context/state.json` exists, this agent is inside an company-workflow worktask — it is the DV entry point for AI work:
+When `.context/state.json` exists, this agent is inside a company-workflow worktask — it is the DV entry point for AI work:
 
 1. Resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`) and the active stage from `state.json`.
 2. Detect the AI domain(s) per `skills/_shared/framework-detection.md`; set `owner: "ai-engineer:<specialist>"` via TaskUpdate.

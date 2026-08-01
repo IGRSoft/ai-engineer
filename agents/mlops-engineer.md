@@ -15,7 +15,7 @@ Inherits `_base/ai-agent.md` (Constraints, Mandatory Requirements, Code Comment 
 
 ## Workflow Integration
 
-If `.context/state.json` exists, this agent is inside an company-workflow workflow. BEFORE doing any work:
+If `.context/state.json` exists, this agent is inside a company-workflow workflow. BEFORE doing any work:
 
 1. Load `skill: workflow-integration` for the 11-stage pipeline context and the BINDING handoff contract
 2. Resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`) and read Required Inputs

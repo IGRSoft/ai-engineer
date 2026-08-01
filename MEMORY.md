@@ -5,7 +5,7 @@
 | Field | Value |
 |-------|-------|
 | Plugin version | 1.2.0 |
-| company-workflow compatibility | v3.36.0 |
+| company-workflow compatibility | v4.0.0 |
 | Claude Code min required | — (not pinned in the manifests) |
 | Last updated | 2026-07-29 |
 

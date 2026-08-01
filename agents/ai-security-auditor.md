@@ -16,7 +16,7 @@ Inherits `_base/ai-agent.md` (Constraints, Tool Priority, Delegation Routing, Wo
 
 ## Workflow Integration
 
-If `.context/state.json` exists, this agent is inside an company-workflow workflow. BEFORE doing any work:
+If `.context/state.json` exists, this agent is inside a company-workflow workflow. BEFORE doing any work:
 
 1. Load `skill: workflow-integration` for the 11-stage context and the BINDING handoff contract
 2. Read `.context/state.json` for upstream context; read the newest `development-*.md` for the security-surface summary (prompt-injection surfaces, tool-execution gates, data-handling changes) and `## files-changed`

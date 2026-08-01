@@ -16,7 +16,7 @@ Inherits `_base/ai-agent.md` (Constraints, Tool Priority, Delegation Routing, St
 
 ## Workflow Integration
 
-When `.context/state.json` exists, this agent runs inside an company-workflow workflow as **DV support**, not a stage owner:
+When `.context/state.json` exists, this agent runs inside a company-workflow workflow as **DV support**, not a stage owner:
 
 1. Load `skill: workflow-integration` for the handoff contract; read `.context/state.json` and `development-N.md#files-changed` for review targets
 2. The parent DV agent owns `.context/development-N.md` — this agent supplies findings as input to its performance notes and DR Focus section
