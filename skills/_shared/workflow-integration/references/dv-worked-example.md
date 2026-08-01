@@ -1,8 +1,8 @@
 # Worked Example — DV Takeover by `llm-engineer`
 
-One concrete end-to-end DV handoff with real values, not placeholders. The schema itself is in [stage-details.md § Handoff Frontmatter](stage-details.md#handoff-frontmatter-v3360-schema); the blank template is [../templates/dv-development.md](../templates/dv-development.md).
+One concrete end-to-end DV handoff with real values, not placeholders. The schema itself is in [stage-details.md § Handoff Frontmatter](stage-details.md#handoff-frontmatter-v400-schema); the blank template is [../templates/dv-development.md](../templates/dv-development.md).
 
-Scenario: worktask `wt-118` adds a reranking step to an existing RAG retriever. `igrsoft:developer` detects the `ai` platform key and delegates DV to `ai-engineer:llm-engineer`.
+Scenario: worktask `wt-118` adds a reranking step to an existing RAG retriever. `company-workflow:developer` detects the `ai` platform key and delegates DV to `ai-engineer:llm-engineer`.
 
 ## 1. Dispatch metadata
 
@@ -74,4 +74,4 @@ The eval evidence row is mandatory here because retrieval behavior changed. Both
 
 ## 5. On a DR `fail` re-dispatch
 
-`run_index` bumps, `retry_count` becomes 1, and `metadata.gate_blockers[]` arrives verbatim in the prompt. `llm-engineer` fixes only those blockers, lists them in `remediation_consumed:`, and records per-blocker resolution in `.context/errors/llm-engineer.md` — see [stage-details.md § Gate-Feedback Contract](stage-details.md#gate-feedback-contract-v3360).
+`run_index` bumps, `retry_count` becomes 1, and `metadata.gate_blockers[]` arrives verbatim in the prompt. `llm-engineer` fixes only those blockers, lists them in `remediation_consumed:`, and records per-blocker resolution in `.context/errors/llm-engineer.md` — see [stage-details.md § Gate-Feedback Contract](stage-details.md#gate-feedback-contract-v400).

@@ -203,6 +203,6 @@ Redact it before emitting the report and restate Rule 5 in any follow-up prompt 
 - `/ai-engineer:review-code` — includes an always-on security pass; this command is the deeper, scanner-backed sweep.
 - `ai-engineer:ai-security-auditor` — the review-only agent this command delegates to (its LLM01-LLM10 domain table is the canonical hunt list).
 - `ai-engineer:ai-code-fixer` / `ai-engineer:ai-dependency-manager` — the two remediation routes.
-- `igrsoft:security-review-process` — the SR-stage checklist this scan feeds inside a worktask.
+- `company-workflow:security-review-process` — the SR-stage checklist this scan feeds inside a worktask.
 
 A clean report lists what was verified — and a found secret gets rotated, never re-printed.

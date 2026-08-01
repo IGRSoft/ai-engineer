@@ -1,6 +1,6 @@
 # AR Consultation Template (AI architecture)
 
-`igrsoft:software-architector` owns `.context/analyzing-N.md`. `ai-architector` writes the consultation document below to `.context/ai-architecture.md` and returns a ≤500-token summary — see `workflow-integration/references/stage-details.md § AR Consultation Model`.
+`company-workflow:software-architector` owns `.context/analyzing-N.md`. `ai-architector` writes the consultation document below to `.context/ai-architecture.md` and returns a ≤500-token summary — see `workflow-integration/references/stage-details.md § AR Consultation Model`.
 
 ```markdown
 ---

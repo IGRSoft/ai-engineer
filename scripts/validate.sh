@@ -340,8 +340,8 @@ shopt -s nullglob
 for f in "${HOME}"/.claude/plugins/cache/*/*/*/agents/*.md; do
 	collect_external "${f}"
 done
-if [[ -n "${IGRSOFT_WORKFLOW_DIR:-}" && -d "${IGRSOFT_WORKFLOW_DIR}/agents" ]]; then
-	for f in "${IGRSOFT_WORKFLOW_DIR}/agents"/*.md; do
+if [[ -n "${COMPANY_WORKFLOW_DIR:-}" && -d "${COMPANY_WORKFLOW_DIR}/agents" ]]; then
+	for f in "${COMPANY_WORKFLOW_DIR}/agents"/*.md; do
 		collect_external "${f}"
 	done
 fi
@@ -396,7 +396,7 @@ fi
 
 # Allowed plugin prefixes for subagent_type values. system-developer stays
 # allowed because ai-engineer skills cross-reference its python agents.
-ALLOWED_PREFIX_RE='^(ai-engineer|igrsoft|system-developer|general-purpose)'
+ALLOWED_PREFIX_RE='^(ai-engineer|company-workflow|system-developer|general-purpose)'
 
 check_subagent_refs() {
 	# check_subagent_refs <dir>
@@ -414,7 +414,7 @@ check_subagent_refs() {
 			esac
 			# Prefix whitelist.
 			if [[ ! "${st}" =~ ${ALLOWED_PREFIX_RE} ]]; then
-				err "${rel}" "subagent_type '${st}' has a disallowed plugin prefix" "use ai-engineer:/igrsoft:/system-developer:/general-purpose:"
+				err "${rel}" "subagent_type '${st}' has a disallowed plugin prefix" "use ai-engineer:/company-workflow:/system-developer:/general-purpose:"
 				continue
 			fi
 			# Own-plugin targets must exist as agent files.

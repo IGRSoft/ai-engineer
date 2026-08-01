@@ -4,11 +4,11 @@
 # effort.level, session_id) and appends one row to .context/logs/audit.jsonl
 # with actor "ai-engineer:hook:audit-tooluse".
 #
-# ADVISORY ROW: ai-engineer agents run as subagents under the igrsoft
-# orchestrator. When igrsoft's own hooks are active, its rows are authoritative
+# ADVISORY ROW: ai-engineer agents run as subagents under the company-workflow
+# orchestrator. When company-workflow's own hooks are active, its rows are authoritative
 # and these are advisory — the shared metadata.dedupe_key ("<session_id>:
-# <tool_use_id>") lets igrsoft's audit-dedup.sh reconcile the two. When
-# ai-engineer runs standalone (no igrsoft), these rows stand alone.
+# <tool_use_id>") lets company-workflow's audit-dedup.sh reconcile the two. When
+# ai-engineer runs standalone (no company-workflow), these rows stand alone.
 #
 # Self-test: pass --self-test to feed a synthetic fixture and assert schema.
 set -eu
