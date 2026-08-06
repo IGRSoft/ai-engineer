@@ -115,6 +115,11 @@ Index Lifecycle below.
 Rule: start with what you already operate. A dedicated vector database is
 justified by measured scale or a missing feature, not by fashion.
 
+Once a store is chosen, its index parameters (HNSW `M`/`efConstruction`/
+`efSearch`, IVF `nlist`/`nprobe`), the RAM those choices cost, and the
+embedding-dimension tradeoff are in
+`references/embedding-and-index-tuning.md`.
+
 ## Retrieval Strategy
 
 **Hybrid dense + sparse is the default.** Dense embeddings capture paraphrase
@@ -130,6 +135,11 @@ def rrf_fuse(rankings: list[list[str]], k: int = 60) -> list[str]:
             scores[chunk_id] = scores.get(chunk_id, 0.0) + 1.0 / (k + rank)
     return sorted(scores, key=lambda cid: scores[cid], reverse=True)
 ```
+
+The `k = 60` default is a damping constant, not a magic number — why it
+flattens rank differences, when to lower it, and the score-normalization step
+linear fusion needs (and RRF does not) are in
+`references/embedding-and-index-tuning.md`.
 
 **When BM25 alone wins:** queries dominated by exact identifiers (SKUs, error
 codes, function names), jargon-heavy corpora where embeddings blur terms,

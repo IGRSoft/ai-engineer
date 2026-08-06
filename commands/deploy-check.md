@@ -170,6 +170,8 @@ Engine-flag validity goes unverified — note it in Reduced-Depth Notes; do not 
 ## See Also
 
 - `skills/mlops/model-serving` (+ `references/serving-stack-matrix.md`) — the checklist source: pins, quantization evals, KV math, probes, rollback
+- `skills/finetuning/quantized-export` — where a fine-tuned artifact arriving at this gate came from; its pre/post smoke-test diff is the evidence that the exported weights still behave, and an artifact without one is not ready for this checklist
+- `skills/finetuning/checkpoint-promotion` — the upstream `PROMOTE` verdict that authorized the export; a deploy whose artifact cannot name its promotion report has no gate behind it
 - `skills/mlops/model-monitoring` — the three monitoring planes item 8 checks
 - `skills/mlops/ml-pipelines` — lockfile/image environment discipline behind item 9
 - `skills/llm-apps/llm-api-patterns` — client-side retries/fallback behind item 5

@@ -5,9 +5,9 @@ description: >-
   LLM applications, fine-tuning, MLOps, and evals. Use when building LLM
   applications (RAG, agent loops, provider APIs), engineering prompts, context
   windows, or structured outputs, fine-tuning models (dataset curation,
-  LoRA/QLoRA, DPO), setting up MLOps (experiment tracking, model serving,
-  monitoring, ML pipelines), or designing evals (eval sets, LLM judges, CI
-  regression gates).
+  LoRA/QLoRA, DPO, GRPO/RLVR, checkpoint promotion, quantized export), setting
+  up MLOps (experiment tracking, model serving, monitoring, ML pipelines), or
+  designing evals (eval sets, LLM judges, CI regression gates).
 ---
 
 # Skills Index
@@ -29,12 +29,12 @@ eval, not vibes, and everything degrades gracefully without CUDA.
 |--------|-------|--------|-------|
 | [Prompt Engineering](#prompt-engineering) | [`prompt-engineering/SKILL.md`](prompt-engineering/SKILL.md) | 1 + 3 leaves | Prompt anatomy, context-window budgets, reliable structured outputs |
 | [LLM Apps](#llm-apps) | [`llm-apps/SKILL.md`](llm-apps/SKILL.md) | 1 + 3 leaves | RAG pipelines, bounded agent loops, production provider-API integration |
-| [Fine-Tuning](#fine-tuning) | [`finetuning/SKILL.md`](finetuning/SKILL.md) | 1 + 4 leaves | Dataset curation, LoRA/QLoRA, training optimization, preference tuning (DPO) |
+| [Fine-Tuning](#fine-tuning) | [`finetuning/SKILL.md`](finetuning/SKILL.md) | 1 + 8 leaves | Data (raw + graded), LoRA/QLoRA, training optimization, DPO, GRPO/RLVR, promotion, export |
 | [MLOps](#mlops) | [`mlops/SKILL.md`](mlops/SKILL.md) | 1 + 4 leaves | Experiment tracking, model serving, monitoring, pipelines + data versioning |
 | [Evals](#evals) | [`evals/SKILL.md`](evals/SKILL.md) | 1 + 3 leaves | Eval design, LLM-as-judge, CI regression gates |
 | [Shared](#shared) | [`_shared/_index.md`](_shared/_index.md) | 1 + references | Workflow integration, agent routing, model selection, severity |
 
-**Total: 24 SKILL.md across 5 domains + _shared, plus shared references.**
+**Total: 28 SKILL.md across 5 domains + _shared, plus shared references.**
 
 ## I need help with...
 
@@ -50,6 +50,10 @@ eval, not vibes, and everything degrades gracefully without CUDA.
 | Picking LoRA r/alpha, fitting a fine-tune into limited VRAM | [finetuning/peft-lora/SKILL.md](finetuning/peft-lora/SKILL.md) |
 | A training run that OOMs, crawls, or shows a flat/spiky loss curve | [finetuning/training-optimization/SKILL.md](finetuning/training-optimization/SKILL.md) |
 | SFT output close-but-not-quite; DPO vs RLHF; longer/sycophantic outputs | [finetuning/preference-tuning/SKILL.md](finetuning/preference-tuning/SKILL.md) |
+| Training where a program checks the answer (tests, schemas, math) | [finetuning/grpo-rlvr-training/SKILL.md](finetuning/grpo-rlvr-training/SKILL.md) |
+| Turning graded eval traces into training data | [finetuning/trace-to-training-data/SKILL.md](finetuning/trace-to-training-data/SKILL.md) |
+| Deciding whether a checkpoint ships; capability drift | [finetuning/checkpoint-promotion/SKILL.md](finetuning/checkpoint-promotion/SKILL.md) |
+| Exporting a promoted model for a target runtime | [finetuning/quantized-export/SKILL.md](finetuning/quantized-export/SKILL.md) |
 | A metric nobody can trace back to the run that produced it | [mlops/experiment-tracking/SKILL.md](mlops/experiment-tracking/SKILL.md) |
 | Deploying an open-weights or fine-tuned model (vLLM/TGI/Ollama-class) | [mlops/model-serving/SKILL.md](mlops/model-serving/SKILL.md) |
 | Watching production quality, drift, and spend | [mlops/model-monitoring/SKILL.md](mlops/model-monitoring/SKILL.md) |
@@ -65,65 +69,44 @@ eval, not vibes, and everything degrades gracefully without CUDA.
 
 ## Prompt Engineering
 
-Production prompt design, context-window management, and machine-readable
-output — the cheapest quality lever, exhausted before RAG or fine-tuning.
-Leaves: prompt-design, context-engineering, structured-outputs.
-Full leaf table: [prompt-engineering/SKILL.md](prompt-engineering/SKILL.md).
+The cheapest quality lever, exhausted before RAG or fine-tuning.
+Leaves: [prompt-engineering/SKILL.md](prompt-engineering/SKILL.md).
 
 ## LLM Apps
 
-Building LLM-backed features: RAG pipelines, bounded agent loops, and the
-provider-API plumbing underneath them. Leaves: rag-systems, agent-design,
-llm-api-patterns. Full leaf table: [llm-apps/SKILL.md](llm-apps/SKILL.md).
+Building LLM-backed features and the provider plumbing under them.
+Leaves: [llm-apps/SKILL.md](llm-apps/SKILL.md).
 
 ## Fine-Tuning
 
-Changing model weights when prompting and retrieval have hit their ceiling —
-data first, adapters second, preferences last. Leaves: dataset-curation,
-peft-lora, training-optimization, preference-tuning.
-Full leaf table: [finetuning/SKILL.md](finetuning/SKILL.md).
+Changing model weights once prompting and retrieval hit their ceiling — data
+first, adapters second, preference or verifiable-reward signal next, then the
+lifecycle tail (promote → export) that decides whether the weights ship and in
+what shape. Leaves: [finetuning/SKILL.md](finetuning/SKILL.md).
 
 ## MLOps
 
-Running models as software: tracked experiments, hardened serving, monitored
-production, versioned pipelines. Leaves: experiment-tracking, model-serving,
-model-monitoring, ml-pipelines. Full leaf table: [mlops/SKILL.md](mlops/SKILL.md).
+Running models as software: tracked, served, monitored, rebuilt from pipelines.
+Leaves: [mlops/SKILL.md](mlops/SKILL.md).
 
 ## Evals
 
-Measurement discipline for everything above — no prompt, model, or retrieval
-change ships without one. Leaves: eval-design, llm-judge, regression-gates.
-Full leaf table: [evals/SKILL.md](evals/SKILL.md).
+Measurement discipline for everything above — nothing ships without one.
+Leaves: [evals/SKILL.md](evals/SKILL.md).
 
 ## Shared
 
-Cross-cutting references used by every agent, command, and skill:
-workflow-integration (company-workflow 11-stage contract), framework-detection
-(agent routing), model-selection, severity-matrix.
-Full file table: [_shared/_index.md](_shared/_index.md).
+Cross-cutting references used by every agent, command, and skill.
+Files: [_shared/_index.md](_shared/_index.md).
 
 ---
 
 ## Conventions
 
-- **uv-first Python.** Examples use `uv run` / `uv add`, ruff-clean and
-  type-hinted; versions live in `pyproject.toml`/`uv.lock`, never in prose.
-- **Determinism.** Eval examples pin eval-set versions and run at temperature 0
-  with fixed seeds; training examples are smoke-scale (capped `max_steps`,
-  subsampled data) with the full run as a documented launch plan.
-- **No pricing or model-ID snapshots.** Volatile facts (model IDs, prices,
-  context-window sizes, library minors) are named as mechanisms with "verify
-  against current provider docs (context7)" — cost formulas and levers are
-  encouraged, cost tables are forbidden.
-- **GPU-optional.** Content degrades gracefully without CUDA: MPS/CPU notes
-  where relevant; absent `nvidia-smi` means reduced depth, never a hard
-  failure.
-- **Language depth delegates.** Pure-Python questions (typing, packaging,
-  concurrency, pytest mechanics) route to `system-developer:python-skills` —
-  they are not re-taught here.
-- **Agents plugin-qualified.** Agents are always referenced as
-  `ai-engineer:<name>` (e.g. `ai-engineer:llm-engineer`); ownership per domain
-  is mapped in [_shared/framework-detection.md](_shared/framework-detection.md).
+Authoring contract for skill content — uv-first Python, determinism in eval and
+training examples, no pricing or model-ID snapshots, GPU-optional depth,
+language depth delegated to `system-developer:python-skills`, and
+plugin-qualified agent names: [`references/conventions.md`](references/conventions.md).
 
 ## Related Documentation
 

@@ -4,10 +4,10 @@ description: >-
   LLM application skills navigation: RAG systems
   (chunk/embed/retrieve/rerank/ground), agent-loop design (escalation ladder,
   tool contracts, stop conditions, guardrails), and production provider-API
-  integration (retries, streaming, caching, fallback, cost accounting). Use
-  when building or debugging an LLM-backed feature, wiring retrieval over a
-  corpus, designing a tool-using agent, or writing any code that calls an LLM
-  provider API.
+  integration (retries, streaming, caching, fallback, cost accounting).
+  Use when building or debugging an LLM-backed feature, wiring retrieval over
+  a corpus, designing a tool-using agent, or writing any code that calls an
+  LLM provider API.
 ---
 
 # LLM App Skills

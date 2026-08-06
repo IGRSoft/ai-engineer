@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "AI engineering toolkit with specialized agents for LLM applications, fine-tuning, MLOps, and evaluation.",
-    "version": "1.2.0"
+    "version": "1.3.0"
   },
   "plugins": [
     {
@@ -20,6 +20,7 @@
         "llm",
         "ml",
         "rag",
+        "hnsw",
         "agents",
         "prompt-engineering",
         "context-engineering",
@@ -30,8 +31,13 @@
         "peft",
         "dpo",
         "rlhf",
+        "grpo",
+        "rlvr",
         "distillation",
         "dataset-curation",
+        "rejection-sampling",
+        "checkpoint-promotion",
+        "catastrophic-forgetting",
         "mlops",
         "model-serving",
         "vllm",
@@ -40,6 +46,7 @@
         "triton",
         "quantization",
         "gguf",
+        "quantized-export",
         "experiment-tracking",
         "mlflow",
         "dvc",
@@ -78,6 +85,10 @@
         "./skills/finetuning/peft-lora",
         "./skills/finetuning/training-optimization",
         "./skills/finetuning/preference-tuning",
+        "./skills/finetuning/grpo-rlvr-training",
+        "./skills/finetuning/trace-to-training-data",
+        "./skills/finetuning/checkpoint-promotion",
+        "./skills/finetuning/quantized-export",
         "./skills/mlops",
         "./skills/mlops/experiment-tracking",
         "./skills/mlops/model-serving",

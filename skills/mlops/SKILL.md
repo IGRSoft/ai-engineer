@@ -4,10 +4,10 @@ description: >-
   MLOps skills navigation: experiment tracking and model registry (MLflow/W&B),
   serving open-weights and fine-tuned models (vLLM/TGI/Ollama/Triton-class,
   quantization, KV-cache sizing), production monitoring (drift, quality, cost),
-  and ML pipelines with data versioning and CI/CD (DVC, orchestrators). Use
-  when logging runs, promoting or rolling back a model, deploying or sizing a
-  serving stack, wiring observability for an LLM app, versioning datasets, or
-  building training/data pipelines.
+  and ML pipelines with data versioning and CI/CD (DVC, orchestrators).
+  Use when logging runs, promoting or rolling back a model, deploying or
+  sizing a serving stack, wiring observability for an LLM app, versioning
+  datasets, or building training/data pipelines.
 ---
 
 # MLOps Skills

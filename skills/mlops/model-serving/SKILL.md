@@ -7,7 +7,7 @@ description: >-
   (GPTQ/AWQ/GGUF), KV-cache capacity math and concurrency budgets, LoRA
   hot-swap vs merged weights, operational hardening (readiness, warmup, drain,
   canary, rollback). Use when deploying an LLM or adapter, choosing or sizing
-  a serving stack, exposing a model endpoint, quantizing for inference,
+  a serving stack, exposing a model endpoint, quantizing at serve time,
   planning GPU capacity, or reviewing a serving config before rollout.
 ---
 
@@ -38,6 +38,7 @@ after correctness — route deep latency/throughput investigations to
 
 - Calling provider APIs from application code (timeouts, retries, streaming, fallback routing) → `skills/llm-apps/llm-api-patterns`
 - Producing the fine-tuned artifact itself → `skills/finetuning/peft-lora`
+- *Exporting* a freshly promoted checkpoint — merged vs LoRA-only, export format, the pre/post smoke test → `skills/finetuning/quantized-export` (it produces the artifact; this skill runs it)
 - Watching the deployed model in production → `skills/mlops/model-monitoring`
 - Registering/promoting the artifact you are about to serve → `skills/mlops/experiment-tracking`
 

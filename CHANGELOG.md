@@ -6,6 +6,53 @@ adheres to [Semantic Versioning](https://semver.org/). Version strings move
 together across `plugin.json`, `marketplace.json`, `README.md`, and `MEMORY.md`
 per the company-workflow `/cc-update` convention.
 
+## [1.3.0] — 2026-08-06
+
+### Added
+
+- **`finetuning/grpo-rlvr-training`** — reinforcement learning from verifiable
+  rewards (GRPO/RLVR): reward function design, group-relative advantage
+  mechanics, and when a program (tests, schemas, math) can check the answer
+  instead of a preference model.
+- **`finetuning/quantized-export`** — the export lifecycle for a promoted
+  checkpoint: merged safetensors, LoRA-only, GGUF+imatrix, and FP8 targets,
+  vendor-neutral throughout.
+- **`finetuning/checkpoint-promotion`** — promotion gating for a finished
+  training run: drift budgets, paired comparison, and catastrophic-forgetting
+  checks that decide whether a checkpoint ships.
+- **`finetuning/trace-to-training-data`** — converting graded eval traces into
+  training data: rejection sampling, preference pairs from graded traces, and
+  a goldens-holdout gate during conversion.
+- **`llm-apps/rag-systems/references/embedding-and-index-tuning.md`** —
+  vector-index and embedding tuning depth (hybrid search, index parameters,
+  RRF `k` rationale) folded into the existing `rag-systems` skill.
+- **Vendor-neutral unified-memory note** folded into
+  `finetuning/training-optimization/references/gpu-memory-math.md`.
+
+### Fixed
+
+- **Paired incumbent disambiguation edits** on the four skills each new skill
+  collides with (`model-serving`, `finetuning/SKILL.md` + `dataset-curation`,
+  `preference-tuning`, `regression-gates` + `ml-pipelines` + `experiment-tracking`)
+  — routing seams and `When NOT to use` rows so the two skill pairs each stay
+  distinguishable at trigger time.
+- **Three folded-YAML trigger-phrase reflows** (`mlops/SKILL.md`,
+  `llm-apps/SKILL.md`, `llm-apps/llm-api-patterns/SKILL.md`) so `Use when` /
+  `Use PROACTIVELY` stays contiguous on one physical line for regex-based
+  trigger scanners.
+- **`scripts/test.sh`** — ShellCheck ≥0.11 compatibility; a prose comment
+  beginning with the linter's own name was being parsed as a directive.
+
+### Changed
+
+- **Routing** refreshed across `skills/_index.md`, `skills/SKILL.md`,
+  `skills/finetuning/_index.md`, `skills/finetuning/SKILL.md`,
+  `skills/llm-apps/_index.md`, `skills/llm-apps/rag-systems/SKILL.md`, four
+  agents (`ml-engineer`, `mlops-engineer`, `ai-engineer`, `ai-architector`),
+  three commands (`finetune-plan`, `deploy-check`, `rag-audit`), and both
+  manifests (`.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` —
+  keyword lists plus skill registrations for the four new directories).
+
 ## [1.2.0] — 2026-07-29
 
 ### Added

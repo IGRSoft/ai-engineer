@@ -50,6 +50,20 @@ Read `metadata.complexity_score` (0-50) when supplied; company-workflow's AR run
 
 These compose rather than compete: the prompt layer always exists, RAG adds fresh knowledge, a fine-tune fixes *form*, not *facts*. Escalate a layer only when the pinned eval set proves the cheaper layer's ceiling.
 
+#### Once fine-tuning is chosen: which training signal?
+
+The second decision, and the one `commands/finetune-plan.md` falls back to inline. The discriminator is not task difficulty — it is **what can decide the outcome**:
+
+| The signal you actually have | Method | Route |
+|---|---|---|
+| Gold outputs you can write | SFT / LoRA | `skills/finetuning/peft-lora` |
+| "This answer is better than that one" — taste, tone, judgment | DPO-class preference tuning | `skills/finetuning/preference-tuning` |
+| **A program returns pass/fail** — unit tests, schema validation, math ground truth, tool-call match | GRPO / RLVR | `skills/finetuning/grpo-rlvr-training` |
+
+**DPO for taste, GRPO for reasoning.** Two preconditions gate the RLVR branch, and failing either sends the work back: a verifier must exist that is deterministic (or a judge with *measured* human agreement), and the base model's success rate must already be nonzero — RL sharpens an existing capability, it does not install a missing one. A zero base rate is an SFT problem wearing an RL costume.
+
+Whichever branch runs, the lifecycle tail is the same and belongs in the decision: train → gate the weights against a capability-drift budget (`skills/finetuning/checkpoint-promotion`) → export for the target runtime (`skills/finetuning/quantized-export`) → serve. A fine-tune proposal that stops at "we will train an adapter" has not costed the half of the work that decides whether it ships.
+
 **Worked example** — support assistant over a product knowledge base. Moderate specificity → prompt baseline. KB changes weekly and answers must cite sources → RAG (fine-tune rejected: staleness + no citations). Retrieval fixed, tone/format failures persist on the eval set, ~5k licensed transcripts exist → add a LoRA style adapter, keep RAG for facts. Decision: hybrid; prompt-only rejected on freshness, fine-tune-only on citations and cadence — each escalation justified by an eval delta, not intuition.
 
 ### Agent Topology

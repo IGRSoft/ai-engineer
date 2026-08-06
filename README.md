@@ -2,7 +2,14 @@
 
 Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops, structured outputs), **prompt engineering**, **LLM fine-tuning** (LoRA/QLoRA/DPO), **MLOps** (serving, experiment tracking, monitoring, pipelines), and **LLM evaluation** — with specialized agents, commands, and skills. Collaborates with the company-workflow plugin v4.0.0 for full 11-stage workflow orchestration (PL→AR→TL→DV→**DR**→SR→QA→DC→RE→FN→ST) including the handoff-protocol (planning-N.md, state.json ledger, `handoff:` frontmatter schema). AI and CLI work defaults to `requires_screenshots: false`; when an evidence gate demands proof, agents attach `cli-fallback` transcripts (eval reports, loss-curve summaries, test transcripts) instead of screenshots.
 
-**Version**: 1.2.0 | **company-workflow Compatibility**: v4.0.0
+**Version**: 1.3.0 | **company-workflow Compatibility**: v4.0.0
+
+## What's in 1.3.0
+
+- **Fine-tuning lifecycle tail** — four new skills close the gap between a finished training run and a shipped artifact: `grpo-rlvr-training` (reinforcement learning from verifiable rewards), `trace-to-training-data` (rejection sampling and preference pairs from graded eval traces), `checkpoint-promotion` (drift budgets, paired comparison, forgetting checks — does this checkpoint ship?), and `quantized-export` (merged safetensors, LoRA-only, GGUF+imatrix, FP8 — export lifecycle for a promoted checkpoint). Each ships paired with a disambiguation edit on the incumbent skill it collides with. See [`skills/finetuning/`](skills/finetuning/).
+- **RAG index-tuning depth** — `skills/llm-apps/rag-systems/references/embedding-and-index-tuning.md` adds vector-index and hybrid-search tuning detail, plus a vendor-neutral unified-memory note folded into `training-optimization`.
+- **Routing refreshed** across both skill indexes, 4 agents, 3 commands, and both manifests to cover the new lifecycle skills.
+- **Fixed** `scripts/test.sh` for ShellCheck ≥0.11 compatibility (a comment line was misread as a shellcheck directive).
 
 ## What's in 1.2.0
 
@@ -59,7 +66,7 @@ All commands degrade gracefully when a tool is missing: they print an install hi
 
 `/system-developer:code-review` is a different plugin's command and is unaffected.
 
-## Skills (24)
+## Skills (28)
 
 ```
 skills/
@@ -68,7 +75,8 @@ skills/
 │                             # framework-detection, model-selection, severity-matrix
 ├── prompt-engineering/       # prompt-design, context-engineering, structured-outputs
 ├── llm-apps/                 # rag-systems, agent-design, llm-api-patterns
-├── finetuning/               # dataset-curation, peft-lora, training-optimization, preference-tuning
+├── finetuning/               # dataset-curation, peft-lora, training-optimization, preference-tuning,
+│                             # grpo-rlvr-training, trace-to-training-data, checkpoint-promotion, quantized-export
 ├── mlops/                    # experiment-tracking, model-serving, model-monitoring, ml-pipelines
 └── evals/                    # eval-design, llm-judge, regression-gates
 ```
@@ -106,6 +114,10 @@ skills/
 | `peft-lora` | When adapters beat full fine-tuning or RAG, LoRA/QLoRA config anatomy, smoke-scale SFTTrainer loops, adapter save/merge/serve lifecycle, before/after evals. |
 | `training-optimization` | GPU memory model with estimation formulas, bf16/fp16/tf32 precision, gradient accumulation vs batch size, checkpointing, cuda/mps/cpu device strategy, loss-curve triage. |
 | `preference-tuning` | SFT-only vs DPO vs ORPO/KTO vs RLHF selection, preference-pair construction, DPO mechanics, reward-hacking detection and mitigation. |
+| `grpo-rlvr-training` | Reinforcement learning from verifiable rewards (GRPO/RLVR) — when a program can check the answer (tests, schemas, math), reward function design, group-relative advantage mechanics. |
+| `trace-to-training-data` | Turning graded eval traces into training data — rejection sampling, preference pairs from graded traces, goldens-holdout during conversion. |
+| `checkpoint-promotion` | Deciding whether a checkpoint ships — drift budgets, paired comparison, catastrophic-forgetting checks. |
+| `quantized-export` | Exporting a promoted checkpoint for a target runtime — merged safetensors, LoRA-only, GGUF+imatrix, FP8. |
 
 ### MLOps
 
@@ -124,7 +136,7 @@ skills/
 | `llm-judge` | Pointwise vs pairwise selection, anchored rubrics, bias mitigations, calibration against human labels (Cohen's kappa), judge regression tests. |
 | `regression-gates` | Pre-commit→PR→nightly→release gate ladder, floors plus relative thresholds, baseline update ritual, flake policy, pytest integration, escape hatch. |
 
-Deep detail lives in `references/` next to each SKILL.md (21 files: eval methodology, judge prompt templates, gate implementation, data formats, hyperparameter guide, DPO and preference data, GPU memory math, distributed training, tool design, provider matrix, chunking strategies, retrieval evaluation, tracking implementation, versioning and CI/CD, observability and drift, serving-stack matrix, window management, Claude prompting, prompt patterns, schema patterns, and workflow stage details), plus 3 workflow handoff templates under `_shared/workflow-integration/templates/`.
+Deep detail lives in `references/` next to each SKILL.md (26 files: eval methodology, judge prompt templates, gate implementation, data formats, hyperparameter guide, DPO and preference data, GPU memory math, distributed training, tool design, provider matrix, chunking strategies, retrieval evaluation, embedding and index tuning, tracking implementation, versioning and CI/CD, observability and drift, serving-stack matrix, window management, Claude prompting, prompt patterns, schema patterns, workflow stage details, reward functions, export commands, gate templates, and conversion recipes), plus 3 workflow handoff templates under `_shared/workflow-integration/templates/`.
 
 ## Model & Effort
 

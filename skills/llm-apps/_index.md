@@ -18,6 +18,7 @@ tree.
 |------|------------|
 | [rag-systems/references/chunking-strategies.md](rag-systems/references/chunking-strategies.md) | Chunking deep dive by content type |
 | [rag-systems/references/retrieval-evaluation.md](rag-systems/references/retrieval-evaluation.md) | Retrieval metrics (recall@k, MRR) and evaluation workflow |
+| [rag-systems/references/embedding-and-index-tuning.md](rag-systems/references/embedding-and-index-tuning.md) | ANN index parameters (HNSW `M`/`efSearch`, IVF `nlist`/`nprobe`), index memory estimation, score normalization, RRF vs linear fusion |
 | [agent-design/references/tool-design.md](agent-design/references/tool-design.md) | Tool contract deep dive: naming, parameters, errors, wrong-tool loops |
 | [llm-api-patterns/references/provider-matrix.md](llm-api-patterns/references/provider-matrix.md) | Provider capability dimensions to check (not snapshots) |
 

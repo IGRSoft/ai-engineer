@@ -38,6 +38,7 @@ prompting) is a method decision — escalate to `ai-engineer:ai-architector`.
 
 **When NOT to use:**
 
+- Sources that already carry a grader *verdict* — eval traces, graded runs, rejection sampling, pairs from passing/failing trajectories → `skills/finetuning/trace-to-training-data` (this skill owns raw, ungraded sources; that one converts graded ones into this skill's schema)
 - Training mechanics (LoRA configs, memory, schedules) → `skills/finetuning/peft-lora`, `skills/finetuning/training-optimization`
 - Preference-pair *generation strategy* and labeling rubrics → `skills/finetuning/preference-tuning` (this skill owns pair format and hygiene only)
 - Retrieval corpora for RAG — chunking hygiene, not messages hygiene → `skills/llm-apps/rag-systems`

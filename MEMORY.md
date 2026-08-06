@@ -4,10 +4,17 @@
 
 | Field | Value |
 |-------|-------|
-| Plugin version | 1.2.0 |
+| Plugin version | 1.3.0 |
 | company-workflow compatibility | v4.0.0 |
 | Claude Code min required | — (not pinned in the manifests) |
-| Last updated | 2026-07-29 |
+| Last updated | 2026-08-06 |
+
+## Release History
+
+| Version | Date | Summary |
+|---------|------|---------|
+| 1.3.0 | 2026-08-06 | 4 new fine-tuning lifecycle skills (`grpo-rlvr-training`, `quantized-export`, `checkpoint-promotion`, `trace-to-training-data`) with paired incumbent disambiguation edits; RAG index-tuning reference; routing refreshed across both indexes, 4 agents, 3 commands, and both manifests; `scripts/test.sh` ShellCheck 0.11 compatibility fix. |
+| 1.2.0 | 2026-07-29 | `/ai-engineer:build-test` platform build gate; AR consultation model documented in `workflow-integration`. |
 
 Version strings move together (plugin.json, marketplace.json metadata, README
 header, this table) per the company-workflow `/cc-update` convention.
