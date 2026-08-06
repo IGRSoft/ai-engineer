@@ -5,8 +5,8 @@ description: >-
   discipline, rate-limit handling, streaming with TTFT and mid-stream error
   recovery, prompt caching via stable-prefix structure, batch APIs for
   offline work, provider/model fallback chains with circuit breakers, cost
-  accounting hooks, request-level observability, and secrets hygiene. Use
-  when writing or reviewing any code that calls an LLM API, when requests
+  accounting hooks, request-level observability, and secrets hygiene.
+  Use when writing or reviewing any code that calls an LLM API, when requests
   hang or fail without retries, when hitting 429s or rate limits, when spend
   is untracked or spiking, or when adding streaming, caching, batching, or
   multi-provider fallback.

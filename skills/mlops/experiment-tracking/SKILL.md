@@ -40,6 +40,7 @@ prerequisite.
 - CI pass/fail thresholds on eval metrics → `skills/evals/regression-gates` (the tracker stores results; gates decide)
 - Designing the eval itself (sets, metrics, judges) → `skills/evals/eval-design`
 - Data/pipeline versioning mechanics (DVC stages, remotes) → `skills/mlops/ml-pipelines` — runs *reference* the DVC revision; DVC owns it
+- Deciding whether a checkpoint *earns* promotion — drift budget, paired comparison, forgetting checks → `skills/finetuning/checkpoint-promotion` (this skill owns the run contract and registry aliases; that one produces the PROMOTE/REJECT verdict recorded against them)
 - Deploying the promoted model → `skills/mlops/model-serving`
 
 ## The Reproducibility Contract

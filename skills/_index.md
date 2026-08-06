@@ -1,7 +1,7 @@
 # Skills Index
 
 Root index for all ai-engineer skills (prompt engineering, LLM apps,
-fine-tuning, MLOps, evals, and shared references). **24 SKILL.md across 5
+fine-tuning, MLOps, evals, and shared references). **28 SKILL.md across 5
 domains + _shared, plus shared references.** Start at [`SKILL.md`](SKILL.md)
 for the routing entry point.
 
@@ -12,7 +12,7 @@ for the routing entry point.
 | [_shared/](_shared/_index.md) | [`_index.md`](_shared/_index.md) | 1 + refs | Cross-cutting references: company-workflow workflow integration, AI-stack agent routing, model selection, severity matrix |
 | [prompt-engineering/](prompt-engineering/SKILL.md) | [`_index.md`](prompt-engineering/_index.md) | 1 + 3 leaves | Production prompt design, context-window engineering, reliable structured outputs |
 | [llm-apps/](llm-apps/SKILL.md) | [`_index.md`](llm-apps/_index.md) | 1 + 3 leaves | RAG pipelines, bounded agent loops, production provider-API integration |
-| [finetuning/](finetuning/SKILL.md) | [`_index.md`](finetuning/_index.md) | 1 + 4 leaves | Dataset curation, LoRA/QLoRA adapters, training optimization, preference tuning |
+| [finetuning/](finetuning/SKILL.md) | [`_index.md`](finetuning/_index.md) | 1 + 8 leaves | Dataset curation, graded-trace conversion, LoRA/QLoRA adapters, training optimization, preference tuning, verifiable-reward RL, checkpoint promotion, quantized export |
 | [mlops/](mlops/SKILL.md) | [`_index.md`](mlops/_index.md) | 1 + 4 leaves | Experiment tracking, model serving, production monitoring, ML pipelines + data versioning |
 | [evals/](evals/SKILL.md) | [`_index.md`](evals/_index.md) | 1 + 3 leaves | Eval design, LLM-as-judge, CI regression gates |
 
@@ -54,6 +54,10 @@ for the routing entry point.
 | **peft-lora** | [`finetuning/peft-lora/SKILL.md`](finetuning/peft-lora/SKILL.md) | When adapters beat full fine-tuning or RAG, LoRA/QLoRA config anatomy, smoke-scale SFTTrainer loops, adapter save/merge/serve, before/after evals |
 | **training-optimization** | [`finetuning/training-optimization/SKILL.md`](finetuning/training-optimization/SKILL.md) | GPU memory model with estimation formulas, precision, gradient accumulation vs batch size, checkpointing, throughput and loss-curve triage |
 | **preference-tuning** | [`finetuning/preference-tuning/SKILL.md`](finetuning/preference-tuning/SKILL.md) | SFT-only vs DPO vs ORPO/KTO vs RLHF selection, preference-pair construction, DPO mechanics, reward-hacking detection and mitigation |
+| **grpo-rlvr-training** | [`finetuning/grpo-rlvr-training/SKILL.md`](finetuning/grpo-rlvr-training/SKILL.md) | Verifiable-reward RL: applicability preconditions, GRPO recipe and group-size floor, the reward-inspection gate, DAPO/Dr.GRPO/GSPO variant selection |
+| **trace-to-training-data** | [`finetuning/trace-to-training-data/SKILL.md`](finetuning/trace-to-training-data/SKILL.md) | Graded traces → training rows: top-reward rejection sampling, expert corrections, step-level masking, same-task preference pairs, goldens-holdout hygiene |
+| **checkpoint-promotion** | [`finetuning/checkpoint-promotion/SKILL.md`](finetuning/checkpoint-promotion/SKILL.md) | Four-stage weights gate, drift budget with hard fail, budget-derived sample size, catastrophic-forgetting ladder, terminal PROMOTE/REJECT verdict |
+| **quantized-export** | [`finetuning/quantized-export/SKILL.md`](finetuning/quantized-export/SKILL.md) | Merged vs LoRA-only, format map (FP8/AWQ INT4/GGUF+imatrix), long-context/code/math INT4 override, mandatory pre/post smoke test |
 
 ### mlops
 
@@ -81,6 +85,12 @@ for the routing entry point.
 | [`_shared/_index.md`](_shared/_index.md) | Shared references: workflow integration + templates, agent routing, model selection, severity |
 | [`prompt-engineering/_index.md`](prompt-engineering/_index.md) | Prompt engineering entry + prompt-design + context-engineering + structured-outputs (with references) |
 | [`llm-apps/_index.md`](llm-apps/_index.md) | LLM apps entry + rag-systems + agent-design + llm-api-patterns (with references) |
-| [`finetuning/_index.md`](finetuning/_index.md) | Fine-tuning entry + dataset-curation + peft-lora + training-optimization + preference-tuning (with references) |
+| [`finetuning/_index.md`](finetuning/_index.md) | Fine-tuning entry + dataset-curation + peft-lora + training-optimization + preference-tuning + grpo-rlvr-training + trace-to-training-data + checkpoint-promotion + quantized-export (with references) |
 | [`mlops/_index.md`](mlops/_index.md) | MLOps entry + experiment-tracking + model-serving + model-monitoring + ml-pipelines (with references) |
 | [`evals/_index.md`](evals/_index.md) | Evals entry + eval-design + llm-judge + regression-gates (with references) |
+
+## Root References
+
+| Path | Contents |
+|------|----------|
+| [`references/conventions.md`](references/conventions.md) | Skill authoring contract: uv-first Python, determinism in eval/training examples, no pricing or model-ID snapshots, GPU-optional depth, language-depth delegation, plugin-qualified agent names |

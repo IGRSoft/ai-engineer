@@ -41,6 +41,7 @@ promotion applies the same pattern at the pipeline level
 - Designing the eval set and metrics themselves → `skills/evals/eval-design`
 - Judge rubrics, biases, calibration → `skills/evals/llm-judge`
 - Training-pipeline model promotion and rollout mechanics → `skills/mlops/ml-pipelines`
+- Deciding whether one trained checkpoint's *weights* ship — capability-drift budget, paired comparison vs base, forgetting checks → `skills/finetuning/checkpoint-promotion` (this skill owns the per-change CI ladder; that one owns the one-off weights verdict)
 - pytest/fixture depth with no eval surface → `system-developer:python-skills`
 
 ## Gate Placement Ladder

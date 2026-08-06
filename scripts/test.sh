@@ -17,8 +17,10 @@
 # Note on formatting: the plugin's own scripts are tab-indented and are NOT
 # shfmt-gated (validate.sh predates and does not pass `shfmt -i 2`). This
 # runner enforces shellcheck on scripts/, not shfmt. hooks/ are ported
-# space-indented infra verified here via bash -n + --self-test rather than
-# shellcheck, matching their upstream treatment.
+# space-indented infra verified here via bash -n + --self-test rather than by
+# this linter, matching their upstream treatment. No comment line here may
+# begin with the linter's own name — ShellCheck >=0.11 parses that as a
+# directive and fails the file (SC1073).
 #
 # Mirrors the plugin's "degrade gracefully" philosophy: a missing tool is a
 # SKIP, not a failure — unless --strict, which turns SKIPs into failures so a

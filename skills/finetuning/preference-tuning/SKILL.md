@@ -2,14 +2,14 @@
 name: preference-tuning
 description: >-
   Aligns model behavior with preferences: choosing between SFT-only, DPO,
-  ORPO/KTO, and full RLHF/PPO; building preference pairs (pair generation,
-  labeling rubrics, annotator agreement, synthetic-data caveats); DPO
-  mechanics (beta, reference model, smoke-scale TRL loop); detecting reward
-  hacking (length bias, sycophancy, style collapse) + mitigations; and
-  distillation as the alternative. Use when SFT output is
-  close-but-not-quite, when picking a preference method, when building
-  chosen/rejected pairs, when tuned outputs grow longer or sycophantic, or
-  when measuring win-rate against a baseline.
+  ORPO/KTO, and full RLHF/PPO; building preference pairs (generation,
+  labeling rubrics, annotator agreement); DPO mechanics (beta, reference
+  model, smoke-scale TRL loop); detecting reward hacking (length bias,
+  sycophancy, style collapse) + mitigations; and distillation.
+  Use when SFT output is close-but-not-quite, when picking a preference
+  method, when labeling chosen/rejected pairs, when tuned outputs grow longer
+  or sycophantic, or when measuring win-rate against a baseline. Not
+  verifiable-reward RL (grpo-rlvr-training).
 ---
 
 # Preference Tuning
@@ -42,6 +42,8 @@ reward-model builds) go through `ai-engineer:ai-architector`.
 
 - No competent SFT baseline yet → `skills/finetuning/peft-lora` first; DPO needs a reasonable starting policy
 - The target is objective correctness (exact format, factual QA) → SFT on gold outputs; preference signal only adds noise there
+- Success is decidable by a *program* (unit tests, schema validation, math ground truth) → `skills/finetuning/grpo-rlvr-training`; a verifiable reward is a stronger signal than a preference, so do not spend it on pairs
+- *Sourcing* pairs from already-graded traces (rejection sampling, passing-vs-failing trajectories) → `skills/finetuning/trace-to-training-data`; it supplies the trajectories, this skill owns the selection formula and the run
 - Pair *format* and dataset hygiene (dedup, scrub, versioning) → `skills/finetuning/dataset-curation` (+ `skills/finetuning/dataset-curation/references/data-formats.md` for the chosen/rejected schema)
 - Judge rubrics and bias controls → `skills/evals/llm-judge`
 - The run doesn't fit or is slow → `skills/finetuning/training-optimization`
@@ -55,6 +57,11 @@ reward-model builds) go through `ai-engineer:ai-architector`.
 | ORPO | Pairs | 1 model, no reference | Stable | Single-stage SFT+preference; smaller pipelines |
 | KTO | Independent good/bad labels (unpaired) | ~DPO | Stable | You have thumbs-up/down telemetry, not pairs |
 | RLHF (PPO-class) | Prompts + trained reward model (+ pairs to train it) | 3–4 models live, online sampling, RL loop | Fragile, expensive | Platform/frontier scale, dense custom rewards — rarely justified for app teams |
+| GRPO / RLVR → `skills/finetuning/grpo-rlvr-training` | Prompts + a *programmatic verifier*; no pairs, no reward model | Online generation + RL loop | Sensitive to reward design | **Success is machine-checkable** (tests, schemas, math). Routes out of this skill entirely — see that skill, not this table |
+
+**DPO for taste, GRPO for reasoning.** The discriminator is not difficulty, it
+is whether a program can decide the outcome: if a verifier returns pass/fail,
+the last row applies and preference pairs are the weaker signal.
 
 The DPO-first default: if DPO on good pairs doesn't move the win rate, the
 fix is almost always better pairs, not a fancier algorithm. Any move to
@@ -115,6 +122,9 @@ Read `references/dpo-and-preference-data.md` for preference-pair construction an
 ## Related Skills
 
 - `skills/finetuning/peft-lora` — the SFT stage that precedes preference tuning; adapter mechanics
+- `skills/finetuning/grpo-rlvr-training` — the sibling method when a program can verify success; this skill owns preference signals, that one owns verifiable rewards
+- `skills/finetuning/trace-to-training-data` — sources chosen/rejected pairs from graded traces; this skill owns the selection formula it applies
+- `skills/finetuning/checkpoint-promotion` — the drift gate a tuned checkpoint clears before it ships
 - `skills/finetuning/dataset-curation` — pair formats, hygiene gates, provenance ledger
 - `skills/finetuning/training-optimization` — fitting and running DPO jobs; loss triage
 - `skills/evals/llm-judge` — win-rate judging, rubrics, position/length bias controls

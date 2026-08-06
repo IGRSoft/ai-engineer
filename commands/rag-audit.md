@@ -183,7 +183,8 @@ When a framework hides stages (a managed retriever, an opaque indexer), audit th
 
 ## See Also
 
-- `skills/llm-apps/rag-systems` — the stage checklists, debug order, and lifecycle rules this audit grades against (`references/chunking-strategies.md`, `references/retrieval-evaluation.md`).
+- `skills/llm-apps/rag-systems` — the stage checklists, debug order, and lifecycle rules this audit grades against (`references/chunking-strategies.md`, `references/retrieval-evaluation.md`, `references/embedding-and-index-tuning.md`).
+- `skills/llm-apps/rag-systems/references/embedding-and-index-tuning.md` — parameter-level depth when a finding is "index tuned by guesswork": HNSW `M`/`efConstruction`/`efSearch`, IVF `nlist`/`nprobe`, index memory estimation, score normalization, and RRF vs linear fusion.
 - `skills/prompt-engineering/prompt-design` — instruction hierarchy and untrusted-input delimiting behind the assemble-stage checks.
 - `skills/evals/eval-design` / `skills/evals/regression-gates` — building the missing retrieval eval set and wiring it into CI.
 - `skills/_shared/severity-matrix.md` — P0-P3 definitions used in the ranking.

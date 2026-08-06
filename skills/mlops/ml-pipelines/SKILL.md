@@ -38,6 +38,7 @@ clone beats an orchestrator wrapping steps that only work on one laptop.
 
 - Logging runs and comparing experiments → `skills/mlops/experiment-tracking` (pipelines *produce* runs; the tracker records them)
 - Gate thresholds and flake policy for CI evals → `skills/evals/regression-gates`
+- The *verdict* a promotion gate stage computes — capability-drift budget on a checkpoint's weights, paired comparison vs base → `skills/finetuning/checkpoint-promotion` (this skill owns the DAG stage and the alias flip; that one owns what the stage decides)
 - Serving the promoted artifact → `skills/mlops/model-serving`
 - Watching the deployed model and triggering retraining on drift → `skills/mlops/model-monitoring`
 

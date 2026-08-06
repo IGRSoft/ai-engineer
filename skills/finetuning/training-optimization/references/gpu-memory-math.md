@@ -82,6 +82,27 @@ so sequence length and micro-batch set the ceiling.
   only order-of-magnitude reliable — measure it (below) rather than trusting
   a formula beyond that.
 
+## Unified-Memory Systems
+
+Where host and accelerator share one physical pool (integrated and
+shared-memory architectures, including Apple silicon), the accounting above
+still holds but the *budget* changes: weights + gradients + optimizer states +
+activations all draw from the same pool the OS, the dataloader, and every other
+process are using. There is no separate host-side headroom to fall back on.
+
+Consequences for planning:
+
+- **Budget against the pool minus what the system already holds**, not against
+  the nominal total. The gap is not small on a workstation.
+- **Host-side spill is not a rescue.** Offloading optimizer states "to CPU"
+  moves bytes within the same pool — it can still help by changing *when*
+  allocations live, but it does not add capacity the way it does on a discrete
+  device.
+- **Dataloader workers and cached batches compete with the model.** They are a
+  line item here, not rounding error.
+- Verify with the framework allocator plus process RSS, since a
+  device-only view understates the true footprint.
+
 ## The Estimate → Verify Loop
 
 1. **Estimate** with the tables above for your params/dtype/method.
