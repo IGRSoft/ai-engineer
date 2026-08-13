@@ -16,7 +16,7 @@ estimated-cost:
 
 Detect an AI/ML project's Python environment, sync its dependencies, verify it imports, and run its tests in one call. The happy path is pure Bash — no agent delegation. Agents are engaged only when a phase fails, and only the domain agent that owns the failing surface, with a tight log excerpt.
 
-[Extended thinking: This is the `ai` platform's build gate — `company-workflow:developer § Build Verification` routes here, and DR calls it with `--no-test` as its compile-only check. AI/ML projects have no compile step, so "build" here means *the environment resolves and the package imports*: a dependency-resolution failure and an import failure are different bugs with different owners, and both are invisible to a test-only run. Because raw install and pytest logs are the largest avoidable context cost in the pipeline, everything tees to a log and only a classified excerpt is ever handed to an agent. Where a project's real build is a data pipeline or an eval, say so and route there rather than inventing a compile phase that does not exist.]
+[Extended thinking: This is the `ai` platform's build gate — `corpflow:developer § Build Verification` routes here, and DR calls it with `--no-test` as its compile-only check. AI/ML projects have no compile step, so "build" here means *the environment resolves and the package imports*: a dependency-resolution failure and an import failure are different bugs with different owners, and both are invisible to a test-only run. Because raw install and pytest logs are the largest avoidable context cost in the pipeline, everything tees to a log and only a classified excerpt is ever handed to an agent. Where a project's real build is a data pipeline or an eval, say so and route there rather than inventing a compile phase that does not exist.]
 
 ## CRITICAL BEHAVIORAL RULES
 
@@ -41,7 +41,7 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 # Build a specific subproject
 /ai-engineer:build-test services/rag
 
-# Compile-only gate (what company-workflow's DR stage calls)
+# Compile-only gate (what corpflow's DR stage calls)
 /ai-engineer:build-test . --no-test
 
 # Force pip on a repo that also carries a uv.lock, fresh env
@@ -58,7 +58,7 @@ You MUST follow these rules exactly. Violating any of them is a failure.
 | `path` | `.` | Directory to detect and operate on. The detection scan is rooted here. |
 | `--manager uv\|pip\|conda` | auto | Force the environment manager when detection is ambiguous (e.g. a repo carrying both `uv.lock` and `environment.yml`). |
 | `--clean` | off | Recreate the environment before syncing: `uv sync --reinstall`, a fresh venv for pip, or `conda env create --force`. Slower; use when a stale env is suspected. |
-| `--no-test` | off | Sync and import-check only; skip the test phase. **This is the DR compile-only gate** — `company-workflow:developer` depends on this flag existing. |
+| `--no-test` | off | Sync and import-check only; skip the test phase. **This is the DR compile-only gate** — `corpflow:developer` depends on this flag existing. |
 | `-k EXPR` | none | Pass a pytest `-k` selection expression through to the test phase. Use for scoped re-runs; never as a blanket skip. |
 
 ## Detection: Environment Priority

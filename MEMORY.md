@@ -5,7 +5,7 @@
 | Field | Value |
 |-------|-------|
 | Plugin version | 1.3.0 |
-| company-workflow compatibility | v4.0.0 |
+| corpflow compatibility | v4.0.13 |
 | Claude Code min required | — (not pinned in the manifests) |
 | Last updated | 2026-08-06 |
 
@@ -17,11 +17,11 @@
 | 1.2.0 | 2026-07-29 | `/ai-engineer:build-test` platform build gate; AR consultation model documented in `workflow-integration`. |
 
 Version strings move together (plugin.json, marketplace.json metadata, README
-header, this table) per the company-workflow `/cc-update` convention.
+header, this table) per the corpflow `/cc-update` convention.
 
 ## CC Features Adopted at 1.0.0
 
-The plugin is born on the company-workflow v3.36.0 baseline, so it adopts the current
+The plugin is born on the corpflow v3.36.0 baseline, so it adopts the current
 capability set from the start rather than migrating into it:
 
 - **Tiered `maxTurns`** — every agent declares a runaway-loop backstop sized to
@@ -36,7 +36,7 @@ capability set from the start rather than migrating into it:
 - **Fully-qualified `Task(plugin:agent)` references** — all delegations use the
   `Task(ai-engineer:<agent>)` / `subagent_type="ai-engineer:<agent>"` form; no
   bare agent names anywhere. Cross-plugin targets keep their own prefix
-  (`company-workflow:*`, `system-developer:*`, etc.).
+  (`corpflow:*`, `system-developer:*`, etc.).
 - **Scoped `Bash(cmd:*)` allowlists** — each agent's `tools:` enumerates only
   the toolchain binaries it needs (core set `git`, `uv`, `python3`, `pytest`,
   `ruff`, `jq`; role-specific additions like `nvidia-smi`, `docker`, `dvc`,
@@ -47,22 +47,22 @@ capability set from the start rather than migrating into it:
   the no-hardcoded-volatile-facts rule (decision h below).
 - **Plugin-scoped advisory hooks** — `hooks/{audit-tooluse,audit-subagent,
   precompact-checkpoint}.sh`, wired in `plugin.json` (PostToolUse /
-  SubagentStop / PreCompact); company-workflow-compatible `dedupe_key` /
-  `dedupe_key_extended` shape and `metadata.advisory: true` rows so company-workflow's
+  SubagentStop / PreCompact); corpflow-compatible `dedupe_key` /
+  `dedupe_key_extended` shape and `metadata.advisory: true` rows so corpflow's
   `audit-dedup.sh` keeps the orchestrator row authoritative when ai-engineer
   runs nested. Each script has `--self-test`.
 
-## Not Adopted (company-workflow-owned infrastructure)
+## Not Adopted (corpflow-owned infrastructure)
 
-ai-engineer agents are invoked specialists; company-workflow owns orchestration. The
+ai-engineer agents are invoked specialists; corpflow owns orchestration. The
 following stay orchestrator-owned and are deliberately **not** implemented here:
 
-- **`audit-dedup.sh`** — company-workflow-owned. ai-engineer emits advisory rows with
-  matching dedupe keys for company-workflow's helper to reconcile.
+- **`audit-dedup.sh`** — corpflow-owned. ai-engineer emits advisory rows with
+  matching dedupe keys for corpflow's helper to reconcile.
 - **`state-merge.sh` / SubagentStop `state.json` merge** — orchestrator-owned.
   The hooks here read and checkpoint state but never merge it. Frontmatter
-  emission is unconditional (it is the input company-workflow's merge layer consumes).
-- **Screenshot-gate ownership** — company-workflow owns the evidence gate. ai-engineer
+  emission is unconditional (it is the input corpflow's merge layer consumes).
+- **Screenshot-gate ownership** — corpflow owns the evidence gate. ai-engineer
   work defaults to `requires_screenshots: false` and, when a gate demands
   proof, supplies a `cli-fallback` manifest (eval reports, loss-curve textual
   summaries, test transcripts — produced this run, per the freshness rule). It
@@ -84,12 +84,12 @@ following stay orchestrator-owned and are deliberately **not** implemented here:
   `scripts/test.sh` documents re-adding the bats/pytest suites when one
   exists.
 - **`ai-prompt-engineer` naming** — the bare name `prompt-engineer` collides
-  with company-workflow's meta-prompt agent (`company-workflow:prompt-engineer`, which owns
+  with corpflow's meta-prompt agent (`corpflow:prompt-engineer`, which owns
   Claude Code agent/skill/command prompts). The `ai-` prefix on colliding
   Tier-2 names mirrors the sibling plugins' prefix families (`sys-` in
   system-developer, `fe-`/`be-` in frontend/backend-developer). The agent's
   description carries the disambiguation both ways: product prompts here,
-  meta-prompts to company-workflow.
+  meta-prompts to corpflow.
 - **Smoke-scale training rule** — DV never launches full training runs: capped
   `max_steps`/epochs on a data subsample, verify the loss curve moves
   (decreasing, no NaN), and document the full-run launch plan (command, data,
@@ -99,7 +99,7 @@ following stay orchestrator-owned and are deliberately **not** implemented here:
   examples across the finetuning skills follow it.
 - **`validate.sh` `ALLOWED_PREFIX_RE` keeps `system-developer`** — the
   subagent-type prefix whitelist is
-  `^(ai-engineer|company-workflow|system-developer|general-purpose)` because ai-engineer
+  `^(ai-engineer|corpflow|system-developer|general-purpose)` because ai-engineer
   skills legitimately cross-reference system-developer's Python agents
   (`system-developer:python-developer` for pure language depth, per
   `framework-detection.md § Precedence vs Sibling Plugins`). Do not "clean up"
@@ -129,11 +129,11 @@ following stay orchestrator-owned and are deliberately **not** implemented here:
   (`scripts/desc-lint.sh <file>`); `scripts/test.sh` inherits the same
   visibility rule through its desc-lint step.
 
-## company-workflow Registration (pending companion change)
+## corpflow Registration (pending companion change)
 
 Standalone install works today: slash commands (`/ai-engineer:*`), skills, and
-direct `Task(ai-engineer:*)` delegation. Auto-routing from the company-workflow
+direct `Task(ai-engineer:*)` delegation. Auto-routing from the corpflow
 worktask (DV dispatch on AI markers, `--platform ai`) requires edits **in the
-company-workflow repo** — exact before/after snippets in
-`docs/company-workflow-registration.md`. Until that PR lands, route AI worktasks by
+corpflow repo** — exact before/after snippets in
+`docs/corpflow-registration.md`. Until that PR lands, route AI worktasks by
 stamping `metadata.agent: "ai-engineer:ai-engineer"` explicitly.

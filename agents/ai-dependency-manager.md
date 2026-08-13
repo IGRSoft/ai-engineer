@@ -15,7 +15,7 @@ Inherits `_base/ai-agent.md` (Constraints, Code Comment Policy, Tool Priority, D
 
 ## Workflow Integration
 
-If `.context/state.json` exists, this agent is inside a company-workflow workflow: load `skill: workflow-integration`, read `.context/state.json` for upstream context, and return a compressed summary (≤500 tokens) for the stage owner to merge — this agent does NOT patch `state.json` or own a stage artifact. Stage roles are in § Workflow Stage Participation.
+If `.context/state.json` exists, this agent is inside corpflow: load `skill: workflow-integration`, read `.context/state.json` for upstream context, and return a compressed summary (≤500 tokens) for the stage owner to merge — this agent does NOT patch `state.json` or own a stage artifact. Stage roles are in § Workflow Stage Participation.
 
 ## Capabilities
 
@@ -51,11 +51,11 @@ If `.context/state.json` exists, this agent is inside a company-workflow workflo
 
 Per CVE finding: package, resolved version, CVE/GHSA/OSV ID, severity, affected range, fixed version, remediation (one-at-a-time bump or pinned override if unfixed). Per license finding: artifact → license → conflict → action.
 
-## Workflow Stage Participation (company-workflow v4.0.0)
+## Workflow Stage Participation (corpflow v4.0.13)
 
 | Stage | Role | Contribution |
 |-------|------|-------------|
-| **RE** | Packaging support | **Lockfile + model-revision pin freeze**: `uv.lock` committed and `uv sync --frozen` clean; every HF model/adapter `revision` pinned in code and configs; eval-set versions recorded; CVE scan clean or waived with rationale — findings feed `release-N.md` via the RE owner (`company-workflow:release-engineer`) |
+| **RE** | Packaging support | **Lockfile + model-revision pin freeze**: `uv.lock` committed and `uv sync --frozen` clean; every HF model/adapter `revision` pinned in code and configs; eval-set versions recorded; CVE scan clean or waived with rationale — findings feed `release-N.md` via the RE owner (`corpflow:release-engineer`) |
 | **DV** | Support | Resolve dependency conflicts blocking implementation (resolver dead-ends, torch/CUDA mismatches, platform-marker gaps); supply audit findings for the parent's `development-N.md` — the parent owns artifact and state |
 | **SR** | Context | CVE and supply-chain scan results, cross-checked with `ai-engineer:ai-security-auditor` (pickle artifacts, `trust_remote_code`, unpinned revisions) |
 

@@ -1,10 +1,10 @@
 # Workflow Integration — Stage Details
 
-Per-stage contracts for ai-engineer agents inside the company-workflow worktask pipeline. Read alongside [../SKILL.md](../SKILL.md) (pipeline, invocation, artifact filename contract, agent names).
+Per-stage contracts for ai-engineer agents inside the corpflow worktask pipeline. Read alongside [../SKILL.md](../SKILL.md) (pipeline, invocation, artifact filename contract, agent names).
 
 ## AR Consultation Model
 
-`company-workflow:software-architector` **owns the AR stage** and its `analyzing-N.md` artifact. `ai-architector` is consulted, never handed ownership:
+`corpflow:software-architector` **owns the AR stage** and its `analyzing-N.md` artifact. `ai-architector` is consulted, never handed ownership:
 
 1. It writes the full analysis to `.context/ai-architecture.md` — ADR-style: chosen option, rejected options with the criterion each failed, consequences, revisit triggers.
 2. It returns a compressed recommendation of **≤500 tokens**, not the document body.
@@ -18,7 +18,7 @@ Template: [../templates/ar-consultation.md](../templates/ar-consultation.md).
 
 ## DV Contract for AI Work
 
-The DV agent writes `.context/development-N.md`. Mandatory H2 anchors are fixed by company-workflow's anchor allow-list (`handoff-protocol.md#anchor-allow-list`): `## files-changed`, `## tests-added`, `## deviations`, `## follow-ups`. AI-specific sections nest as H3 under them:
+The DV agent writes `.context/development-N.md`. Mandatory H2 anchors are fixed by corpflow's anchor allow-list (`handoff-protocol.md#anchor-allow-list`): `## files-changed`, `## tests-added`, `## deviations`, `## follow-ups`. AI-specific sections nest as H3 under them:
 
 | Section | Anchor level | Content |
 |---------|--------------|---------|
@@ -34,13 +34,13 @@ AI Build Evidence is non-negotiable: a DV artifact without a `python -VV` line, 
 
 **Smoke-scale training rule** (the sanitizer-clause analog): DV never launches full training runs — cap `max_steps`/epochs on a data subsample, verify the loss curve moves (decreasing, no NaN), and document the full-run launch plan (command, data, expected duration/cost) in `development-N.md`. DR fails a DV artifact whose transcripts show an uncapped training invocation.
 
-Source comments follow the compact code-documentation standard (`company-workflow:code-comment-standard` / company-workflow `skills/shared/code-documentation.md`): comment the non-obvious WHY and the contract only — never the WHAT, history, or call sites; rationale lives in the PR / `.context/development-N.md`. DR flags violations.
+Source comments follow the compact code-documentation standard (`corpflow:code-comment-standard` / corpflow `skills/shared/code-documentation.md`): comment the non-obvious WHY and the contract only — never the WHAT, history, or call sites; rationale lives in the PR / `.context/development-N.md`. DR flags violations.
 
 Copy-paste template: [../templates/dv-development.md](../templates/dv-development.md).
 
 ## Screenshot Gate for CLI Work (HIGHEST INTEGRATION RISK — read this)
 
-company-workflow's `dv-screenshot-gate.sh` blocks `SubagentStop` when `metadata.requires_screenshots != false` and no manifest exists at `.context/images/<worktask_id>/screenshots.md`. The company-workflow default is **TRUE** — but AI/CLI work has no UI to screenshot. Handle it in this order:
+corpflow's `dv-screenshot-gate.sh` blocks `SubagentStop` when `metadata.requires_screenshots != false` and no manifest exists at `.context/images/<worktask_id>/screenshots.md`. The corpflow default is **TRUE** — but AI/CLI work has no UI to screenshot. Handle it in this order:
 
 1. **Preferred**: the dispatcher sets `metadata.requires_screenshots: false` for ai-engineer DV stages (non-UI changes). Then no manifest is required and the gate is skipped. Plugin norm: `requires_screenshots: false` is the **default expectation** for AI work — flag it in your return summary if the metadata says otherwise.
 2. **cli-fallback procedure** (when the flag is unset/true and you cannot change it): produce the manifest anyway using terminal transcripts —
@@ -48,9 +48,9 @@ company-workflow's `dv-screenshot-gate.sh` blocks `SubagentStop` when `metadata.
    - Write `.context/images/<worktask_id>/screenshots.md` with one row per capture, `source: cli-fallback`, and a `notes` cell explaining why (e.g. "LLM pipeline, no UI; transcript capture").
    - Frontmatter `screenshot_count` MUST equal the number of table rows.
 3. **Never** fabricate image files or return without either the `false` flag or a cli-fallback manifest — the gate re-dispatches DV until one exists.
-4. **Evidence freshness**: every `cli-fallback` row — eval report, loss-curve textual summary, or test transcript — must be produced *this run* from the actual test/eval invocation — never reuse a transcript from a prior run or another workdir. company-workflow QA direct-reads the evidence files and cross-checks them against the log paths recorded in the DV artifact's `### build-evidence` section; a stale or duplicated transcript is flagged and re-opens DV. This is the text-evidence corollary of rule 3 — the "never fabricate" integrity bar applies to reused transcripts as much as to invented image files.
+4. **Evidence freshness**: every `cli-fallback` row — eval report, loss-curve textual summary, or test transcript — must be produced *this run* from the actual test/eval invocation — never reuse a transcript from a prior run or another workdir. corpflow QA direct-reads the evidence files and cross-checks them against the log paths recorded in the DV artifact's `### build-evidence` section; a stale or duplicated transcript is flagged and re-opens DV. This is the text-evidence corollary of rule 3 — the "never fabricate" integrity bar applies to reused transcripts as much as to invented image files.
 
-Manifest row format mirrors company-workflow's `dv-screenshot-capture` output: `| name | path | source | design_ref | notes |` with `source` ∈ {`cli-fallback`} for AI work; `design_ref` stays blank (no mockups for CLI).
+Manifest row format mirrors corpflow's `dv-screenshot-capture` output: `| name | path | source | design_ref | notes |` with `source` ∈ {`cli-fallback`} for AI work; `design_ref` stays blank (no mockups for CLI).
 
 `ui_visual_check` (the v4.0.0 DV metadata contract field) is **not applicable** to AI/CLI work — leave it `false`; it gates live-driven UI-capture provenance on UI platforms, which have no analog here.
 
@@ -80,7 +80,7 @@ technical-lead reads `development-N.md` + error files and produces `developer-re
 | Training discipline | DV runs are smoke-scale (capped `max_steps`/epochs on a subsample); seeds pinned; full-run launch plan documented; loss curve sane (decreasing, no NaN) |
 | Unsafe constructs | `pickle.loads`/`torch.load` on untrusted checkpoints (use safetensors); `eval` on model output; `subprocess(..., shell=True)` reachable from agent tools; unpinned `revision` on HF downloads |
 | Reproducibility hygiene | ruff + type-check clean; `uv.lock` updated with manifest changes; model revisions + eval-set versions pinned; experiment config logged; no committed artifacts/checkpoints |
-| Comment hygiene | Comments follow the compact code-documentation standard (`company-workflow:code-comment-standard`): WHY/contract only, no design provenance, history, or call-site enumeration; no restated code |
+| Comment hygiene | Comments follow the compact code-documentation standard (`corpflow:code-comment-standard`): WHY/contract only, no design provenance, history, or call-site enumeration; no restated code |
 
 Template: [../templates/dr-review.md](../templates/dr-review.md).
 
@@ -95,7 +95,7 @@ ai-test-generator supports QA with framework-native generation (pytest, golden s
 
 ## SR and RE Contributions
 
-- **SR** — ai-security-auditor provides platform context to company-workflow's security-reviewer: OWASP LLM Top 10 mapping, prompt-injection review (untrusted input → privileged prompts, tool-execution gating), data-leakage scan (secrets/PII in code, prompts, logs, datasets), model-artifact safety (safetensors over pickle, pinned HF revisions), supply-chain audit (`pip-audit`, `osv-scanner`, model provenance). Review-only: findings route to ai-code-fixer for application.
+- **SR** — ai-security-auditor provides platform context to corpflow's security-reviewer: OWASP LLM Top 10 mapping, prompt-injection review (untrusted input → privileged prompts, tool-execution gating), data-leakage scan (secrets/PII in code, prompts, logs, datasets), model-artifact safety (safetensors over pickle, pinned HF revisions), supply-chain audit (`pip-audit`, `osv-scanner`, model provenance). Review-only: findings route to ai-code-fixer for application.
 - **RE** — release-engineer owns the stage; ai-engineer contributes packaging: ai-dependency-manager freezes lockfiles and pins (`uv.lock`, HF model revisions, eval-set versions), and the domain agents produce release artifacts (wheels/sdists via `uv build`, container images, adapter/model artifact versions, changelog entries) recorded in `release-N.md`.
 
 ## Handoff Frontmatter (v4.0.0 schema)
@@ -113,7 +113,7 @@ Every stage artifact MUST start with a YAML block between `---` markers. Budgets
 
 ## Gate-Feedback Contract (v4.0.0)
 
-When DR returns `verdict: fail` or QA returns `verdict: no-go`, the orchestrator re-dispatches DV (`run_index` bumped, `retry_count`++) and carries the upstream remediation **verbatim** into the retry prompt (company-workflow `worktask/SKILL.md` step 4.6). ai-engineer agents **consume** this contract; the injection is orchestrator-owned.
+When DR returns `verdict: fail` or QA returns `verdict: no-go`, the orchestrator re-dispatches DV (`run_index` bumped, `retry_count`++) and carries the upstream remediation **verbatim** into the retry prompt (corpflow `worktask/SKILL.md` step 4.6). ai-engineer agents **consume** this contract; the injection is orchestrator-owned.
 
 | Surface | Mechanism | ai-engineer action |
 |---------|-----------|--------------------|
@@ -128,10 +128,10 @@ On a rework dispatch the DV/ai-code-fixer agent MUST:
 
 ## Token Budgets
 
-- **Incoming compressed context** (from company-workflow): 300-500 tokens (planning summary 300, architecture summary 300, development handoff 500)
+- **Incoming compressed context** (from corpflow): 300-500 tokens (planning summary 300, architecture summary 300, development handoff 500)
 - **Full stage output**: write to `.context/<stage>-N.md` (no token cap)
 - **Outgoing return summary**: 500 tokens max (for the orchestrator)
-- **Inter-stage handoffs**: DV→DR 300, DR→QA 300 (`company-workflow:context-compression § Context Budget by Handoff`)
+- **Inter-stage handoffs**: DV→DR 300, DR→QA 300 (`corpflow:context-compression § Context Budget by Handoff`)
 
 ## Dynamic Worktask Sizing (v4.0.0)
 
@@ -147,5 +147,5 @@ PL0 assesses complexity (0-50) and creates only the stages needed:
 
 Security-sensitive features (authentication, payment, PII, cryptography, secrets, file uploads) auto-include SR0 regardless of score.
 
-PL0 stamps `metadata.skipped_stages = [{stage, reason}]` for every stage dropped from the full 9-stage pipeline (PL→AR→TL→DV→DR→QA→DC→FN→ST), so `state.json` self-documents the drops. It also stamps `metadata.test_mode` (`build-only` / `scoped` / `full` — defaulted by score and marker coverage) and `metadata.ui_visual_check` (the UI-capture provenance gate, left `false` for AI/CLI work). The stage table above, the `test_mode` defaults, and these stamps are all defined by company-workflow `estimation-methodology § PL0 Stage-Set` (the source of truth) — keep them in lockstep with it so the next sync is a mechanical copy.
+PL0 stamps `metadata.skipped_stages = [{stage, reason}]` for every stage dropped from the full 9-stage pipeline (PL→AR→TL→DV→DR→QA→DC→FN→ST), so `state.json` self-documents the drops. It also stamps `metadata.test_mode` (`build-only` / `scoped` / `full` — defaulted by score and marker coverage) and `metadata.ui_visual_check` (the UI-capture provenance gate, left `false` for AI/CLI work). The stage table above, the `test_mode` defaults, and these stamps are all defined by corpflow `estimation-methodology § PL0 Stage-Set` (the source of truth) — keep them in lockstep with it so the next sync is a mechanical copy.
 

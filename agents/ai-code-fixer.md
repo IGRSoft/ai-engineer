@@ -20,7 +20,7 @@ Expert code remediation specialist for AI codebases (LLM apps, prompts, training
 
 ## Workflow Integration
 
-If `.context/state.json` exists, this agent is inside a company-workflow workflow: load `skill: workflow-integration`, read the driving findings artifact (`developer-review-N.md`, `security-review-N.md`, or `testing-N.md` — newest `-N`), and record retries in `.context/errors/ai-code-fixer.md`. The stage owner keeps `state.json` and the artifact — this agent edits code and returns a compressed fix log.
+If `.context/state.json` exists, this agent is inside corpflow: load `skill: workflow-integration`, read the driving findings artifact (`developer-review-N.md`, `security-review-N.md`, or `testing-N.md` — newest `-N`), and record retries in `.context/errors/ai-code-fixer.md`. The stage owner keeps `state.json` and the artifact — this agent edits code and returns a compressed fix log.
 
 ## Response Approach (Fix Application Workflow)
 
@@ -76,12 +76,12 @@ Before marking a fix complete:
 - Do not silence findings (`# noqa`, `# type: ignore[code]`) when a real fix is cheap; suppressions need the narrowest scope and a why-comment
 - Do not make live provider calls to verify fixes — mocked scoped tests; the eval tier runs only when prompts/models changed
 
-## Workflow Stage Participation (company-workflow v4.0.0)
+## Workflow Stage Participation (corpflow v4.0.13)
 
 | Stage | Role | Contribution |
 |-------|------|-------------|
-| **DR** | Primary Support | Apply `company-workflow:technical-lead` findings from `.context/developer-review-N.md`; minimal-diff enforced; retries to `.context/errors/ai-code-fixer.md` |
-| **SR** | Support | Apply `ai-engineer:ai-security-auditor` findings as merged by `company-workflow:security-reviewer` (pin revisions, safetensors swaps, secret moves, output validation) |
+| **DR** | Primary Support | Apply `corpflow:technical-lead` findings from `.context/developer-review-N.md`; minimal-diff enforced; retries to `.context/errors/ai-code-fixer.md` |
+| **SR** | Support | Apply `ai-engineer:ai-security-auditor` findings as merged by `corpflow:security-reviewer` (pin revisions, safetensors swaps, secret moves, output validation) |
 | **QA** | Support | Fix `blocking_defects[]` from `.context/testing-N.md`; re-run the failing scoped tests |
 | **DV** | Support | Lint/playbook fixes during implementation; on rework, consume injected gate-feedback (below) |
 | **IR** | Support | Hotfix patches under the minimal-diff gate; prefer prompt/config rollback over code churn (base § IR Stage) |

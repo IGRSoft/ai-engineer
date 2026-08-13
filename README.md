@@ -1,8 +1,8 @@
 # AI Engineer Plugin
 
-Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops, structured outputs), **prompt engineering**, **LLM fine-tuning** (LoRA/QLoRA/DPO), **MLOps** (serving, experiment tracking, monitoring, pipelines), and **LLM evaluation** — with specialized agents, commands, and skills. Collaborates with the company-workflow plugin v4.0.0 for full 11-stage workflow orchestration (PL→AR→TL→DV→**DR**→SR→QA→DC→RE→FN→ST) including the handoff-protocol (planning-N.md, state.json ledger, `handoff:` frontmatter schema). AI and CLI work defaults to `requires_screenshots: false`; when an evidence gate demands proof, agents attach `cli-fallback` transcripts (eval reports, loss-curve summaries, test transcripts) instead of screenshots.
+Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops, structured outputs), **prompt engineering**, **LLM fine-tuning** (LoRA/QLoRA/DPO), **MLOps** (serving, experiment tracking, monitoring, pipelines), and **LLM evaluation** — with specialized agents, commands, and skills. Collaborates with the corpflow plugin v4.0.13 for full 11-stage workflow orchestration (PL→AR→TL→DV→**DR**→SR→QA→DC→RE→FN→ST) including the handoff-protocol (planning-N.md, state.json ledger, `handoff:` frontmatter schema). AI and CLI work defaults to `requires_screenshots: false`; when an evidence gate demands proof, agents attach `cli-fallback` transcripts (eval reports, loss-curve summaries, test transcripts) instead of screenshots.
 
-**Version**: 1.3.0 | **company-workflow Compatibility**: v4.0.0
+**Version**: 1.3.0 | **corpflow Compatibility**: v4.0.13
 
 ## What's in 1.3.0
 
@@ -13,14 +13,14 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 
 ## What's in 1.2.0
 
-- **`workflow-integration` completes the compatibility contract** — the skill now documents the AR consultation model (`ai-architector` writes `.context/ai-architecture.md` and returns ≤500 tokens; `company-workflow:software-architector` keeps stage ownership), carries an AR row in the per-stage frontmatter matrix, and ships an AR consultation template plus a filled-in worked example of a DV takeover by `llm-engineer`. See [`skills/_shared/workflow-integration/`](skills/_shared/workflow-integration/).
+- **`workflow-integration` completes the compatibility contract** — the skill now documents the AR consultation model (`ai-architector` writes `.context/ai-architecture.md` and returns ≤500 tokens; `corpflow:software-architector` keeps stage ownership), carries an AR row in the per-stage frontmatter matrix, and ships an AR consultation template plus a filled-in worked example of a DV takeover by `llm-engineer`. See [`skills/_shared/workflow-integration/`](skills/_shared/workflow-integration/).
 
 ## What's in 1.1.0
 
 - **11 agents + `_base/ai-agent.md`** — an `ai-engineer` router, four domain implementers (`llm-engineer`, `ml-engineer`, `mlops-engineer`, `ai-prompt-engineer`), `ai-architector` (AR consultant), and five Tier-2 specialists (`ai-test-generator`, `ai-security-auditor`, `ai-performance-engineer`, `ai-code-fixer`, `ai-dependency-manager`). All inherit the shared base.
 - **9 commands** — AI-aware code review, eval running, eval-driven prompt optimization, RAG auditing, fine-tune planning, dataset auditing, serving readiness gating, an OWASP LLM Top 10 sweep, and the `build-test` platform build gate, each with restrictive `allowed-tools` and an `estimated-cost` band.
 - **Complete skills tree** — 24 `SKILL.md` across 5 domains (`prompt-engineering`, `llm-apps`, `finetuning`, `mlops`, `evals`) plus `_shared`, with deep reference files. **Mechanisms over snapshots** is the product: volatile facts (model IDs, prices, context-window sizes, library minor versions) are never hardcoded — skills name the lever and say "verify against current provider docs (context7)". Every quality claim is backed by an eval; everything degrades gracefully without CUDA.
-- **Plugin-scoped advisory hooks** — `audit-tooluse`, `audit-subagent`, `precompact-checkpoint`, wired in `plugin.json` with company-workflow-compatible dedupe keys. Advisory only: never merges `state.json` (orchestrator-owned). See [`hooks/README.md`](hooks/README.md).
+- **Plugin-scoped advisory hooks** — `audit-tooluse`, `audit-subagent`, `precompact-checkpoint`, wired in `plugin.json` with corpflow-compatible dedupe keys. Advisory only: never merges `state.json` (orchestrator-owned). See [`hooks/README.md`](hooks/README.md).
 - **CC capabilities adopted** — tiered `maxTurns` runaway-loop backstops, `disallowed-tools: Write, Edit` on the two review-only auditors, fully-qualified `Task(ai-engineer:<agent>)` delegations, scoped `Bash(cmd:*)` allowlists per toolchain, and the context7 MCP pair for library-docs lookups.
 
 ## Agents (11)
@@ -31,7 +31,7 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 | `llm-engineer` | sonnet / high | Production LLM applications: RAG pipelines, agent loops and tool use, structured outputs, provider SDKs with streaming, caching, fallback routing. |
 | `ml-engineer` | sonnet / high | LLM training and fine-tuning: PyTorch, Transformers/TRL/PEFT, LoRA/QLoRA, DPO preference tuning, dataset curation, smoke-scale verification. |
 | `mlops-engineer` | sonnet / high | Serving, deployment, and ML operations: vLLM/TGI/Ollama/Triton, quantized deploys, MLflow/W&B tracking, DVC pipelines, drift monitoring. |
-| `ai-prompt-engineer` | sonnet / high | Product prompt engineering — the prompts shipped *inside* your LLM product — with eval-driven optimization. (Claude Code meta-prompts belong to `company-workflow:prompt-engineer`.) |
+| `ai-prompt-engineer` | sonnet / high | Product prompt engineering — the prompts shipped *inside* your LLM product — with eval-driven optimization. (Claude Code meta-prompts belong to `corpflow:prompt-engineer`.) |
 | `ai-architector` | opus / xhigh | AI system architecture: prompt-vs-RAG-vs-fine-tune-vs-hybrid decisions, agent topology, serving stack, build-vs-buy, cost/latency modeling. AR-stage consultant. |
 | `ai-test-generator` | sonnet / high | pytest suites plus LLM eval harnesses — golden sets, LLM-judge scoring, regression gates — with pinned eval sets and deterministic settings. |
 | `ai-security-auditor` | sonnet / high (review-only) | OWASP LLM Top 10 audit: prompt injection, insecure output handling, model supply chain (pickle vs safetensors, unpinned revisions), secret/PII leakage, ungated agency. `disallowed-tools: Write, Edit`. |
@@ -53,11 +53,11 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 | `/ai-engineer:data-audit` | Read-only dataset quality audit — schema, dedup, train/test contamination, PII/secret scan, license/provenance, distribution stats into a P0-P3 report. |
 | `/ai-engineer:deploy-check` | Serving readiness gate for vLLM/TGI/Ollama/Triton deploys — pins, quantization evals, KV-cache math, gateway controls, probes, rollback, monitoring — returning GO / NO-GO / GO-WITH-RISKS. |
 | `/ai-engineer:analyze-security` | OWASP LLM Top 10 sweep of AI code, prompts, and dependencies via `ai-engineer:ai-security-auditor` — scanner-backed, mapped to LLM01-LLM10 + CWE with P0-P3. |
-| `/ai-engineer:build-test` | Detect the Python environment (uv/pip/conda), sync, verify the package imports, and run pytest. The `ai` platform's build gate — `company-workflow:developer` routes here, and DR calls it with `--no-test`. |
+| `/ai-engineer:build-test` | Detect the Python environment (uv/pip/conda), sync, verify the package imports, and run pytest. The `ai` platform's build gate — `corpflow:developer` routes here, and DR calls it with `--no-test`. |
 
 All commands degrade gracefully when a tool is missing: they print an install hint (for example `uv tool install ruff`, `brew install jq`), reduce depth, and never hard-fail. GPU-optional discipline applies throughout: no `nvidia-smi` → reduced-depth note, never a hard failure.
 
-**Migration (1.0.0 → 1.1.0)** — two commands were renamed to the `<verb>-<noun>` standard shared with the company-workflow dev plugins; the old names no longer resolve, and there is no alias.
+**Migration (1.0.0 → 1.1.0)** — two commands were renamed to the `<verb>-<noun>` standard shared with the corpflow dev plugins; the old names no longer resolve, and there is no alias.
 
 | Old | New |
 |-----|-----|
@@ -85,7 +85,7 @@ skills/
 
 | Skill | Description |
 |-------|-------------|
-| `workflow-integration` | Guide for the company-workflow 11-stage workflow (v4.0.0): DV contract for AI work, AI Build Evidence, the `requires_screenshots: false` / cli-fallback norm, gate feedback, handoff frontmatter. |
+| `workflow-integration` | Guide for the corpflow 11-stage pipeline (v4.0.13): DV contract for AI work, AI Build Evidence, the `requires_screenshots: false` / cli-fallback norm, gate feedback, handoff frontmatter. |
 | `framework-detection` | AI-stack marker → domain → agent routing: detection priority, dependency/file markers, mixed-stack tie-breaks, sibling-plugin precedence. |
 | `model-selection` | Per-agent model/effort/maxTurns assignments, cost tiers, and opus+xhigh override paths. |
 | `severity-matrix` | P0-P3 review priorities with AI examples, effort/impact quadrant, coverage requirements. |
@@ -194,11 +194,11 @@ After editing `settings.json`, run `/plugins` (or restart the session) to load t
 2. Verify the command surface resolves: `/ai-engineer:review-code` appears in the slash-command list and runs against working changes.
 3. Verify agent resolution: a `Task` call with `subagent_type: "ai-engineer:ai-engineer"` dispatches the router (which can further delegate to `ai-engineer:llm-engineer` etc.).
 
-Standalone installation gives you the slash commands, the skills, and direct `Task(ai-engineer:*)` delegation. **company-workflow auto-routing** (the `company-workflow:developer` DV stage detecting AI stacks and dispatching ai-engineer specialists, plus `--platform ai` on `/worktask`) additionally requires the companion edits to the company-workflow plugin documented in [`docs/company-workflow-registration.md`](docs/company-workflow-registration.md) — applied via a company-workflow PR, not from this repo.
+Standalone installation gives you the slash commands, the skills, and direct `Task(ai-engineer:*)` delegation. **corpflow auto-routing** (the `corpflow:developer` DV stage detecting AI stacks and dispatching ai-engineer specialists, plus `--platform ai` on `/worktask`) additionally requires the companion edits to the corpflow plugin documented in [`docs/corpflow-registration.md`](docs/corpflow-registration.md) — applied via a corpflow PR, not from this repo.
 
-## Workflow Integration (company-workflow v4.0.0)
+## Workflow Integration (corpflow v4.0.13)
 
-This plugin collaborates with the **company-workflow** plugin v4.0.0. company-workflow owns orchestration, worktree isolation, and `state.json` merge; ai-engineer agents stay invoked specialists and follow the handoff-protocol: plan-file resolution, numbered `<stage>-N.md` artifacts, unconditional `handoff:` frontmatter (≤200 tokens; base fields `stage`/`verdict`/`summary`/`refs`), the `state-patch.sh` pointer form, per-agent error files (`.context/errors/<agent-basename>.md`), and the gate-feedback contract (`metadata.gate_from_stage` + `metadata.gate_blockers[]` consumed verbatim on DR-fail/QA-no-go re-dispatch). During DV, `company-workflow:developer` routes to the appropriate ai-engineer specialist via fully-qualified `Task(ai-engineer:<agent>)` calls using the marker tables in `skills/_shared/framework-detection.md` (once the registration edits are applied).
+This plugin collaborates with the **corpflow** plugin v4.0.13. corpflow owns orchestration, worktree isolation, and `state.json` merge; ai-engineer agents stay invoked specialists and follow the handoff-protocol: plan-file resolution, numbered `<stage>-N.md` artifacts, unconditional `handoff:` frontmatter (≤200 tokens; base fields `stage`/`verdict`/`summary`/`refs`), the `state-patch.sh` pointer form, per-agent error files (`.context/errors/<agent-basename>.md`), and the gate-feedback contract (`metadata.gate_from_stage` + `metadata.gate_blockers[]` consumed verbatim on DR-fail/QA-no-go re-dispatch). During DV, `corpflow:developer` routes to the appropriate ai-engineer specialist via fully-qualified `Task(ai-engineer:<agent>)` calls using the marker tables in `skills/_shared/framework-detection.md` (once the registration edits are applied).
 
 **Evidence norm**: AI work defaults to `requires_screenshots: false`. When a gate demands evidence, agents produce a `cli-fallback` manifest — eval reports, loss-curve textual summaries, and test transcripts produced *this run* (freshness rule: a stale or duplicated transcript re-opens DV). **Smoke-scale training rule**: DV never launches full training runs — capped `max_steps` on a data subsample, loss-curve sanity check, and a documented full-run launch plan; DR fails an uncapped training invocation.
 
@@ -211,7 +211,7 @@ This plugin collaborates with the **company-workflow** plugin v4.0.0. company-wo
 | **QA** | Support | `ai-test-generator`; the QA gate is tests pass **and** the eval regression gate holds where a harness exists. |
 | **RE** | Context Provider | `ai-dependency-manager` freezes lockfiles and pins (`uv.lock`, HF revisions, eval-set versions) for release readiness. |
 
-**Two human checkpoints**: company-workflow worktasks stop at the **PL gate** (post-PL0 plan approval) and the **FN gate** (pre-finalization commit/push/PR), both carried on `PL0.metadata` and bypassed by `--auto-plan` / `--auto-finalization` (both by `--emergency`). ai-engineer agents run as invoked specialists *between* the gates and do not own gate logic.
+**Two human checkpoints**: corpflow worktasks stop at the **PL gate** (post-PL0 plan approval) and the **FN gate** (pre-finalization commit/push/PR), both carried on `PL0.metadata` and bypassed by `--auto-plan` / `--auto-finalization` (both by `--emergency`). ai-engineer agents run as invoked specialists *between* the gates and do not own gate logic.
 
 ## Quick Start
 

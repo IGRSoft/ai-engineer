@@ -1,6 +1,6 @@
 # DR Stage Artifact Template (AI review)
 
-Primary artifact `.context/developer-review-N.md` is owned by company-workflow's technical-lead; use this when an ai-engineer agent takes over DR or contributes the review body. ai-code-fixer appends retry narratives to `.context/errors/ai-code-fixer.md` instead.
+Primary artifact `.context/developer-review-N.md` is owned by corpflow's technical-lead; use this when an ai-engineer agent takes over DR or contributes the review body. ai-code-fixer appends retry narratives to `.context/errors/ai-code-fixer.md` instead.
 
 ```markdown
 ---

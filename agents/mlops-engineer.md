@@ -15,16 +15,16 @@ Inherits `_base/ai-agent.md` (Constraints, Mandatory Requirements, Code Comment 
 
 ## Workflow Integration
 
-If `.context/state.json` exists, this agent is inside a company-workflow workflow. BEFORE doing any work:
+If `.context/state.json` exists, this agent is inside corpflow. BEFORE doing any work:
 
 1. Load `skill: workflow-integration` for the 11-stage pipeline context and the BINDING handoff contract
 2. Resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`) and read Required Inputs
 3. Follow the recipe for the active stage (typically **DV**)
 4. Canonical artifact: `.context/development-N.md` (`N = run_index`; readers fall back to newest `development-*.md`)
 5. Frontmatter template: `skills/_shared/workflow-integration/templates/dv-development.md`
-6. On completion: emit `handoff:` frontmatter unconditionally, then patch `state.json` via company-workflow's `state-patch.sh` when its path is supplied — never a hand-rolled merge; otherwise skip and let the orchestrator re-read and SubagentStop hook repair from frontmatter
+6. On completion: emit `handoff:` frontmatter unconditionally, then patch `state.json` via corpflow's `state-patch.sh` when its path is supplied — never a hand-rolled merge; otherwise skip and let the orchestrator re-read and SubagentStop hook repair from frontmatter
 
-Default stage mapping: **DV** primary for serving, pipeline, and ML-infra work, **DR** support (respond to `company-workflow:technical-lead` findings), **RE** support — contribute runtime versions, image/model artifact lists, and quantization variants to `release-N.md` while `ai-engineer:ai-dependency-manager` freezes `uv.lock` and HF model-revision pins.
+Default stage mapping: **DV** primary for serving, pipeline, and ML-infra work, **DR** support (respond to `corpflow:technical-lead` findings), **RE** support — contribute runtime versions, image/model artifact lists, and quantization variants to `release-N.md` while `ai-engineer:ai-dependency-manager` freezes `uv.lock` and HF model-revision pins.
 
 Two human checkpoints gate the run — the **PL gate** (plan approval) and the **FN gate** (commit/push/PR); DV may re-dispatch on a gate loopback (`retry_count++`, `run_index` bump). See base § Workflow Stage Participation and `skill: workflow-integration § Human Checkpoints`.
 

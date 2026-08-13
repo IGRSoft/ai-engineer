@@ -1,11 +1,11 @@
 ---
 name: workflow-integration
-description: Guide for integrating with company-workflow 11-stage workflow system (v4.0.0). Use when participating in structured workflow stages.
+description: Guide for integrating with corpflow 11-stage pipeline (v4.0.13). Use when participating in structured workflow stages.
 ---
 
 # Workflow Integration Guide
 
-When invoked from the company-workflow workflow system, follow these guidelines for seamless collaboration.
+When invoked from corpflow, follow these guidelines for seamless collaboration.
 
 ## 11-Stage Pipeline (Default)
 
@@ -15,7 +15,7 @@ PL → AR → TL → DV → DR → SR → QA → DC → RE → FN → ST
    ai-engineer agents contribute to AR, DV, DR, SR, QA, and RE
 ```
 
-| Code | Stage | company-workflow Agent | ai-engineer Contribution |
+| Code | Stage | corpflow Agent | ai-engineer Contribution |
 |------|-------|---------------|--------------------------|
 | PL | Planning | product-manager | — |
 | AR | Architecture | software-architector | ai-architector (consultation: RAG-vs-finetune-vs-prompt, agent topology, serving architecture) |
@@ -31,7 +31,7 @@ PL → AR → TL → DV → DR → SR → QA → DC → RE → FN → ST
 
 ## DV-Support Roles
 
-Three specialists are consulted *within* DV rather than owning a stage. They match `company-workflow:cross-plugin-handoff § ai-engineer` exactly — keep the two in lockstep:
+Three specialists are consulted *within* DV rather than owning a stage. They match `corpflow:cross-plugin-handoff § ai-engineer` exactly — keep the two in lockstep:
 
 | Support role | Agent | Handoff data |
 |--------------|-------|--------------|
@@ -43,7 +43,7 @@ Three specialists are consulted *within* DV rather than owning a stage. They mat
 
 ## Worktask Invocation (v4.0.0)
 
-Launch is **only** via the `/worktask` slash command (or `Skill company-workflow:worktask`) plus flags. Message-prefix triggers (`micro:`/`quick:`/`worktask:`/`fworktask:`/`emergency:`) are **removed**. PL0 dynamic sizing selects which of the 9 stages run.
+Launch is **only** via the `/worktask` slash command (or `Skill corpflow:worktask`) plus flags. Message-prefix triggers (`micro:`/`quick:`/`worktask:`/`fworktask:`/`emergency:`) are **removed**. PL0 dynamic sizing selects which of the 9 stages run.
 
 | Flag | Effect |
 |------|--------|
@@ -75,7 +75,7 @@ For a filled-in end-to-end handoff with real values, read [references/dv-worked-
 
 ## Artifact Filename Contract (v4.0.0)
 
-**Numbered `<stage>-N.md` names are canonical** per company-workflow's authoritative `handoff-protocol.md#stage-artifact-map`. N is allocated by PL0 (same value as `planning-N.md`), shared across all stages within a run, and propagated via `task.metadata.run_index`; it bumps on gate loop-back re-dispatch. Readers fall back to newest-glob (`<basename>-*.md`).
+**Numbered `<stage>-N.md` names are canonical** per corpflow's authoritative `handoff-protocol.md#stage-artifact-map`. N is allocated by PL0 (same value as `planning-N.md`), shared across all stages within a run, and propagated via `task.metadata.run_index`; it bumps on gate loop-back re-dispatch. Readers fall back to newest-glob (`<basename>-*.md`).
 
 | Stage | Artifact | Owner |
 |-------|----------|-------|
@@ -102,8 +102,8 @@ All Task delegations MUST use the fully-qualified `plugin:agent` form:
 | Form | Status |
 |------|--------|
 | `ai-engineer:llm-engineer` | Required |
-| `company-workflow:technical-lead` | Required |
-| `llm-engineer` (bare) | Deprecated — back-compat shim prepends `company-workflow:` and logs a warning (would resolve to the wrong plugin) |
+| `corpflow:technical-lead` | Required |
+| `llm-engineer` (bare) | Deprecated — back-compat shim prepends `corpflow:` and logs a warning (would resolve to the wrong plugin) |
 
 Task metadata carries qualified names:
 
@@ -136,16 +136,16 @@ Subagents inherit the parent session's MCP tools (Context7, Ref, etc.). Do not r
 
 If no workflow context is detected (no `.context/`, no task metadata), proceed with standard implementation: follow the domain skills, run the same lint/test/eval discipline, and report results directly — no artifacts or frontmatter required.
 
-## Related Skills (company-workflow plugin)
+## Related Skills (corpflow plugin)
 
 | Skill | Purpose |
 |-------|---------|
-| `company-workflow:worktask` | Complete worktask system documentation |
-| `company-workflow:cross-plugin-handoff` | Handoff protocol between plugins |
-| `company-workflow:agent-coordination` | Multi-agent coordination patterns |
-| `company-workflow:context-compression` | Token budgets and compression techniques |
-| `company-workflow:security-review-process` | SR stage OWASP checklists |
-| `company-workflow:release-engineering` | RE stage versioning patterns |
+| `corpflow:worktask` | Complete worktask system documentation |
+| `corpflow:cross-plugin-handoff` | Handoff protocol between plugins |
+| `corpflow:agent-coordination` | Multi-agent coordination patterns |
+| `corpflow:context-compression` | Token budgets and compression techniques |
+| `corpflow:security-review-process` | SR stage OWASP checklists |
+| `corpflow:release-engineering` | RE stage versioning patterns |
 
 ## Related Skills (ai-engineer plugin)
 

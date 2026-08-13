@@ -1,6 +1,6 @@
 # DV Stage Artifact Template (AI work)
 
-Copy this to `.context/development-N.md` (`N` from `task.metadata.run_index`; e.g. `development-0.md`). H2 anchors are fixed by company-workflow's anchor allow-list — keep them exactly as written (kebab-case, H2); AI sections nest as H3.
+Copy this to `.context/development-N.md` (`N` from `task.metadata.run_index`; e.g. `development-0.md`). H2 anchors are fixed by corpflow's anchor allow-list — keep them exactly as written (kebab-case, H2); AI sections nest as H3.
 
 ```markdown
 ---
@@ -68,5 +68,5 @@ handoff:
 - **Training work**: smoke-scale only — capped `max_steps`/epochs on a data subsample; record the full-run launch plan under `### decisions`. See `workflow-integration/references/stage-details.md § DV Contract for AI Work`.
 - `remediation_consumed:` is populated only on a rework re-dispatch — list the `metadata.gate_blockers[]` strings (from the DR/QA gate) this run fixed. See `workflow-integration/references/stage-details.md § Gate-Feedback Contract`.
 - Frontmatter budget: ≤200 tokens, ≤30 lines. Emit it unconditionally — it is the state.json merge input regardless of filename.
-- **state.json patch**: on completion run `state-patch.sh --stage DV --prev <PREV>` when its path is supplied (`task.metadata.state_patch_script`; ships under company-workflow `skills/worktask/scripts/`) to merge `stages.DV` + the `<PREV>→DV` edge from this frontmatter; if the script/`jq`/`state.json` is absent, skip — never hand-roll the merge; Layers 2/3 repair from the frontmatter. See `workflow-integration/SKILL.md § Artifact Filename Contract`.
+- **state.json patch**: on completion run `state-patch.sh --stage DV --prev <PREV>` when its path is supplied (`task.metadata.state_patch_script`; ships under corpflow `skills/worktask/scripts/`) to merge `stages.DV` + the `<PREV>→DV` edge from this frontmatter; if the script/`jq`/`state.json` is absent, skip — never hand-roll the merge; Layers 2/3 repair from the frontmatter. See `workflow-integration/SKILL.md § Artifact Filename Contract`.
 - Tee raw test/eval output to `.context/logs/` — the AI Build Evidence transcript path must exist on disk.

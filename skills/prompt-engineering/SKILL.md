@@ -79,6 +79,6 @@ Prompt task?
 - [workflow-integration](${CLAUDE_SKILL_DIR}/_shared/workflow-integration/SKILL.md) — stage participation, AI Build Evidence
 
 **Owning agent:** `ai-engineer:ai-prompt-engineer` (product/application prompts
-only — Claude Code meta-prompts route to `company-workflow:prompt-engineer`).
+only — Claude Code meta-prompts route to `corpflow:prompt-engineer`).
 Prompt-vs-RAG-vs-fine-tune escalation decisions → `ai-engineer:ai-architector`;
 injection-surface review → `ai-engineer:ai-security-auditor`.

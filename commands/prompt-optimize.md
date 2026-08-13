@@ -76,7 +76,7 @@ Read the target, note its current version (from `@N` filename, CHANGELOG, or "un
 
 ### Phase 3: Baseline Run (deterministic)
 
-Run the harness against the current prompt exactly as documented — e.g. `uv run pytest tests/eval_support.py -q` or `uv run python -m app.evals --eval-set evals/support-v3.jsonl`. Deterministic settings per Rule 4. Capture every metric the harness reports (plus per-case results where available — failing cases feed the variant brief). When the harness is cheap, run the baseline twice and require identical metrics; on jitter, stop and fix determinism (temperature, seeds, sampling in any retrieval step) before continuing. Inside a worktask, tee the harness transcript to `.context/logs/` (`company-workflow:logging-conventions`).
+Run the harness against the current prompt exactly as documented — e.g. `uv run pytest tests/eval_support.py -q` or `uv run python -m app.evals --eval-set evals/support-v3.jsonl`. Deterministic settings per Rule 4. Capture every metric the harness reports (plus per-case results where available — failing cases feed the variant brief). When the harness is cheap, run the baseline twice and require identical metrics; on jitter, stop and fix determinism (temperature, seeds, sampling in any retrieval step) before continuing. Inside a worktask, tee the harness transcript to `.context/logs/` (`corpflow:logging-conventions`).
 
 ### Phase 4: Draft Variants
 

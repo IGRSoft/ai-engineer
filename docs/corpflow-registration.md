@@ -1,21 +1,21 @@
-# Registering ai-engineer as a company-workflow platform (company-workflow companion edits)
+# Registering ai-engineer as a corpflow platform (corpflow companion edits)
 
 This document specifies the exact edits that register **ai-engineer** as a
-routable platform (`ai`) in the **company-workflow plugin**
-(v4.0.0, separate repo: `/Volumes/internal/Projects/igrsoft/ai-agents/company-workflow`).
-Apply them via a company-workflow PR — **nothing in this file changes the
+routable platform (`ai`) in the **corpflow plugin**
+(v4.0.13, separate repo: `/Volumes/internal/Projects/igrsoft/ai-agents/corpflow`).
+Apply them via a corpflow PR — **nothing in this file changes the
 ai-engineer repo**, and nothing here is applied automatically.
 
 ## What works today vs what needs registration
 
-**Works today, standalone (no company-workflow change needed):**
+**Works today, standalone (no corpflow change needed):**
 
 - Slash commands: `/ai-engineer:review-code`, `/ai-engineer:eval-run`,
   `/ai-engineer:prompt-optimize`, `/ai-engineer:rag-audit`,
   `/ai-engineer:finetune-plan`, `/ai-engineer:data-audit`,
   `/ai-engineer:deploy-check`, `/ai-engineer:analyze-security`.
 - Direct delegation: `Task(ai-engineer:ai-engineer)` and every other
-  `Task(ai-engineer:<agent>)` target, including from a company-workflow worktask when
+  `Task(ai-engineer:<agent>)` target, including from a corpflow worktask when
   PL0 stamps `metadata.agent: "ai-engineer:ai-engineer"` explicitly.
 - All 24 skills and the workflow-integration contract
   (`skills/_shared/workflow-integration/SKILL.md`) — ai-engineer agents already
@@ -23,7 +23,7 @@ ai-engineer repo**, and nothing here is applied automatically.
 
 **Needs the edits below:**
 
-- `company-workflow:developer` **DV auto-routing** — the developer agent's `tools:`
+- `corpflow:developer` **DV auto-routing** — the developer agent's `tools:`
   frontmatter must list the ai-engineer Task targets, and the platform
   detection tables must know the `ai` markers, or DV can never dispatch an
   ai-engineer specialist on its own.
@@ -233,7 +233,7 @@ before `## security-scanning Plugin`, mirroring the per-plugin table shape.
 
 ### ai-engineer — core stage handoffs
 
-| company-workflow Stage | ai-engineer Agent | Handoff Data |
+| corpflow Stage | ai-engineer Agent | Handoff Data |
 |---------------|-------------------|--------------|
 | AR (Architecture) | ai-architector | planning context + AI system constraints (prompt-vs-RAG-vs-finetune, agent topology, serving stack — consultation model, like apple-architector) |
 | DV (Development) | ai-engineer (router), llm-engineer, ml-engineer, mlops-engineer, ai-prompt-engineer | planning + architecture context; `requires_screenshots: false` for AI work (Build Evidence = eval reports, loss-curve summaries, test transcripts; smoke-scale training only — capped `max_steps`, full-run launch plan documented) |
@@ -241,7 +241,7 @@ before `## security-scanning Plugin`, mirroring the per-plugin table shape.
 
 ### ai-engineer — review, support & release handoffs
 
-| company-workflow Stage | ai-engineer Agent | Handoff Data |
+| corpflow Stage | ai-engineer Agent | Handoff Data |
 |---------------|-------------------|--------------|
 | SR (Security) | ai-security-auditor | development context + OWASP LLM Top 10 checklist (prompt injection, insecure output handling, model supply chain — safetensors over pickle, pinned HF revisions — secret/PII leakage, ungated agency) |
 | QA (Quality) | ai-test-generator | development context + test requirements; QA gate includes the eval regression gate where a harness exists (pinned eval-set version, deterministic settings) |
@@ -334,9 +334,9 @@ argument-hint: '<feature description or --from-prd path> [--milestone N] [--plat
 | Platform / Content | Agent | Plugin |
 |--------------------|-------|--------|
 | `--platform apple` | `ios-developer` | apple-developer |
-| `--platform android` | `developer` | company-workflow |
-| `--platform web` | `developer` | company-workflow |
-| `all` / omitted | `developer` | company-workflow |
+| `--platform android` | `developer` | corpflow |
+| `--platform web` | `developer` | corpflow |
+| `all` / omitted | `developer` | corpflow |
 ```
 
 **AFTER** (one row added before the `all` row):
@@ -345,10 +345,10 @@ argument-hint: '<feature description or --from-prd path> [--milestone N] [--plat
 | Platform / Content | Agent | Plugin |
 |--------------------|-------|--------|
 | `--platform apple` | `ios-developer` | apple-developer |
-| `--platform android` | `developer` | company-workflow |
-| `--platform web` | `developer` | company-workflow |
+| `--platform android` | `developer` | corpflow |
+| `--platform web` | `developer` | corpflow |
 | `--platform ai` | `ai-engineer` | ai-engineer |
-| `all` / omitted | `developer` | company-workflow |
+| `all` / omitted | `developer` | corpflow |
 ```
 
 ---
@@ -429,7 +429,7 @@ table format.
 ```markdown
 ##### DV0 routing override — plugin worktask-infrastructure
 
-Single source of truth — do NOT duplicate elsewhere. The DV0 default `company-workflow:developer` routes *platform app-code*. Route DV to `metadata.agent: "company-workflow:workflow-engineer"` (model `opus`, error_file `.context/errors/workflow-engineer.md`) when the change touches worktask infrastructure — `skills/worktask/scripts/*.sh`, the state-machine / Task-System glue under `skills/worktask/**`, or `hooks/**`. Platform/app code (Swift, server, web, product source) stays `company-workflow:developer` (or the `apple-developer:*` variant); a mixed worktask splits DV sub-tasks by scope and routes each independently. `stage-codes.md` keeps the unconditional DV default and points here.
+Single source of truth — do NOT duplicate elsewhere. The DV0 default `corpflow:developer` routes *platform app-code*. Route DV to `metadata.agent: "corpflow:workflow-engineer"` (model `opus`, error_file `.context/errors/workflow-engineer.md`) when the change touches worktask infrastructure — `skills/worktask/scripts/*.sh`, the state-machine / Task-System glue under `skills/worktask/**`, or `hooks/**`. Platform/app code (Swift, server, web, product source) stays `corpflow:developer` (or the `apple-developer:*` variant); a mixed worktask splits DV sub-tasks by scope and routes each independently. `stage-codes.md` keeps the unconditional DV default and points here.
 
 ###### Worked example
 
@@ -441,7 +441,7 @@ Example: a `publish-pl-issue.sh` change → DV0 `workflow-engineer`, DR0 `techni
 ```markdown
 ##### DV0 routing override — plugin worktask-infrastructure
 
-Single source of truth — do NOT duplicate elsewhere. The DV0 default `company-workflow:developer` routes *platform app-code*. Route DV to `metadata.agent: "company-workflow:workflow-engineer"` (model `opus`, error_file `.context/errors/workflow-engineer.md`) when the change touches worktask infrastructure — `skills/worktask/scripts/*.sh`, the state-machine / Task-System glue under `skills/worktask/**`, or `hooks/**`. Platform/app code (Swift, server, web, product source) stays `company-workflow:developer` (or the `apple-developer:*` variant); a mixed worktask splits DV sub-tasks by scope and routes each independently. `stage-codes.md` keeps the unconditional DV default and points here.
+Single source of truth — do NOT duplicate elsewhere. The DV0 default `corpflow:developer` routes *platform app-code*. Route DV to `metadata.agent: "corpflow:workflow-engineer"` (model `opus`, error_file `.context/errors/workflow-engineer.md`) when the change touches worktask infrastructure — `skills/worktask/scripts/*.sh`, the state-machine / Task-System glue under `skills/worktask/**`, or `hooks/**`. Platform/app code (Swift, server, web, product source) stays `corpflow:developer` (or the `apple-developer:*` variant); a mixed worktask splits DV sub-tasks by scope and routes each independently. `stage-codes.md` keeps the unconditional DV default and points here.
 
 ###### Worked example
 
@@ -449,7 +449,7 @@ Example: a `publish-pl-issue.sh` change → DV0 `workflow-engineer`, DR0 `techni
 
 ###### AI platform override
 
-When `platform: ai` (explicit `--platform ai`, or the AI markers in `skills/shared/platform-detection.md § AI Platform Specialization` match), route DV0 to `metadata.agent: "ai-engineer:ai-engineer"` (model `sonnet`, error_file `.context/errors/ai-engineer.md`) and stamp `metadata.requires_screenshots: false` (AI work is non-UI; Build Evidence = eval reports and test transcripts under `.context/logs/`). The ai-engineer router further dispatches `ai-engineer:llm-engineer` / `:ml-engineer` / `:mlops-engineer` / `:ai-prompt-engineer` per its `skills/_shared/framework-detection.md`. Alternatively DV0 may stay `company-workflow:developer`, which reaches the same specialists via its own Task targets (surface: `agents/developer.md`); the direct stamp skips one delegation hop.
+When `platform: ai` (explicit `--platform ai`, or the AI markers in `skills/shared/platform-detection.md § AI Platform Specialization` match), route DV0 to `metadata.agent: "ai-engineer:ai-engineer"` (model `sonnet`, error_file `.context/errors/ai-engineer.md`) and stamp `metadata.requires_screenshots: false` (AI work is non-UI; Build Evidence = eval reports and test transcripts under `.context/logs/`). The ai-engineer router further dispatches `ai-engineer:llm-engineer` / `:ml-engineer` / `:mlops-engineer` / `:ai-prompt-engineer` per its `skills/_shared/framework-detection.md`. Alternatively DV0 may stay `corpflow:developer`, which reaches the same specialists via its own Task targets (surface: `agents/developer.md`); the direct stamp skips one delegation hop.
 ```
 
 ---
@@ -539,7 +539,7 @@ skills/worktask/scripts/detect-ui-change.sh /tmp/ai-plan.md --platform ai
 
 ---
 
-## Application checklist (run inside the company-workflow repo)
+## Application checklist (run inside the corpflow repo)
 
 1. **Apply in this order**: 2 (platform-detection tables) → 1 (developer.md)
    → 8 (product-manager) → 3 (plugin-protocols) → 4/5/6 (command enums) → 7
@@ -562,8 +562,8 @@ skills/worktask/scripts/detect-ui-change.sh /tmp/ai-plan.md --platform ai
    → PL0 stamps DV0 `metadata.agent: "ai-engineer:ai-engineer"` and
    `requires_screenshots: false`; the DV artifact carries AI Build Evidence.
 6. **Version bump**: this is an additive platform registration — bump
-   company-workflow `3.36.0 → 3.37.0` (minor), with the version co-move
+   corpflow `3.36.0 → 3.37.0` (minor), with the version co-move
    across `plugin.json`, `marketplace.json`, `README.md`, and `MEMORY.md` plus
-   a CHANGELOG entry, per the company-workflow `/cc-update` convention. ai-engineer's
-   own `company-workflow compatibility` headline then updates to v3.37.0 in its next
+   a CHANGELOG entry, per the corpflow `/cc-update` convention. ai-engineer's
+   own `corpflow compatibility` headline then updates to v3.37.0 in its next
    release.
