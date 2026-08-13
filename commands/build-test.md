@@ -244,7 +244,7 @@ Only when *all* eligible managers are missing does the command report FAIL, with
 ## See Also
 
 - `skill: framework-detection` — canonical marker → domain → agent routing (read it; do not fork the table).
-- `skill: workflow-integration` — how this command's log and verdict feed the DV Build Evidence block and the DR gate.
+- `CORPFLOW.md` — how this command's log and verdict feed the DV Build Evidence block and the DR gate.
 - `/ai-engineer:eval-run` — run the eval suites; this command deliberately does not.
 - `/ai-engineer:review-code` — review once the build is green.
 - `/ai-engineer:deploy-check` — serving readiness for a green build.

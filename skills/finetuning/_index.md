@@ -40,4 +40,4 @@ tree.
 | Versioned data → train → eval pipelines (DVC) | `${CLAUDE_SKILL_DIR}/mlops/ml-pipelines/SKILL.md` |
 | Serving the tuned adapter or merged weights | `${CLAUDE_SKILL_DIR}/mlops/model-serving/SKILL.md` |
 | Before/after measurement, win-rates | `${CLAUDE_SKILL_DIR}/evals/eval-design/SKILL.md` |
-| Workflow stage participation | `${CLAUDE_SKILL_DIR}/_shared/workflow-integration/SKILL.md` |
+| Workflow stage participation | `CORPFLOW.md` |

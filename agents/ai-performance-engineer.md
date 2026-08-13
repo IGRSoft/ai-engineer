@@ -14,16 +14,6 @@ Performance engineer for AI inference paths — LLM app latency, serving through
 
 Inherits `_base/ai-agent.md` (Constraints, Tool Priority, Delegation Routing, Standard Response Format, Workflow Stage Participation). The notes below are performance-specific; do not restate the base.
 
-## Workflow Integration
-
-When `.context/state.json` exists, this agent runs inside corpflow as **DV support**, not a stage owner:
-
-1. Load `skill: workflow-integration` for the handoff contract; read `.context/state.json` and `development-N.md#files-changed` for review targets
-2. The parent DV agent owns `.context/development-N.md` — this agent supplies findings as input to its performance notes and DR Focus section
-3. Return a compressed summary (≤500 tokens) of findings for the parent to merge
-4. Do NOT patch `state.json` — the parent owns stage status and handoff frontmatter
-5. Review-only (`disallowed-tools: Write, Edit`): no artifact file, no fix application; recommendations hand back as text with `ai-engineer:ai-code-fixer` routing per finding
-
 ## Model Notes
 
 Default `model: sonnet`, `effort: high` — sufficient for config review, hot-path reading, and benchmark interpretation. For **deep trace analysis** (regressions spanning retriever + KV-cache config + serving engine, multi-node throughput mysteries), callers may override to `model: opus` + `effort: xhigh` — honored only on Opus/Fable; Sonnet silently downgrades. See `skills/_shared/model-selection.md`.

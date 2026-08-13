@@ -2,13 +2,13 @@
 # SubagentStop → audit.jsonl writer (ai-engineer plugin, v1.0.0+).
 # Emits a `subagent_stopped` row with actor "ai-engineer:hook:audit-subagent".
 #
-# ADVISORY ROW: ai-engineer specialists run as subagents under the corpflow
-# orchestrator, whose SubagentStop hook also fires. To avoid double-counting,
-# corpflow's rows are authoritative; these carry metadata.advisory=true and a
-# matching metadata.dedupe_key ("<session_id>:<agent_id>:stop") so corpflow's
-# audit-dedup.sh keeps the orchestrator row and drops this one. Standalone
-# (no corpflow) these rows stand alone. This hook NEVER touches state.json —
-# state.json merge is orchestrator-owned (corpflow's state-merge.sh).
+# ADVISORY ROW: ai-engineer specialists run as subagents under an orchestrating plugin,
+# whose SubagentStop hook also fires. To avoid double-counting,
+# the orchestrator's rows are authoritative; these carry metadata.advisory=true and a
+# matching metadata.dedupe_key ("<session_id>:<agent_id>:stop") so the orchestrator's
+# audit-dedup.sh keeps the orchestrator row and drops this one. Standalone,
+# these rows stand alone. This hook NEVER touches state.json —
+# state.json merge is orchestrator-owned (the orchestrator's state-merge hook).
 set -eu
 
 SELF_TEST=0

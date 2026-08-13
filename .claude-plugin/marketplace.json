@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "ai-engineer",
-      "description": "AI engineering toolkit with specialized agents for LLM application development (RAG, agents, structured outputs), prompt engineering, LLM fine-tuning (LoRA/QLoRA/DPO), MLOps (serving, experiment tracking, monitoring, pipelines), and LLM evaluation. Includes domain-aware commands, prompt-engineering and evals skills, serving and pipeline tooling, plugin-scoped advisory hooks, full corpflow 11-stage pipeline integration, and utility agents for code fixes, test generation, performance, security, and dependency management.",
+      "description": "AI engineering toolkit with specialized agents for LLM application development (RAG, agents, structured outputs), prompt engineering, LLM fine-tuning (LoRA/QLoRA/DPO), MLOps (serving, experiment tracking, monitoring, pipelines), and LLM evaluation. Includes domain-aware commands, prompt-engineering and evals skills, serving and pipeline tooling, plugin-scoped advisory hooks, full 11-stage pipeline integration, and utility agents for code fixes, test generation, performance, security, and dependency management.",
       "source": "./",
       "strict": true,
       "category": "development",
@@ -65,13 +65,11 @@
         "uv",
         "ruff",
         "pytest",
-        "workflow-integration",
         "cli-fallback-evidence",
         "fable-5"
       ],
       "skills": [
         "./skills",
-        "./skills/_shared/workflow-integration",
         "./skills/prompt-engineering",
         "./skills/prompt-engineering/prompt-design",
         "./skills/prompt-engineering/context-engineering",

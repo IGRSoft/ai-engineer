@@ -29,4 +29,4 @@ decision tree.
 | Logging eval runs, tracing reported metrics | `${CLAUDE_SKILL_DIR}/mlops/experiment-tracking/SKILL.md` |
 | Judge evals on live traffic, feedback loops | `${CLAUDE_SKILL_DIR}/mlops/model-monitoring/SKILL.md` |
 | pytest mechanics (fixtures, parametrization) | `system-developer:python-skills` (python-testing) |
-| Workflow stage participation | `${CLAUDE_SKILL_DIR}/_shared/workflow-integration/SKILL.md` |
+| Workflow stage participation | `CORPFLOW.md` |

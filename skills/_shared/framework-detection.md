@@ -66,5 +66,5 @@ When tiers conflict irreconcilably, or an AI-shaped task matches no marker: ask 
 
 ## Related References
 
-- `skills/_shared/workflow-integration/SKILL.md` — how the routed agent participates in DV
+- `CORPFLOW.md` — how the routed agent participates in DV
 - `skills/_shared/model-selection.md` — model/effort to pass with the routed `Task()` call

@@ -22,7 +22,6 @@ for the routing entry point.
 
 | Skill | Path | Description |
 |-------|------|-------------|
-| **workflow-integration** | [`_shared/workflow-integration/SKILL.md`](_shared/workflow-integration/SKILL.md) | Guide for integrating with the corpflow 11-stage pipeline (v4.0.13) — DV contract for AI work, AI Build Evidence, screenshot cli-fallback, gate feedback |
 | framework-detection | [`_shared/framework-detection.md`](_shared/framework-detection.md) | AI-stack marker → domain → agent routing table: detection priority, dependency/file markers, mixed-stack tie-breaks, sibling-plugin precedence |
 | model-selection | [`_shared/model-selection.md`](_shared/model-selection.md) | Per-agent model/effort/maxTurns assignments, cost tiers, and opus+xhigh override paths |
 | severity-matrix | [`_shared/severity-matrix.md`](_shared/severity-matrix.md) | Severity levels, P0-P3 review priorities with AI examples, effort/impact quadrant, coverage requirements |

@@ -95,7 +95,7 @@ Delegation discipline (router-specific):
 
 After a routed sub-agent returns, verify before returning to the orchestrator:
 
-1. The sub-agent's artifact starts with `---\nhandoff:\n` YAML conforming to `skills/_shared/workflow-integration/references/stage-details.md § Handoff Frontmatter` (unconditional — it is the Layer-1/Layer-2 merge input regardless of filename).
+1. The sub-agent's artifact starts with `---\nhandoff:\n` YAML conforming to `CORPFLOW.md` (unconditional — it is the Layer-1/Layer-2 merge input regardless of filename).
 2. `state.json` has been patched, or the sub-agent logged that the patch was skipped/failed (acceptable — Layers 2/3 repair the ledger from frontmatter).
 3. The artifact uses the numbered `<stage>-N.md` name from `§ Artifact Filename Contract` (e.g., `development-0.md`); canonical basenames hold, only the `-N` suffix varies.
 4. For DV: `### build-evidence` contains the AI Build Evidence — `python -VV`, key framework versions from `uv.lock`, ruff/type-check status, test-transcript path under `.context/logs/` — plus the eval evidence row when prompts, models, or retrieval configs changed. Evidence must be produced this run (QA cross-checks freshness).
@@ -114,34 +114,10 @@ If verification fails, log WARN and attempt repair: parse the sub-agent's return
 
 For LLM apps → `ai-engineer:llm-engineer`. For training/fine-tuning → `ai-engineer:ml-engineer`. For serving/ops → `ai-engineer:mlops-engineer`. For prompt files → `ai-engineer:ai-prompt-engineer`. For architecture decisions → `ai-engineer:ai-architector`. For library or provider documentation → Context7 MCP tools.
 
-## Workflow Integration
-
-See `skills/_shared/workflow-integration/SKILL.md` for the complete 11-stage guide and the binding handoff contract (also summarized in `_base/ai-agent.md`). Two human checkpoints gate the run — the **PL gate** (post-PL0 plan approval) and the **FN gate** (pre-finalization commit/push/PR); DV/DR/QA may re-run on a gate loopback.
-
-| Stage | Role | ai-engineer contribution |
-|-------|------|--------------------------|
-| **AR** | Consult | `ai-engineer:ai-architector` — RAG-vs-finetune-vs-prompt, agent topology, serving architecture |
-| **DV** | **Primary** | This router — receives from `corpflow:developer` or direct dispatch; routes/splits across the domain engineers |
-| **DR** | Support | `ai-engineer:ai-code-fixer` for fix application, `ai-engineer:ai-architector` for pattern consult |
-| **SR** | Context | `ai-engineer:ai-security-auditor` — OWASP LLM Top 10, injection surfaces, leakage, artifact safety |
-| **QA** | Support | `ai-engineer:ai-test-generator` — pytest + eval harnesses, regression gates |
-| **RE** | Packaging | `ai-engineer:ai-dependency-manager` — lockfile freeze, HF model-revision pins |
-
-### DV Router Steps
-
-When `.context/state.json` exists, this agent is inside a corpflow worktask — it is the DV entry point for AI work:
-
-1. Resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`) and the active stage from `state.json`.
-2. Detect the AI domain(s) per `skills/_shared/framework-detection.md`; set `owner: "ai-engineer:<specialist>"` via TaskUpdate.
-3. **Single-domain**: route the whole task; the specialist writes `.context/development-N.md` (`N = run_index`) with `handoff:` frontmatter, the security-surface summary, and a "DR Focus" section, then patches `state.json`.
-4. **Multi-domain**: split across the domain engineers, then assemble the **single** `development-N.md` yourself — merge `## files-changed` / `## tests-added` / `## deviations` / `## follow-ups`, combine AI Build Evidence (one `python -VV`, all framework versions, every transcript path), and emit the one `handoff:` frontmatter. One artifact per DV run — never one per specialist.
-
-**Pass-through metadata** — the router relays, it does not consume or rewrite: `metadata.requires_screenshots` (AI norm **`false`** — the specialist writes the skip-rationale manifest line; if the gate is armed, a cli-fallback transcript manifest before returning; flag an unexpected `true` in the return summary), `metadata.test_mode`, `metadata.run_index`; on rework (`retry_count > 0`): `metadata.gate_from_stage`, `metadata.gate_blockers[]`, and the prepended `REMEDIATION` block — the specialist fixes those exact findings first, minimal diff, no re-scoping.
-
 ## Skills References
 
 | Path | Purpose |
 |------|---------|
 | `skills/SKILL.md` | Top navigation across the domain skills (prompt-engineering, llm-apps, finetuning, mlops, evals) |
 | `skills/_shared/framework-detection.md` | Marker → domain → agent routing — the Detection source of truth |
-| `skills/_shared/workflow-integration/SKILL.md` | 11-stage contract: handoff frontmatter, artifact names, gates, templates |
+| `CORPFLOW.md` | 11-stage contract: handoff frontmatter, artifact names, gates, templates |

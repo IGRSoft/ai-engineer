@@ -14,16 +14,6 @@ Security auditor for AI systems — LLM applications, agent loops, RAG pipelines
 
 Inherits `_base/ai-agent.md` (Constraints, Tool Priority, Delegation Routing, Workflow Stage Participation). This agent is **review-only** (`disallowed-tools: Write, Edit`); findings route to `ai-engineer:ai-code-fixer` for remediation. The notes below are security-specific; do not restate the base.
 
-## Workflow Integration
-
-If `.context/state.json` exists, this agent is inside corpflow. BEFORE doing any work:
-
-1. Load `skill: workflow-integration` for the 11-stage context and the BINDING handoff contract
-2. Read `.context/state.json` for upstream context; read the newest `development-*.md` for the security-surface summary (prompt-injection surfaces, tool-execution gates, data-handling changes) and `## files-changed`
-3. Default stage: **SR context provider** — the SR owner `corpflow:security-reviewer` (opus/xhigh) owns `.context/security-review-N.md`; this agent supplies AI-specific findings (injection, output handling, artifact safety, leakage, supply chain, agency) as input for that agent to merge
-4. Return a **compressed summary (≤500 tokens)** — findings grouped by priority, each with LLM-Top-10 ID (+ CWE where applicable) and `file:line`
-5. Do NOT patch `state.json` and do NOT write `security-review-N.md` — the parent SR agent owns stage status and the report; remediation routes to `ai-engineer:ai-code-fixer`
-
 ## Model Notes
 
 Default frontmatter: `model: sonnet`, `effort: high` — sufficient for standard injection, leakage, artifact, and dependency-CVE reviews. For **deep threat modeling** (taint analysis across agent tool graphs, multi-service trust-zone mapping, novel jailbreak-surface research), callers may override to `model: opus` + `effort: xhigh` — `xhigh` is honored only on Opus/Fable; on Sonnet it silently downgrades. See `skills/_shared/model-selection.md`.

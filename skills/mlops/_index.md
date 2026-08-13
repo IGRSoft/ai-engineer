@@ -31,4 +31,4 @@ tree.
 | Client-side reliability against served endpoints | `${CLAUDE_SKILL_DIR}/llm-apps/llm-api-patterns/SKILL.md` |
 | Judge evals scheduled on production traffic | `${CLAUDE_SKILL_DIR}/evals/llm-judge/SKILL.md` |
 | Eval thresholds behind promotion gates | `${CLAUDE_SKILL_DIR}/evals/regression-gates/SKILL.md` |
-| Workflow stage participation | `${CLAUDE_SKILL_DIR}/_shared/workflow-integration/SKILL.md` |
+| Workflow stage participation | `CORPFLOW.md` |

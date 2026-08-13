@@ -2,7 +2,7 @@
 
 Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops, structured outputs), **prompt engineering**, **LLM fine-tuning** (LoRA/QLoRA/DPO), **MLOps** (serving, experiment tracking, monitoring, pipelines), and **LLM evaluation** — with specialized agents, commands, and skills. Collaborates with the corpflow plugin v4.0.13 for full 11-stage workflow orchestration (PL→AR→TL→DV→**DR**→SR→QA→DC→RE→FN→ST) including the handoff-protocol (planning-N.md, state.json ledger, `handoff:` frontmatter schema). AI and CLI work defaults to `requires_screenshots: false`; when an evidence gate demands proof, agents attach `cli-fallback` transcripts (eval reports, loss-curve summaries, test transcripts) instead of screenshots.
 
-**Version**: 1.3.0 | **corpflow Compatibility**: v4.0.13
+**Version**: 1.3.0
 
 ## What's in 1.3.0
 
@@ -13,7 +13,6 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 
 ## What's in 1.2.0
 
-- **`workflow-integration` completes the compatibility contract** — the skill now documents the AR consultation model (`ai-architector` writes `.context/ai-architecture.md` and returns ≤500 tokens; `corpflow:software-architector` keeps stage ownership), carries an AR row in the per-stage frontmatter matrix, and ships an AR consultation template plus a filled-in worked example of a DV takeover by `llm-engineer`. See [`skills/_shared/workflow-integration/`](skills/_shared/workflow-integration/).
 
 ## What's in 1.1.0
 
@@ -71,7 +70,6 @@ All commands degrade gracefully when a tool is missing: they print an install hi
 ```
 skills/
 ├── SKILL.md                  # routing entry point ("I need help with…" table)
-├── _shared/                  # workflow-integration (+ DV/DR/QA templates),
 │                             # framework-detection, model-selection, severity-matrix
 ├── prompt-engineering/       # prompt-design, context-engineering, structured-outputs
 ├── llm-apps/                 # rag-systems, agent-design, llm-api-patterns
@@ -85,7 +83,6 @@ skills/
 
 | Skill | Description |
 |-------|-------------|
-| `workflow-integration` | Guide for the corpflow 11-stage pipeline (v4.0.13): DV contract for AI work, AI Build Evidence, the `requires_screenshots: false` / cli-fallback norm, gate feedback, handoff frontmatter. |
 | `framework-detection` | AI-stack marker → domain → agent routing: detection priority, dependency/file markers, mixed-stack tie-breaks, sibling-plugin precedence. |
 | `model-selection` | Per-agent model/effort/maxTurns assignments, cost tiers, and opus+xhigh override paths. |
 | `severity-matrix` | P0-P3 review priorities with AI examples, effort/impact quadrant, coverage requirements. |
@@ -136,7 +133,6 @@ skills/
 | `llm-judge` | Pointwise vs pairwise selection, anchored rubrics, bias mitigations, calibration against human labels (Cohen's kappa), judge regression tests. |
 | `regression-gates` | Pre-commit→PR→nightly→release gate ladder, floors plus relative thresholds, baseline update ritual, flake policy, pytest integration, escape hatch. |
 
-Deep detail lives in `references/` next to each SKILL.md (26 files: eval methodology, judge prompt templates, gate implementation, data formats, hyperparameter guide, DPO and preference data, GPU memory math, distributed training, tool design, provider matrix, chunking strategies, retrieval evaluation, embedding and index tuning, tracking implementation, versioning and CI/CD, observability and drift, serving-stack matrix, window management, Claude prompting, prompt patterns, schema patterns, workflow stage details, reward functions, export commands, gate templates, and conversion recipes), plus 3 workflow handoff templates under `_shared/workflow-integration/templates/`.
 
 ## Model & Effort
 
@@ -196,22 +192,12 @@ After editing `settings.json`, run `/plugins` (or restart the session) to load t
 
 Standalone installation gives you the slash commands, the skills, and direct `Task(ai-engineer:*)` delegation. **corpflow auto-routing** (the `corpflow:developer` DV stage detecting AI stacks and dispatching ai-engineer specialists, plus `--platform ai` on `/worktask`) additionally requires the companion edits to the corpflow plugin documented in [`docs/corpflow-registration.md`](docs/corpflow-registration.md) — applied via a corpflow PR, not from this repo.
 
-## Workflow Integration (corpflow v4.0.13)
+## corpflow Integration
 
-This plugin collaborates with the **corpflow** plugin v4.0.13. corpflow owns orchestration, worktree isolation, and `state.json` merge; ai-engineer agents stay invoked specialists and follow the handoff-protocol: plan-file resolution, numbered `<stage>-N.md` artifacts, unconditional `handoff:` frontmatter (≤200 tokens; base fields `stage`/`verdict`/`summary`/`refs`), the `state-patch.sh` pointer form, per-agent error files (`.context/errors/<agent-basename>.md`), and the gate-feedback contract (`metadata.gate_from_stage` + `metadata.gate_blockers[]` consumed verbatim on DR-fail/QA-no-go re-dispatch). During DV, `corpflow:developer` routes to the appropriate ai-engineer specialist via fully-qualified `Task(ai-engineer:<agent>)` calls using the marker tables in `skills/_shared/framework-detection.md` (once the registration edits are applied).
-
-**Evidence norm**: AI work defaults to `requires_screenshots: false`. When a gate demands evidence, agents produce a `cli-fallback` manifest — eval reports, loss-curve textual summaries, and test transcripts produced *this run* (freshness rule: a stale or duplicated transcript re-opens DV). **Smoke-scale training rule**: DV never launches full training runs — capped `max_steps` on a data subsample, loss-curve sanity check, and a documented full-run launch plan; DR fails an uncapped training invocation.
-
-| Stage | ai-engineer Role | Contribution |
-|-------|------------------|--------------|
-| **AR** | Consultant | `ai-architector` — RAG-vs-finetune-vs-prompt, agent topology, serving architecture. |
-| **DV** | Primary | Router + `llm-engineer` / `ml-engineer` / `mlops-engineer` / `ai-prompt-engineer`; emits `development-N.md` with an AI Build Evidence section (`python -VV`, framework versions from `uv.lock`, ruff/type status, test transcript, eval metrics vs baseline). |
-| **DR** | Support | `ai-code-fixer` applies technical-lead findings (minimal-diff gate); `ai-architector` consulted for structural concerns. |
-| **SR** | Context Provider | `ai-security-auditor` supplies OWASP LLM Top 10, prompt-injection, leakage, and model supply-chain context. |
-| **QA** | Support | `ai-test-generator`; the QA gate is tests pass **and** the eval regression gate holds where a harness exists. |
-| **RE** | Context Provider | `ai-dependency-manager` freezes lockfiles and pins (`uv.lock`, HF revisions, eval-set versions) for release readiness. |
-
-**Two human checkpoints**: corpflow worktasks stop at the **PL gate** (post-PL0 plan approval) and the **FN gate** (pre-finalization commit/push/PR), both carried on `PL0.metadata` and bypassed by `--auto-plan` / `--auto-finalization` (both by `--emergency`). ai-engineer agents run as invoked specialists *between* the gates and do not own gate logic.
+This plugin runs standalone. It also participates in [corpflow](https://github.com/IGRSoft/corpflow)
+worktasks, and the whole of that integration lives in one file at the repository root:
+**[CORPFLOW.md](CORPFLOW.md)**. Delete that file and the plugin is fully standalone; restore it
+and it participates again. Nothing else here references corpflow.
 
 ## Quick Start
 

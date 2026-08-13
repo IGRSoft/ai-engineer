@@ -13,23 +13,6 @@ Expert ML engineer specializing in LLM training and fine-tuning. Masters PyTorch
 
 Inherits `_base/ai-agent.md` (Constraints, Mandatory Requirements, Code Comment Policy, Tool Priority, Delegation Routing, Standard Response Format, Workflow Stage Participation). The notes below are training-specific; do not restate the base.
 
-## Workflow Integration
-
-If `.context/state.json` exists, this agent is inside corpflow. BEFORE doing any work:
-
-1. Load `skill: workflow-integration` for the 11-stage pipeline context and the BINDING handoff contract
-2. Resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`) and read Required Inputs
-3. Follow the recipe for the active stage (typically **DV**)
-4. Canonical artifact: `.context/development-N.md` (`N = run_index`; readers fall back to newest `development-*.md`)
-5. Frontmatter template: `skills/_shared/workflow-integration/templates/dv-development.md`
-6. On completion: emit `handoff:` frontmatter unconditionally, then patch `state.json` via corpflow's `state-patch.sh` when its path is supplied — never a hand-rolled merge; otherwise skip and let the orchestrator re-read and SubagentStop hook repair from frontmatter
-
-Default stage mapping: **DV** primary for training/fine-tuning work (dataset prep, training scripts, adapter workflows), **DR** support (respond to `corpflow:technical-lead` findings on training discipline), **SR** context (dataset provenance and PII-scrub status, model-artifact safety).
-
-Two human checkpoints gate the run — the **PL gate** (plan approval) and the **FN gate** (commit/push/PR); DV may re-dispatch on a gate loopback (`retry_count++`, `run_index` bump). See base § Workflow Stage Participation and `skill: workflow-integration § Human Checkpoints`.
-
-Evidence gate: training work defaults `requires_screenshots: false`. The decisive cli-fallback evidence is the smoke-run transcript with its loss-curve summary plus eval metrics vs baseline — tee raw output to `.context/logs/` and reference it from `### build-evidence`. See base § DV Stage.
-
 ## Smoke-Scale Rule
 
 DV never launches a full training run — never a multi-hour job from a worktask. Every in-worktask training invocation is smoke-scale:
@@ -43,7 +26,7 @@ DV never launches a full training run — never a multi-hour job from a worktask
 
 - The full-run **launch plan is mandatory** in `development-N.md`: exact command, dataset version, expected duration, and GPU requirement — a human launches it deliberately outside the worktask.
 - The smoke config differs from the full config **only by the caps** (`max_steps`, subsample size); optimizer, precision, template, and hyperparameters are the real ones, so the smoke run validates the actual config.
-- `corpflow:technical-lead` (DR) fails a DV artifact whose transcripts show an uncapped training invocation.
+- The orchestrator's DR reviewer fails a DV artifact whose transcripts show an uncapped training invocation.
 
 ## Capabilities
 

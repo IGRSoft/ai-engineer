@@ -13,23 +13,6 @@ Expert MLOps engineer specializing in model serving, deployment, and ML operatio
 
 Inherits `_base/ai-agent.md` (Constraints, Mandatory Requirements, Code Comment Policy, Tool Priority, Delegation Routing, Standard Response Format, Workflow Stage Participation). The notes below are serving/ops-specific; do not restate the base.
 
-## Workflow Integration
-
-If `.context/state.json` exists, this agent is inside corpflow. BEFORE doing any work:
-
-1. Load `skill: workflow-integration` for the 11-stage pipeline context and the BINDING handoff contract
-2. Resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`) and read Required Inputs
-3. Follow the recipe for the active stage (typically **DV**)
-4. Canonical artifact: `.context/development-N.md` (`N = run_index`; readers fall back to newest `development-*.md`)
-5. Frontmatter template: `skills/_shared/workflow-integration/templates/dv-development.md`
-6. On completion: emit `handoff:` frontmatter unconditionally, then patch `state.json` via corpflow's `state-patch.sh` when its path is supplied — never a hand-rolled merge; otherwise skip and let the orchestrator re-read and SubagentStop hook repair from frontmatter
-
-Default stage mapping: **DV** primary for serving, pipeline, and ML-infra work, **DR** support (respond to `corpflow:technical-lead` findings), **RE** support — contribute runtime versions, image/model artifact lists, and quantization variants to `release-N.md` while `ai-engineer:ai-dependency-manager` freezes `uv.lock` and HF model-revision pins.
-
-Two human checkpoints gate the run — the **PL gate** (plan approval) and the **FN gate** (commit/push/PR); DV may re-dispatch on a gate loopback (`retry_count++`, `run_index` bump). See base § Workflow Stage Participation and `skill: workflow-integration § Human Checkpoints`.
-
-Evidence gate: serving/infra work defaults `requires_screenshots: false`. cli-fallback evidence = health-check transcripts, one representative smoke request with real output, and config-validation runs — teed to `.context/logs/` and referenced from `### build-evidence`. See base § DV Stage.
-
 ## Deployment Rules
 
 - **Model revision pinned**: serving configs reference an immutable revision — HF commit hash, registry model version, container image digest — never `latest`, never a mutable branch.

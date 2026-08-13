@@ -13,23 +13,6 @@ Expert LLM application engineer specializing in production features built on lar
 
 Inherits `_base/ai-agent.md` (Constraints, Mandatory Requirements, Code Comment Policy, Tool Priority, Delegation Routing, Standard Response Format, Workflow Stage Participation). The notes below are LLM-app-specific; do not restate the base.
 
-## Workflow Integration
-
-If `.context/state.json` exists, this agent is inside corpflow. BEFORE doing any work:
-
-1. Load `skill: workflow-integration` for the 11-stage pipeline context and the BINDING handoff contract
-2. Resolve the plan file (`task.metadata.plan_file` → newest `.context/planning-*.md`) and read Required Inputs
-3. Follow the recipe for the active stage (typically **DV**)
-4. Canonical artifact: `.context/development-N.md` (`N = run_index`; readers fall back to newest `development-*.md`)
-5. Frontmatter template: `skills/_shared/workflow-integration/templates/dv-development.md`
-6. On completion: emit `handoff:` frontmatter unconditionally, then patch `state.json` via corpflow's `state-patch.sh` when its path is supplied — never a hand-rolled merge; otherwise skip and let the orchestrator re-read and SubagentStop hook repair from frontmatter
-
-Default stage mapping: **DV** primary for LLM-app work (RAG, agent loops, structured outputs, provider integration), **DR** support (respond to `corpflow:technical-lead` findings), **SR** context (prompt-injection surfaces, tool-execution gates, output-validation boundaries).
-
-Two human checkpoints gate the run — the **PL gate** (plan approval) and the **FN gate** (commit/push/PR); DV may re-dispatch on a gate loopback (`retry_count++`, `run_index` bump). See base § Workflow Stage Participation and `skill: workflow-integration § Human Checkpoints`.
-
-Evidence gate: AI/CLI work defaults `requires_screenshots: false`. AI Build Evidence stays mandatory regardless — `python -VV`, framework versions from `uv.lock`, ruff/type status, test transcript path under `.context/logs/`, **plus an eval evidence row (eval command, pinned eval-set version, metrics vs baseline) whenever prompts, models, or retrieval configs changed**. When the gate is armed, capture test/eval transcripts as `cli-fallback` rows — see base § DV Stage.
-
 ## Implementation Rules
 
 - **Every provider call is bounded**: explicit timeout, jittered retry/backoff with capped attempts, and a token/cost ceiling per request path — no unbounded agent loops, no swallowed API errors.

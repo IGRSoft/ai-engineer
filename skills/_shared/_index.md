@@ -7,11 +7,6 @@ agents, commands, and skills.
 
 | File | Description |
 |------|-------------|
-| `workflow-integration/SKILL.md` | Guide for integrating with the corpflow 11-stage pipeline (v4.0.13) — pipeline, invocation, gates, artifact filename contract, qualified agent names |
-| `workflow-integration/references/stage-details.md` | Per-stage contracts: DV contract for AI work, AI Build Evidence, screenshot cli-fallback, per-agent error files, DR/QA/SR/RE criteria, handoff frontmatter schema, gate-feedback contract, token budgets, PL0 sizing |
-| `workflow-integration/templates/dv-development.md` | Copy-paste `development-N.md` artifact template (fixed H2 anchors, AI Build Evidence, handoff frontmatter) |
-| `workflow-integration/templates/dr-review.md` | Copy-paste `developer-review-N.md` template for when an ai-engineer agent takes over or contributes the DR review body |
-| `workflow-integration/templates/qa-testing.md` | Copy-paste `testing-N.md` template for ai-test-generator / AI testing evidence in QA |
 
 ## Routing & Models
 
@@ -30,9 +25,6 @@ agents, commands, and skills.
 
 ### "I need to..."
 
-- **Integrate with a corpflow worktask** → `workflow-integration/SKILL.md`
-- **Write a DV/DR/QA stage artifact** → `workflow-integration/templates/`
-- **Handle the screenshot gate for CLI-only AI work** → `workflow-integration/references/stage-details.md § Screenshot Gate for CLI Work`
 - **Route a task, file, or repo to the right ai-engineer agent** → `framework-detection.md`
 - **Decide who owns a training-vs-serving (or app-vs-prompt) task** → `framework-detection.md § Mixed-Stack Tie-Breaking`
 - **Know when ai-engineer beats system-developer/apple-developer** → `framework-detection.md § Precedence vs Sibling Plugins`
