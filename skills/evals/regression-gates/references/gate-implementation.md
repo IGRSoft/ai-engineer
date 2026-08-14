@@ -209,4 +209,4 @@ expires: 2026-07-29
 In worktask context the same rule surfaces as the QA verdict: `no-go` carries
 the eval failure into `metadata.gate_blockers[]`, and any override rationale
 lives in the QA artifact and PR — never only in chat
-(`skills/_shared/workflow-integration/references/stage-details.md § Gate-Feedback Contract`).
+(`CORPFLOW.md`).

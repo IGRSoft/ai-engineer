@@ -6,7 +6,7 @@ effort: low
 
 # Model & Effort Selection (ai-engineer)
 
-Companion to company-workflow's `skills/shared/model-selection.md`. This file pins the
+Companion to the orchestrator's model-selection reference. This file pins the
 **ai-engineer** per-agent assignments and the override paths the domain
 agents expose. Frontmatter in `agents/*.md` is the source of truth — keep this
 table in sync with it.
@@ -46,7 +46,7 @@ table in sync with it.
 | `ai-code-fixer` | haiku | medium | 30 | — deterministic minimal-diff remediation |
 | `ai-dependency-manager` | haiku | low | 20 | — mechanical lockfile/pinning operations |
 
-## House Rules (company-workflow conventions)
+## House Rules
 
 - **Pass `metadata.model` on every `Task()` call** using the short alias
   (`opus` / `sonnet` / `haiku` / `fable`) — do not rely on frontmatter

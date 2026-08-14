@@ -23,7 +23,7 @@ on which data* — building eval sets from real traffic, picking metrics per tas
 running paired A/B comparisons, and reading failures. It is the plugin's core
 discipline: **every prompt, model, or retrieval change ships with an eval run**
 (enforced by `skills/evals/regression-gates`; QA verdict per
-`skills/_shared/workflow-integration`).
+`CORPFLOW.md`).
 
 Harness construction is owned by `ai-engineer:ai-test-generator`; prompt A/B
 consumers route through `ai-engineer:ai-prompt-engineer`.

@@ -8,7 +8,7 @@ description: >-
   when untrusted input flows into a prompt, when a prompt grows monolithic,
   when few-shot examples underperform, or when deciding whether to keep
   prompting or escalate to RAG/fine-tuning. Product prompts only — Claude Code
-  meta-prompts → company-workflow:prompt-engineer.
+  meta-prompts → the orchestrator's meta-prompt engineer.
 ---
 
 # Prompt Design
@@ -19,7 +19,7 @@ description: >-
 
 Application prompts fail differently from code: they degrade instead of crashing, they regress silently when edited, and they are the primary attack surface for prompt injection. This skill covers the structural discipline that keeps prompts reliable: a fixed anatomy with deliberate ordering, an explicit privilege hierarchy that keeps untrusted input out of instruction segments, few-shot examples engineered like test fixtures, and prompt files that are versioned, owned, and changelogged like any other interface.
 
-Owning agent: `ai-engineer:ai-prompt-engineer` (product/application prompts). Claude Code meta-prompts — agents, commands, skills — belong to `company-workflow:prompt-engineer`, not here.
+Owning agent: `ai-engineer:ai-prompt-engineer` (product/application prompts). Claude Code meta-prompts — agents, commands, skills — belong to the orchestrator's meta-prompt engineer, not here.
 
 ## When to Use
 
@@ -36,7 +36,7 @@ Owning agent: `ai-engineer:ai-prompt-engineer` (product/application prompts). Cl
 - Output must be machine-parseable JSON → [structured-outputs](../structured-outputs/SKILL.md)
 - Measuring whether a prompt change helped → `skills/evals/eval-design`
 - Retrieval quality (chunking, embeddings, reranking) → `skills/llm-apps/rag-systems`
-- Claude Code agent/command/skill prompts → `company-workflow:prompt-engineer`
+- Claude Code agent/command/skill prompts → the orchestrator's meta-prompt engineer
 
 ## Prompt Anatomy
 

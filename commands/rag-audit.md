@@ -89,7 +89,7 @@ Audit every present stage against `skills/llm-apps/rag-systems`:
 ### Phase 3: Retrieval Eval (when a harness exists; skipped by `--no-eval`)
 
 1. Locate the harness: `tests/eval_retrieval*.py`, versioned `evals/retrieval-v*.jsonl`, documented eval runner modules.
-2. Run it scoped and deterministic, e.g. `uv run pytest tests/eval_retrieval.py -q` (single command; per `references/retrieval-evaluation.md`). Inside a worktask, tee the transcript to `.context/logs/` (`company-workflow:logging-conventions`).
+2. Run it scoped and deterministic, e.g. `uv run pytest tests/eval_retrieval.py -q` (single command; per `references/retrieval-evaluation.md`). Inside a worktask, tee the transcript to `.context/logs/` (`corpflow:logging-conventions`).
 3. Compare against the repo's recorded baseline/thresholds where they exist (harness `THRESHOLDS`, metrics artifacts); report per-archetype breakdowns when the harness emits them — a healthy mean hides a dead archetype.
 4. **No harness** → metrics "NOT MEASURED" + a finding: no labeled retrieval eval set is a red flag per the skill (typically P2). **Harness fails** → metrics "NOT MEASURED (harness failed: {stage})" + a finding. Never substitute an estimate (Rule 3).
 

@@ -76,9 +76,9 @@ Prompt task?
 - [eval-design](${CLAUDE_SKILL_DIR}/evals/eval-design/SKILL.md) / [regression-gates](${CLAUDE_SKILL_DIR}/evals/regression-gates/SKILL.md) — every prompt change ships behind an eval, then a CI gate
 - [llm-api-patterns](${CLAUDE_SKILL_DIR}/llm-apps/llm-api-patterns/SKILL.md) — calling the provider that runs the prompt (caching interacts with prompt structure)
 - [rag-systems](${CLAUDE_SKILL_DIR}/llm-apps/rag-systems/SKILL.md) — when the prompt needs retrieved knowledge instead of more instructions
-- [workflow-integration](${CLAUDE_SKILL_DIR}/_shared/workflow-integration/SKILL.md) — stage participation, AI Build Evidence
+- [CORPFLOW.md](../../CORPFLOW.md) — stage participation, AI Build Evidence
 
 **Owning agent:** `ai-engineer:ai-prompt-engineer` (product/application prompts
-only — Claude Code meta-prompts route to `company-workflow:prompt-engineer`).
+only — Claude Code meta-prompts route to the orchestrator's meta-prompt engineer).
 Prompt-vs-RAG-vs-fine-tune escalation decisions → `ai-engineer:ai-architector`;
 injection-surface review → `ai-engineer:ai-security-auditor`.

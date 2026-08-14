@@ -1,12 +1,12 @@
 ---
 name: framework-detection
-description: Shared AI-stack marker-to-domain-to-agent routing table for the ai-engineer router, company-workflow DV dispatch, and commands. Reference when deciding which ai-engineer agent owns a task, file, or repository.
+description: Shared AI-stack marker-to-domain-to-agent routing table for the ai-engineer router, corpflow DV dispatch, and commands. Reference when deciding which ai-engineer agent owns a task, file, or repository.
 effort: low
 ---
 
 # Framework Detection & Agent Routing
 
-Single source of truth for the AI-stack marker → domain → agent mapping used by `ai-engineer:ai-engineer` (router), `company-workflow:developer` DV dispatch, and every ai-engineer command that scopes work per domain. Keep command-local detection logic in sync with this file — do not fork the tables.
+Single source of truth for the AI-stack marker → domain → agent mapping used by `ai-engineer:ai-engineer` (router), the orchestrator's platform router DV dispatch, and every ai-engineer command that scopes work per domain. Keep command-local detection logic in sync with this file — do not fork the tables.
 
 ## Detection Priority Order
 
@@ -66,5 +66,5 @@ When tiers conflict irreconcilably, or an AI-shaped task matches no marker: ask 
 
 ## Related References
 
-- `skills/_shared/workflow-integration/SKILL.md` — how the routed agent participates in DV
+- `CORPFLOW.md` — how the routed agent participates in DV
 - `skills/_shared/model-selection.md` — model/effort to pass with the routed `Task()` call

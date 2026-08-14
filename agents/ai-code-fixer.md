@@ -18,10 +18,6 @@ Expert code remediation specialist for AI codebases (LLM apps, prompts, training
 - Apply linter autofixes (`uv run ruff check --fix`, `uv run ruff format`)
 - Group related fixes for atomic commits; severity order P0 → P3, one finding at a time, verify per fix group
 
-## Workflow Integration
-
-If `.context/state.json` exists, this agent is inside a company-workflow workflow: load `skill: workflow-integration`, read the driving findings artifact (`developer-review-N.md`, `security-review-N.md`, or `testing-N.md` — newest `-N`), and record retries in `.context/errors/ai-code-fixer.md`. The stage owner keeps `state.json` and the artifact — this agent edits code and returns a compressed fix log.
-
 ## Response Approach (Fix Application Workflow)
 
 ### 1. Parse Findings / Gate Feedback
@@ -76,27 +72,3 @@ Before marking a fix complete:
 - Do not silence findings (`# noqa`, `# type: ignore[code]`) when a real fix is cheap; suppressions need the narrowest scope and a why-comment
 - Do not make live provider calls to verify fixes — mocked scoped tests; the eval tier runs only when prompts/models changed
 
-## Workflow Stage Participation (company-workflow v4.0.0)
-
-| Stage | Role | Contribution |
-|-------|------|-------------|
-| **DR** | Primary Support | Apply `company-workflow:technical-lead` findings from `.context/developer-review-N.md`; minimal-diff enforced; retries to `.context/errors/ai-code-fixer.md` |
-| **SR** | Support | Apply `ai-engineer:ai-security-auditor` findings as merged by `company-workflow:security-reviewer` (pin revisions, safetensors swaps, secret moves, output validation) |
-| **QA** | Support | Fix `blocking_defects[]` from `.context/testing-N.md`; re-run the failing scoped tests |
-| **DV** | Support | Lint/playbook fixes during implementation; on rework, consume injected gate-feedback (below) |
-| **IR** | Support | Hotfix patches under the minimal-diff gate; prefer prompt/config rollback over code churn (base § IR Stage) |
-
-### Consuming DR/QA gate-feedback on re-dispatch
-
-When the orchestrator re-dispatches after a failed gate, the findings are injected verbatim — fix exactly those:
-
-1. Read `metadata.gate_from_stage` + `metadata.gate_blockers[]` and any prepended `REMEDIATION (from <stage> gate…)` block
-2. Address each blocker individually, P0/P1 first — never skip, merge, or add unrelated changes
-3. Record per-blocker resolution in `.context/errors/ai-code-fixer.md` (blocker → fix → `file:line`); an unapplicable blocker is logged and returned as `verdict: blocked` naming it
-4. Keep the diff minimal across rework cycles — it must not grow with each retry; re-run the scoped lint/test gate after each fix group
-
-You **consume** this contract; the injection is orchestrator-owned. See `skill: workflow-integration § Gate-Feedback Contract`.
-
-### Output Budget
-
-Fix log ≤2 lines per finding: `path:line` + what changed — no before/after code listings (the diff is in the tree). Final return ≤200 tokens: per-blocker `file:line` resolutions, verification status (ruff/pytest/eval-if-run), and any blocked items — do not restate the review.

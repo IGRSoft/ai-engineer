@@ -22,7 +22,7 @@ stored baseline + thresholds + failure policy. This is the mechanism behind the
 plugin's core rule — *every prompt, model, or retrieval change ships with an
 eval run vs. baseline* — and behind the AI QA verdict, which passes only when
 **tests pass AND the eval regression gate holds**
-(`skills/_shared/workflow-integration/references/stage-details.md § QA Gate for AI Work`). Trained-model
+(`CORPFLOW.md`). Trained-model
 promotion applies the same pattern at the pipeline level
 (`skills/mlops/ml-pipelines`). Gate harnesses are built by
 `ai-engineer:ai-test-generator`.
@@ -120,5 +120,5 @@ Read `references/gate-implementation.md` for threshold design, baseline manageme
 - [ ] Flake rate tracked against a budget; quarantined examples have owner, issue, expiry
 - [ ] PR subset is stratified and deterministic; full-set cadence documented; subset identity recorded with metrics
 - [ ] Gate failures link transcripts for failure analysis (`skills/evals/eval-design`)
-- [ ] Escape hatch: overrides recorded in-repo (who/why/expiry + follow-up issue); QA verdict semantics per `skills/_shared/workflow-integration`
+- [ ] Escape hatch: overrides recorded in-repo (who/why/expiry + follow-up issue); QA verdict semantics per `CORPFLOW.md`
 - [ ] Trained-model promotion gates aligned with `skills/mlops/ml-pipelines`

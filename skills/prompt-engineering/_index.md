@@ -30,4 +30,4 @@ tree.
 | Retrieval when the prompt needs knowledge | `${CLAUDE_SKILL_DIR}/llm-apps/rag-systems/SKILL.md` |
 | Provider calls, caching, streaming | `${CLAUDE_SKILL_DIR}/llm-apps/llm-api-patterns/SKILL.md` |
 | Fine-tuning when prompting hits its ceiling | `${CLAUDE_SKILL_DIR}/finetuning/peft-lora/SKILL.md` |
-| Workflow stage participation | `${CLAUDE_SKILL_DIR}/_shared/workflow-integration/SKILL.md` |
+| Workflow stage participation | `CORPFLOW.md` |

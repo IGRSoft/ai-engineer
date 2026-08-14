@@ -31,4 +31,4 @@ tree.
 | The prompt behind the feature | `${CLAUDE_SKILL_DIR}/prompt-engineering/prompt-design/SKILL.md` |
 | Self-hosting the model behind the app | `${CLAUDE_SKILL_DIR}/mlops/model-serving/SKILL.md` |
 | Measuring RAG faithfulness / agent success | `${CLAUDE_SKILL_DIR}/evals/eval-design/SKILL.md` |
-| Workflow stage participation | `${CLAUDE_SKILL_DIR}/_shared/workflow-integration/SKILL.md` |
+| Workflow stage participation | `CORPFLOW.md` |
