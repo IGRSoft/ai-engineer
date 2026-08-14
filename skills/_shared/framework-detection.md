@@ -6,7 +6,7 @@ effort: low
 
 # Framework Detection & Agent Routing
 
-Single source of truth for the AI-stack marker → domain → agent mapping used by `ai-engineer:ai-engineer` (router), `corpflow:developer` DV dispatch, and every ai-engineer command that scopes work per domain. Keep command-local detection logic in sync with this file — do not fork the tables.
+Single source of truth for the AI-stack marker → domain → agent mapping used by `ai-engineer:ai-engineer` (router), the orchestrator's platform router DV dispatch, and every ai-engineer command that scopes work per domain. Keep command-local detection logic in sync with this file — do not fork the tables.
 
 ## Detection Priority Order
 

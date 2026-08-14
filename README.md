@@ -30,7 +30,7 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 | `llm-engineer` | sonnet / high | Production LLM applications: RAG pipelines, agent loops and tool use, structured outputs, provider SDKs with streaming, caching, fallback routing. |
 | `ml-engineer` | sonnet / high | LLM training and fine-tuning: PyTorch, Transformers/TRL/PEFT, LoRA/QLoRA, DPO preference tuning, dataset curation, smoke-scale verification. |
 | `mlops-engineer` | sonnet / high | Serving, deployment, and ML operations: vLLM/TGI/Ollama/Triton, quantized deploys, MLflow/W&B tracking, DVC pipelines, drift monitoring. |
-| `ai-prompt-engineer` | sonnet / high | Product prompt engineering — the prompts shipped *inside* your LLM product — with eval-driven optimization. (Claude Code meta-prompts belong to `corpflow:prompt-engineer`.) |
+| `ai-prompt-engineer` | sonnet / high | Product prompt engineering — the prompts shipped *inside* your LLM product — with eval-driven optimization. (Claude Code meta-prompts belong to the orchestrator's meta-prompt engineer.) |
 | `ai-architector` | opus / xhigh | AI system architecture: prompt-vs-RAG-vs-fine-tune-vs-hybrid decisions, agent topology, serving stack, build-vs-buy, cost/latency modeling. AR-stage consultant. |
 | `ai-test-generator` | sonnet / high | pytest suites plus LLM eval harnesses — golden sets, LLM-judge scoring, regression gates — with pinned eval sets and deterministic settings. |
 | `ai-security-auditor` | sonnet / high (review-only) | OWASP LLM Top 10 audit: prompt injection, insecure output handling, model supply chain (pickle vs safetensors, unpinned revisions), secret/PII leakage, ungated agency. `disallowed-tools: Write, Edit`. |
@@ -52,7 +52,7 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 | `/ai-engineer:data-audit` | Read-only dataset quality audit — schema, dedup, train/test contamination, PII/secret scan, license/provenance, distribution stats into a P0-P3 report. |
 | `/ai-engineer:deploy-check` | Serving readiness gate for vLLM/TGI/Ollama/Triton deploys — pins, quantization evals, KV-cache math, gateway controls, probes, rollback, monitoring — returning GO / NO-GO / GO-WITH-RISKS. |
 | `/ai-engineer:analyze-security` | OWASP LLM Top 10 sweep of AI code, prompts, and dependencies via `ai-engineer:ai-security-auditor` — scanner-backed, mapped to LLM01-LLM10 + CWE with P0-P3. |
-| `/ai-engineer:build-test` | Detect the Python environment (uv/pip/conda), sync, verify the package imports, and run pytest. The `ai` platform's build gate — `corpflow:developer` routes here, and DR calls it with `--no-test`. |
+| `/ai-engineer:build-test` | Detect the Python environment (uv/pip/conda), sync, verify the package imports, and run pytest. The `ai` platform's build gate — the orchestrator's platform router routes here, and DR calls it with `--no-test`. |
 
 All commands degrade gracefully when a tool is missing: they print an install hint (for example `uv tool install ruff`, `brew install jq`), reduce depth, and never hard-fail. GPU-optional discipline applies throughout: no `nvidia-smi` → reduced-depth note, never a hard failure.
 
@@ -190,7 +190,7 @@ After editing `settings.json`, run `/plugins` (or restart the session) to load t
 2. Verify the command surface resolves: `/ai-engineer:review-code` appears in the slash-command list and runs against working changes.
 3. Verify agent resolution: a `Task` call with `subagent_type: "ai-engineer:ai-engineer"` dispatches the router (which can further delegate to `ai-engineer:llm-engineer` etc.).
 
-Standalone installation gives you the slash commands, the skills, and direct `Task(ai-engineer:*)` delegation. **corpflow auto-routing** (the `corpflow:developer` DV stage detecting AI stacks and dispatching ai-engineer specialists, plus `--platform ai` on `/worktask`) additionally requires the companion edits to the corpflow plugin documented in [`docs/corpflow-registration.md`](docs/corpflow-registration.md) — applied via a corpflow PR, not from this repo.
+Standalone installation gives you the slash commands, the skills, and direct `Task(ai-engineer:*)` delegation. **corpflow auto-routing** (the the orchestrator's platform router DV stage detecting AI stacks and dispatching ai-engineer specialists, plus `--platform ai` on `/worktask`) additionally requires the companion edits to the corpflow plugin documented in [`docs/corpflow-registration.md`](docs/corpflow-registration.md) — applied via a corpflow PR, not from this repo.
 
 ## corpflow Integration
 

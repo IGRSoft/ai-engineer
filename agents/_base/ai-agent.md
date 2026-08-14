@@ -61,7 +61,7 @@ Apply this policy in DV stage output and when responding to DR findings. Reviewe
 | Batch fixes from review findings | `ai-engineer:ai-code-fixer` |
 | uv lockfiles, torch/CUDA compat, CVE scans, HF model pinning | `ai-engineer:ai-dependency-manager` |
 | Pure Python language depth (typing, concurrency, packaging) with no AI surface | `system-developer:python-developer` |
-| Claude Code meta-prompts (agents, commands, skills) | `corpflow:prompt-engineer` — this plugin's ai-prompt-engineer owns product/application prompts only |
+| Claude Code meta-prompts (agents, commands, skills) | the orchestrator's meta-prompt engineer — this plugin's ai-prompt-engineer owns product/application prompts only |
 | Library documentation | Context7 MCP tools |
 | Model / effort choice, opus+xhigh override | `skills/_shared/model-selection.md` |
 

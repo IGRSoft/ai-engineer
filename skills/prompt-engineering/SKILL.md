@@ -79,6 +79,6 @@ Prompt task?
 - [CORPFLOW.md](../../CORPFLOW.md) — stage participation, AI Build Evidence
 
 **Owning agent:** `ai-engineer:ai-prompt-engineer` (product/application prompts
-only — Claude Code meta-prompts route to `corpflow:prompt-engineer`).
+only — Claude Code meta-prompts route to the orchestrator's meta-prompt engineer).
 Prompt-vs-RAG-vs-fine-tune escalation decisions → `ai-engineer:ai-architector`;
 injection-surface review → `ai-engineer:ai-security-auditor`.
