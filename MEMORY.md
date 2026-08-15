@@ -4,7 +4,7 @@
 
 | Field | Value |
 |-------|-------|
-| Plugin version | 1.3.0 |
+| Plugin version | 1.3.2 |
 | corpflow compatibility | v4.0.13 |
 | Claude Code min required | — (not pinned in the manifests) |
 | Last updated | 2026-08-06 |
