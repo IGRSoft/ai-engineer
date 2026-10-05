@@ -1,9 +1,4 @@
-<!--
-The single corpflow-facing file in this plugin. Keep it self-contained — splitting it into a
-references/ directory rebuilds the coupling it replaced. Never add a `## Routing` heading: that one
-is reserved for a CORPFLOW.md sitting at a *user project* root.
-Contract: corpflow skills/cross-plugin-handoff/references/plugin-contract.md
--->
+<!-- Never add a `## Routing` heading: it is reserved for a CORPFLOW.md at a user project root. -->
 
 # corpflow Integration — ai-engineer
 
@@ -35,8 +30,8 @@ stage ran — read `state.json`.
 
 **DV is the only stage ownership transfers for.** Read `tasks.DV0.agent`: a `ai-engineer:` id
 means you own `development-N.md`, patch the ledger, and your frontmatter is what the harness
-validates; routed via
-`corpflow:developer` it owns the artifact and you return implementation plus a ≤500-token summary.
+validates; routed via `corpflow:developer` it owns the artifact and you return implementation plus a
+≤500-token summary.
 Every other stage is **consultation** — corpflow writes the artifact and every `state.json` entry.
 DV-support owns no stage, writes under `.context/logs/`, never patches.
 
@@ -60,7 +55,8 @@ Build Evidence is eval reports, metric tables, and training transcripts under `.
   `metadata.always_required_tests`.
 - Denied and `--no-test` does not fit → record `requests_test_evidence: <what and why>` in your
   artifact, or return `verdict: blocked`. Never reach for the toolchain.
-- AI QA is `go` only when the tests pass and the eval gate holds (`ai-engineer:regression-gates`).
+- AI QA is `go` only when the tests pass and the eval gate holds (`ai-engineer:regression-gates`). A
+  red gate is a `no-go` blocker; any override rationale goes in the QA artifact and PR.
 
 ## Worktree isolation (DV)
 
@@ -142,8 +138,7 @@ unrecognised — the stage reads as neither passed nor failed. `needs_changes` i
 
 AR writes `.context/ai-architecture.md` and returns ≤500 tokens for `corpflow:software-architector` to merge.
 DR, SR and QA write no artifact. DV-support returns `{support_role, findings}` to its parent.
-Blocked → `verdict: blocked` + `error_escalated_to:`, narrative in
-`.context/errors/<agent-basename>.md`.
+Blocked → `verdict: blocked` + `error_escalated_to:`, narrative in `.context/errors/<agent-basename>.md`.
 
 ## Closing elicitation sweep (BINDING)
 
@@ -244,8 +239,8 @@ an id appears. Resolve the id, then check your available agent list: **present**
 
 **Roles with a local equivalent are not dispatched through corpflow at all.** Architect, QA
 engineer, and security reviewer resolve to routers that come straight back here, so app-layer work
-calls this plugin's own architect, test generator, and security auditor directly. Those aliases are
-corpflow's *inbound* routing, resolved at worktask init; these commands run outside any worktask.
+calls this plugin's own architect, test generator, and security auditor directly (those aliases are
+corpflow's inbound routing, resolved at worktask init).
 
 **Split by layer, not by role.** The local architect selects this platform's patterns; service
 decomposition, storage topology, and API contracts have no local equivalent and go to the
@@ -279,7 +274,6 @@ fork a standard's text into this plugin; a copy drifts silently.
 | | |
 |---|---|
 | Targets corpflow | `4.0.27` |
-| Size budget | ≤260 lines |
 | Size budget | ≤280 lines |
 | Contract source | `corpflow skills/cross-plugin-handoff/references/plugin-contract.md` |
 | Template | `corpflow skills/cross-plugin-handoff/templates/CORPFLOW.md` |

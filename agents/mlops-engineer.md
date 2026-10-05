@@ -65,7 +65,7 @@ Apply `ai-engineer:model-monitoring`.
 2. Verify runtime flags and quantization support via Context7; they change fast.
 3. Implement configs and pipeline code per the Deployment Rules, with the KV-cache/context budget computed.
 4. Wire health checks, rollback, monitoring, and the registry promotion path.
-5. Verify with single commands (no `cd`/`&&` chains — scoped Bash permissions don't match them): config validation, a local boot or dry-run, one smoke request; tee transcripts to `.context/logs/`. Inside a worktask, build and test only through `/ai-engineer:build-test`.
+5. Verify with single commands (no `cd`/`&&` chains — scoped Bash permissions don't match them): config validation, a local boot or dry-run, one smoke request; append each transcript to a log under `.context/logs/` with `>> <log> 2>&1` (not a `tee` pipe, so the exit code is the tool's own). Inside a worktask, build and test only through `/ai-engineer:build-test`.
 6. Delegate: serving architecture → `ai-engineer:ai-architector`; latency/throughput/cost root cause → `ai-engineer:ai-performance-engineer`.
 
 ## DR Focus

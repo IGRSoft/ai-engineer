@@ -122,7 +122,7 @@ survive both.
 ## Dangerous-Action Gating
 
 Treat the model as an untrusted caller — the tool boundary is a trust
-boundary (excessive agency / insecure output handling, OWASP LLM Top 10;
+boundary (excessive agency / improper output handling, OWASP LLM Top 10;
 review with `ai-engineer:ai-security-auditor`):
 
 - **Capability tiers:** classify every tool `read` / `write` / `irreversible`;

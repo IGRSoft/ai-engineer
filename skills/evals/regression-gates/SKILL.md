@@ -11,7 +11,7 @@ description: >-
 
 # Regression Gates
 
-A regression gate turns an eval suite into an enforced contract: eval run + stored baseline + thresholds + failure policy. It backs the plugin rule that every prompt, model, or retrieval change ships with an eval run vs. baseline, and the AI QA verdict, which passes only when tests pass and the eval gate holds. Use it to add gates to CI, set thresholds and warn bands, place metrics on the ladder, handle flaky or bypassed gates, update a baseline after an accepted improvement, or review a PR that wants to merge past a red eval. Gate harnesses are built by `ai-engineer:ai-test-generator`.
+A regression gate turns an eval suite into an enforced contract: eval run + stored baseline + thresholds + failure policy. It backs the plugin rule that every prompt, model, or retrieval change ships with an eval run vs. baseline, and the orchestrator's AI QA verdict, whose pass rule is defined by the plugin's orchestrator integration, not here. Use it to add gates to CI, set thresholds and warn bands, place metrics on the ladder, handle flaky or bypassed gates, update a baseline after an accepted improvement, or review a PR that wants to merge past a red eval. Gate harnesses are built by `ai-engineer:ai-test-generator`.
 
 **Elsewhere:**
 

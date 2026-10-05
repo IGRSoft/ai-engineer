@@ -71,7 +71,7 @@ Audit every present stage against `ai-engineer:rag-systems`:
 ### Phase 3: Retrieval Eval (when a harness exists, unless `--no-eval`)
 
 1. Locate the harness: `tests/eval_retrieval*.py`, versioned `evals/retrieval-v*.jsonl`, documented eval runner modules.
-2. Run it scoped and deterministic as a single command, e.g. `uv run pytest tests/eval_retrieval.py -q` (per `references/retrieval-evaluation.md`). Inside a worktask, tee the transcript to `.context/logs/`.
+2. Run it scoped and deterministic as a single command, e.g. `uv run pytest tests/eval_retrieval.py -q` (per `references/retrieval-evaluation.md`). Inside a worktask, append the transcript to a log under `.context/logs/` with `>> <log> 2>&1` (not a `tee` pipe, so the exit code is the tool's own).
 3. Compare against the repo's recorded baseline/thresholds where they exist (harness `THRESHOLDS`, metrics artifacts); report per-archetype breakdowns when the harness emits them — a healthy mean hides a dead archetype.
 4. No harness → metrics "NOT MEASURED" plus a finding (no labeled retrieval eval set, typically P2). Harness fails → "NOT MEASURED (harness failed: {stage})" plus a finding.
 

@@ -89,7 +89,7 @@ Coverage floors per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md § 
 1. Run all requested tests, scoped: `uv run pytest <target paths>`.
 2. Fix failures, then re-run only the failed subset (`uv run pytest -k <expr>` or `path::case`). Cap at 3 fix-retest rounds, then escalate with the failure transcript.
 3. Re-run the original requested set as the closing gate. Under DV skip the full suite — QA owns it; outside a workflow, run the full suite.
-4. Eval runs stay deterministic every iteration; inside a workflow, tee metrics/transcripts to `.context/logs/`.
+4. Eval runs stay deterministic every iteration; inside a workflow, append metrics and transcripts to a log under `.context/logs/` with `>> <log> 2>&1` (not a `tee` pipe, so the exit code is the tool's own).
 
 One command per Bash invocation — no `cd`-chains or `&&` — because scoped Bash permissions don't match compound commands. Inside a worktask, build and test only through `/ai-engineer:build-test`.
 

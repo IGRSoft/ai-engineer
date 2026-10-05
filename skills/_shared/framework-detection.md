@@ -1,9 +1,3 @@
----
-name: framework-detection
-description: AI-stack marker-to-domain-to-agent routing table. Reference when deciding which ai-engineer agent owns a task, file, or repository.
-effort: low
----
-
 # Framework Detection & Agent Routing
 
 Source of truth for the AI-stack marker → domain → agent mapping used by the `ai-engineer:ai-engineer` router, the orchestrator's DV dispatch, and the ai-engineer commands that scope work per domain. Commands that summarize these tables must stay in sync with them.

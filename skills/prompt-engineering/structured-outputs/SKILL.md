@@ -146,7 +146,7 @@ Assistant-turn prefill (`{`) is another fence/prose mitigation, but several curr
 
 | Pattern | Problem | Fix |
 |---|---|---|
-| `eval()` / `exec()` / `ast.literal_eval` on model output | Code-execution surface (OWASP LLM insecure output handling, P0 per `skills/_shared/severity-matrix.md`); `literal_eval` accepts Python-not-JSON and hides drift | `json.loads` / `model_validate_json` + schema validation only |
+| `eval()` / `exec()` / `ast.literal_eval` on model output | Code-execution surface (OWASP LLM improper output handling, P0 per `skills/_shared/severity-matrix.md`); `literal_eval` accepts Python-not-JSON and hides drift | `json.loads` / `model_validate_json` + schema validation only |
 | `json.loads` with no schema behind it; regex field-plucking | Breaks on reorder, nesting, escaping; wrong values pass | Whole-document schema validation |
 | `.replace("```json", "")` hacks copied across files | Inconsistent cleanup | One shared extractor |
 | "Return JSON" prompt with no schema, example, or escape values | Model guesses the contract | Schema-driven mode or explicit contract |

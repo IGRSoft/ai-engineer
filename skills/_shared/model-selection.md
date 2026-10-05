@@ -1,9 +1,3 @@
----
-name: model-selection
-description: Model and effort selection for ai-engineer agents — cost tiers, per-agent assignments, and per-call model override paths. Reference when delegating to or overriding an ai-engineer specialist.
-effort: low
----
-
 # Model & Effort Selection (ai-engineer)
 
 Per-agent model assignments and override paths. Frontmatter in `agents/*.md` is the source of truth; keep this table in sync with it.

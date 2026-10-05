@@ -204,7 +204,3 @@ reason: P0 hotfix for prod incident 1382 outranks a warn-band regression
 follow_up: repo#1391          # re-run + fix scheduled
 expires: 2026-07-29
 ```
-
-In a worktask the same rule surfaces as the QA verdict: `no-go` carries the
-eval failure into `metadata.gate_blockers[]`, and any override rationale lives
-in the QA artifact and PR, not only in chat.

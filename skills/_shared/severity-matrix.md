@@ -1,8 +1,3 @@
----
-name: severity-matrix
-description: Reusable severity and priority definitions for ai-engineer commands and agents
----
-
 # Severity Matrix Reference
 
 Severity levels, P0-P3 finding priorities, effort/impact ranking, code-smell thresholds, and coverage floors.
