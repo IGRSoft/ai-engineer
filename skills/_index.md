@@ -1,15 +1,13 @@
 # Skills Index
 
-Root index for all ai-engineer skills (prompt engineering, LLM apps,
-fine-tuning, MLOps, evals, and shared references). **28 SKILL.md across 5
-domains + _shared, plus shared references.** Start at [`SKILL.md`](SKILL.md)
-for the routing entry point.
+Full navigation for ai-engineer skills: 27 SKILL.md across 5 domains, plus
+shared references. Routing entry point: [`SKILL.md`](SKILL.md).
 
 ## Domains
 
 | Directory | Index | Skills | Description |
 |-----------|-------|--------|-------------|
-| [_shared/](_shared/_index.md) | [`_index.md`](_shared/_index.md) | 1 + refs | Cross-cutting references: corpflow integration, AI-stack agent routing, model selection, severity matrix |
+| [_shared/](_shared/_index.md) | [`_index.md`](_shared/_index.md) | refs | Cross-cutting references: AI-stack agent routing, model selection, severity matrix |
 | [prompt-engineering/](prompt-engineering/SKILL.md) | [`_index.md`](prompt-engineering/_index.md) | 1 + 3 leaves | Production prompt design, context-window engineering, reliable structured outputs |
 | [llm-apps/](llm-apps/SKILL.md) | [`_index.md`](llm-apps/_index.md) | 1 + 3 leaves | RAG pipelines, bounded agent loops, production provider-API integration |
 | [finetuning/](finetuning/SKILL.md) | [`_index.md`](finetuning/_index.md) | 1 + 8 leaves | Dataset curation, graded-trace conversion, LoRA/QLoRA adapters, training optimization, preference tuning, verifiable-reward RL, checkpoint promotion, quantized export |
@@ -76,17 +74,6 @@ for the routing entry point.
 | **eval-design** | [`evals/eval-design/SKILL.md`](evals/eval-design/SKILL.md) | Assertion→metric→judge→human hierarchy, task-grounded eval sets from real traffic, paired A/B comparison, statistical honesty, failure analysis |
 | **llm-judge** | [`evals/llm-judge/SKILL.md`](evals/llm-judge/SKILL.md) | Pointwise vs pairwise selection, anchored rubrics, bias mitigations, calibration against human labels (Cohen's kappa), judge regression tests |
 | **regression-gates** | [`evals/regression-gates/SKILL.md`](evals/regression-gates/SKILL.md) | Pre-commit→PR→nightly→release gate ladder, floors plus relative thresholds, baseline update ritual, flake policy, pytest integration, escape hatch |
-
-## Child Indexes
-
-| Index Path | Contents |
-|------------|----------|
-| [`_shared/_index.md`](_shared/_index.md) | Shared references: workflow integration + templates, agent routing, model selection, severity |
-| [`prompt-engineering/_index.md`](prompt-engineering/_index.md) | Prompt engineering entry + prompt-design + context-engineering + structured-outputs (with references) |
-| [`llm-apps/_index.md`](llm-apps/_index.md) | LLM apps entry + rag-systems + agent-design + llm-api-patterns (with references) |
-| [`finetuning/_index.md`](finetuning/_index.md) | Fine-tuning entry + dataset-curation + peft-lora + training-optimization + preference-tuning + grpo-rlvr-training + trace-to-training-data + checkpoint-promotion + quantized-export (with references) |
-| [`mlops/_index.md`](mlops/_index.md) | MLOps entry + experiment-tracking + model-serving + model-monitoring + ml-pipelines (with references) |
-| [`evals/_index.md`](evals/_index.md) | Evals entry + eval-design + llm-judge + regression-gates (with references) |
 
 ## Root References
 
