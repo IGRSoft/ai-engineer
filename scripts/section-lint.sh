@@ -18,7 +18,7 @@
 #                   "## Response Approach" OR "## Core Workflow"
 #                   (prefix-matched: several agents suffix the heading, e.g.
 #                   "## Response Approach (Update Workflow)"; ai-architector
-#                   uses "## Core Workflow"). agents/_base/* are exempt.
+#                   uses "## Core Workflow").
 #   commands/*.md — must carry the review-code exemplar skeleton H2s:
 #                   CRITICAL BEHAVIORAL RULES, Usage, Options, Output Format,
 #                   Error Handling, See Also.
@@ -29,7 +29,7 @@
 # failing state.
 #
 # Usage:
-#   scripts/section-lint.sh              # lint agents/, agents/_base/, commands/,
+#   scripts/section-lint.sh              # lint agents/, commands/,
 #                                        # skills/**  (excludes templates/, scripts/,
 #                                        # fixtures/ — scaffolds and test vectors,
 #                                        # not agent-facing prose)
@@ -62,8 +62,6 @@ REQUIRED = {
 }
 
 def required_for(path):
-    if re.search(r'(^|/)agents/_base/', path):
-        return None                       # shared templates — exempt
     if re.search(r'(^|/)agents/[^/]+\.md$', path):
         return REQUIRED['agent']
     if re.search(r'(^|/)commands/[^/]+\.md$', path):
@@ -186,9 +184,9 @@ self_test() {
 }
 
 repo_files() {
-	# git `*` matches `/`, so the agents/skills globs already recurse; the
-	# explicit agents/_base and skills patterns document intent, sort -u dedupes.
-	git ls-files -- 'agents/*.md' 'agents/_base/*.md' 'commands/*.md' \
+	# git `*` matches `/`, so the skills glob already recurses; the explicit
+	# skills/** pattern documents intent, sort -u dedupes.
+	git ls-files -- 'agents/*.md' 'commands/*.md' \
 		'skills/*.md' 'skills/**/*.md' \
 		| sort -u \
 		| grep -Ev '/(templates|scripts|fixtures)/' || true

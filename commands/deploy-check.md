@@ -12,7 +12,7 @@ estimated-cost:
 
 # Serving Readiness Gate (Deploy Check)
 
-Audit a model-serving deployment before it takes traffic: locate the serving surface, walk the nine-item readiness checklist from `skills/mlops/model-serving`, add a config deep pass (`ai-engineer:mlops-engineer`) and a capacity pass (`ai-engineer:ai-performance-engineer`), and return one verdict — GO / NO-GO / GO-WITH-RISKS — with a per-item table and P0-P3 gaps. It gates; it never fixes.
+Audit a model-serving deployment before it takes traffic: locate the serving surface, walk the nine-item readiness checklist from `ai-engineer:model-serving`, add a config deep pass (`ai-engineer:mlops-engineer`) and a capacity pass (`ai-engineer:ai-performance-engineer`), and return one verdict — GO / NO-GO / GO-WITH-RISKS — with a per-item table and P0-P3 gaps. It gates; it never fixes.
 
 ## CRITICAL BEHAVIORAL RULES
 
@@ -59,7 +59,7 @@ Probe hardware with `nvidia-smi --query-gpu=name,memory.total --format=csv,nohea
 
 ## The Readiness Checklist
 
-Per `skills/mlops/model-serving` and its `references/serving-stack-matrix.md`:
+Per `ai-engineer:model-serving` and its `references/serving-stack-matrix.md`:
 
 | # | Item | PASS means |
 |---|------|-----------|
@@ -67,11 +67,11 @@ Per `skills/mlops/model-serving` and its `references/serving-stack-matrix.md`:
 | 2 | Quantization declared + evaled | Format named in config AND the exact quantized artifact passed the pinned eval set vs the fp16 baseline (eval report/registry evidence). N/A when unquantized |
 | 3 | KV-cache / context budget arithmetic | `max_model_len` + max concurrency derived from the model's `config.json` shape vs available VRAM — recorded math, not trial-and-OOM |
 | 4 | Gateway: authn + rate limits + quotas | Endpoint fronted by authn (keys/mTLS), rate limits, per-tenant quotas — not an open OpenAI-compatible port |
-| 5 | Client resilience: retries + fallback | Timeouts on every call, bounded retries on retryable statuses only, a defined fallback chain (`skills/llm-apps/llm-api-patterns`) |
+| 5 | Client resilience: retries + fallback | Timeouts on every call, bounded retries on retryable statuses only, a defined fallback chain (`ai-engineer:llm-api-patterns`) |
 | 6 | Probes + warmup + drain | Startup/liveness/readiness split; ready gated on weights loaded AND warmup done; graceful drain ≥ longest allowed stream |
 | 7 | Rollback path defined | Previous revision stays loadable; rollback = alias/revision flip (minutes), not an image rebuild; canary/revert condition stated |
-| 8 | Monitoring wired | Traces (prompt_version, model_revision, tokens, latency, outcome), drift probes (input drift + scheduled judge evals), cost dashboards + spend alarms — ≥1 metric per plane (`skills/mlops/model-monitoring`) |
-| 9 | Lockfile / image pinning | `uv sync --frozen` against a committed `uv.lock`; digest-pinned accelerator base image (`skills/mlops/ml-pipelines § Environment Discipline`) |
+| 8 | Monitoring wired | Traces (prompt_version, model_revision, tokens, latency, outcome), drift probes (input drift + scheduled judge evals), cost dashboards + spend alarms — ≥1 metric per plane (`ai-engineer:model-monitoring`) |
+| 9 | Lockfile / image pinning | `uv sync --frozen` against a committed `uv.lock`; digest-pinned accelerator base image (`ai-engineer:ml-pipelines § Environment Discipline`) |
 
 ## Workflow
 
@@ -90,7 +90,7 @@ Launch both with the Agent tool in one message and wait for both.
 ### Phase 3: Synthesis + Verdict
 
 1. **Merge** checklist statuses with subagent findings; dedupe at `{file, line}` keeping the higher severity; drop claims without concrete evidence.
-2. **Rank** P0-P3 per `skills/_shared/severity-matrix.md`: leaked key or open privileged endpoint → P0; unpinned revision in a production path → P1; missing retries, monitoring gaps, unbounded spend → P2-P1; style → P3.
+2. **Rank** P0-P3 per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md`: leaked key or open privileged endpoint → P0; unpinned revision in a production path → P1; missing retries, monitoring gaps, unbounded spend → P2-P1; style → P3.
 3. **Verdict Rules:**
    - **NO-GO** — any P0; OR no serving config located; OR FAIL on item 1, 4, 6, or 7 (pin, gateway, probes, rollback — the incident-shaped four).
    - **GO-WITH-RISKS** — no NO-GO condition, but ≥1 FAIL or any P1/P2. List each accepted risk with owner and fix route.
@@ -141,10 +141,10 @@ Launch both with the Agent tool in one message and wait for both.
 
 ## See Also
 
-- `skills/mlops/model-serving` (+ `references/serving-stack-matrix.md`) — checklist source.
-- `skills/finetuning/quantized-export` — the pre/post smoke-test diff a fine-tuned artifact should arrive with.
-- `skills/finetuning/checkpoint-promotion` — the upstream PROMOTE report the artifact should name.
-- `skills/mlops/model-monitoring`, `skills/mlops/ml-pipelines`, `skills/llm-apps/llm-api-patterns` — behind items 8, 9, 5.
-- `skills/_shared/severity-matrix.md` — P0-P3 definitions.
+- `ai-engineer:model-serving` (+ `references/serving-stack-matrix.md`) — checklist source.
+- `ai-engineer:quantized-export` — the pre/post smoke-test diff a fine-tuned artifact should arrive with.
+- `ai-engineer:checkpoint-promotion` — the upstream PROMOTE report the artifact should name.
+- `ai-engineer:model-monitoring`, `ai-engineer:ml-pipelines`, `ai-engineer:llm-api-patterns` — behind items 8, 9, 5.
+- `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md` — P0-P3 definitions.
 - `/ai-engineer:finetune-plan` — planning the artifact this gate later ships.
 - `ai-engineer:ai-security-auditor` — gateway-exposure and abuse-path review beyond item 4.

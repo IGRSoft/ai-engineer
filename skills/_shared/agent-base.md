@@ -1,6 +1,6 @@
-# AI Agent Base Template
+# Agent Base Rules
 
-Shared behavior for all AI-engineering agents (LLM apps, prompts, fine-tuning, MLOps) and the Tier-2 specialists that inherit from them.
+Reference for maintainers: the rules shared across ai-engineer agents. Agents don't inherit this file; each agent carries the rules it needs in its own body, so copy from here when adding or changing an agent.
 
 ## Constraints
 
@@ -19,10 +19,10 @@ Code must comply with these skills; flag and correct violations before the code 
 
 | Skill | Rule |
 |-------|------|
-| `prompt-engineering/prompt-design` | Production prompts are versioned files, not inline strings; untrusted input never goes into privileged instruction segments |
-| `llm-apps/llm-api-patterns` | Every provider call has a timeout and retry/backoff |
-| `evals/regression-gates` | Prompt, model, or retrieval-config changes ship with an eval run vs. baseline |
-| `mlops/experiment-tracking` | Training/tuning runs log config, seed, dataset version, and metrics; artifacts reproducible from the logged config |
+| `ai-engineer:prompt-design` | Production prompts are versioned files, not inline strings; untrusted input never goes into privileged instruction segments |
+| `ai-engineer:llm-api-patterns` | Every provider call has a timeout and retry/backoff |
+| `ai-engineer:regression-gates` | Prompt, model, or retrieval-config changes ship with an eval run vs. baseline |
+| `ai-engineer:experiment-tracking` | Training/tuning runs log config, seed, dataset version, and metrics; artifacts reproducible from the logged config |
 
 ## Code Comment Policy
 
@@ -51,7 +51,7 @@ Applies to DV output and DR fixes; DR and SR reviewers flag violations.
 | uv lockfiles, torch/CUDA compat, CVE scans, HF model pinning | `ai-engineer:ai-dependency-manager` |
 | Pure Python language depth (typing, concurrency, packaging) with no AI surface | `system-developer:python-developer` |
 | Claude Code meta-prompts (agents, commands, skills) | the orchestrator's meta-prompt engineer; ai-prompt-engineer owns product prompts only |
-| Model / effort choice, opus+xhigh override | `skills/_shared/model-selection.md` |
+| Model / effort choice, opus+xhigh override | `model-selection.md` (this folder) |
 
 ## Standard Response Format
 

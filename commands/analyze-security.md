@@ -78,7 +78,7 @@ Use the Task tool with `subagent_type="ai-engineer:ai-security-auditor"`. Prompt
 
 "Read-only OWASP LLM Top 10 audit. Scope ({full | --deps-only | --prompts-only}): {file_list}. Changed binary/model artifacts: {artifact_list_or_none}. Scanners available: {list}; missing: {list} — for missing lenses fall back to manual pattern review and record the reduced depth. Run the available scanners over the scope, then your manual sweep, and verify every candidate in the surrounding code. Also check exposed model endpoints. Do not write or edit; include no working exploit payloads or jailbreak strings; report secrets as file:line + type + scanner, never the value. Return findings as `{file, line, llm_id, cwe, severity, why, fix, confidence}` plus the control checklist. If there are no material issues, say so."
 
-For deep threat modeling of a large agent/tool surface, pass `model: "opus"` on the Task call (see `skills/_shared/model-selection.md`).
+For deep threat modeling of a large agent/tool surface, pass `model: "opus"` (see `${CLAUDE_PLUGIN_ROOT}/skills/_shared/model-selection.md`).
 
 ### Phase 3: Synthesis & Routing
 
@@ -145,7 +145,7 @@ For deep threat modeling of a large agent/tool surface, pass `model: "opus"` on 
 
 | Condition | Response |
 |-----------|----------|
-| Nothing AI-relevant in scope (no code, prompts, configs, or manifests per `skills/_shared/framework-detection.md`) | Print the resolved scope; suggest an explicit path, or the security-scanning plugin for a general (non-AI) sweep. |
+| Nothing AI-relevant in scope (no code, prompts, configs, or manifests per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/framework-detection.md`) | Print the resolved scope; suggest an explicit path, or the security-scanning plugin for a general (non-AI) sweep. |
 | No changes (default scope) | Suggest a path, branch, or PR — or `--deps-only`, which scans the lockfile/manifest set on a clean tree. |
 | `gh` missing for a PR scope | Print `brew install gh` then `gh auth login`; fall back to a branch diff against the default branch. |
 | All scanners missing | Proceed with manual review only; state the degraded recall at the top of the report with aggregated install hints. |
@@ -153,7 +153,7 @@ For deep threat modeling of a large agent/tool surface, pass `model: "opus"` on 
 
 ## See Also
 
-- `skills/_shared/severity-matrix.md` — P0-P3 definitions.
+- `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md` — P0-P3 definitions.
 - `/ai-engineer:review-code` — includes an always-on security pass; this command is the deeper, scanner-backed sweep.
 - `ai-engineer:ai-security-auditor` — the delegated agent; its LLM01-LLM10 table is the canonical hunt list.
 - `corpflow:security-review-process` — the SR-stage checklist this scan feeds inside a worktask.

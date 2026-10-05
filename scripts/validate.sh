@@ -213,10 +213,8 @@ in_list() {
 if [[ -d agents ]]; then
 	while IFS= read -r f; do
 		rel="${f#./}"
-		# _base/ is intentionally excluded from the manifest.
-		[[ "${rel}" == agents/_base/* ]] && continue
 		in_list "${rel}" "${DECLARED_AGENTS}" \
-			|| err "${rel}" "agent file not listed in marketplace agents[]" "add \"./${rel}\" to agents[] or move it under agents/_base/"
+			|| err "${rel}" "agent file not listed in marketplace agents[]" "add \"./${rel}\" to agents[]"
 	done < <(find agents -type f -name '*.md')
 fi
 
@@ -349,12 +347,6 @@ SEEN_NAMES=""
 if [[ -d agents ]]; then
 	while IFS= read -r f; do
 		rel="${f#./}"
-		# _base agents are shared templates (no YAML frontmatter, mirroring
-		# apple-developer's platform-agent.md); skip all frontmatter checks.
-		if [[ "${rel}" == agents/_base/* ]]; then
-			continue
-		fi
-
 		aname="$(fm_field "${f}" name)"
 		adesc="$(fm_field "${f}" description)"
 		amodel="$(fm_field "${f}" model)"

@@ -12,7 +12,7 @@ estimated-cost:
 
 # Data Audit
 
-Audit fine-tuning and eval datasets before they steer a training run. Runs the `skills/finetuning/dataset-curation` gates read-only — schema, duplication, contamination, PII/secrets, license/provenance, distribution — adds an `ai-engineer:ml-engineer` deep pass, and emits a P0-P3 report with every remediation routed to an owner.
+Audit fine-tuning and eval datasets before they steer a training run. Runs the `ai-engineer:dataset-curation` gates read-only — schema, duplication, contamination, PII/secrets, license/provenance, distribution — adds an `ai-engineer:ml-engineer` deep pass, and emits a P0-P3 report with every remediation routed to an owner.
 
 ## CRITICAL BEHAVIORAL RULES
 
@@ -21,7 +21,7 @@ Audit fine-tuning and eval datasets before they steer a training run. Runs the `
 3. **Stream or sample; don't Read a dataset body.** Get sizes from `wc -l`/`stat` and run scanners as single-command `uv run python -c` or `rg` passes. Read only a small head to eyeball structure.
 4. **State coverage on every number.** Full-stream checks say "full"; sampled checks give `sample={N}, seed={s}` next to the value.
 5. **Contamination needs a located eval set.** Without one, report "not checked — no eval set located"; never estimate an overlap.
-6. **Normalize findings, don't manufacture them.** Each finding is `{file:line, check, severity (P0-P3), why, fix, confidence}` per `skills/_shared/severity-matrix.md`. A clean check is reported clean.
+6. **Normalize findings, don't manufacture them.** Each finding is `{file:line, check, severity (P0-P3), why, fix, confidence}` per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md`. A clean check is reported clean.
 7. **A missing tool degrades depth, not the run.** No `uv`/Python → `rg`/`wc`-level checks with a reduced-depth note; no `datasketch` → near-dup "not measured".
 8. Execute directly; don't enter plan mode.
 
@@ -57,7 +57,7 @@ Print the inventory (`path | records | size | format | dvc-tracked | role`) befo
 
 ### Phase 2: Schema & Format (full)
 
-Stream every JSONL line through a validator against `skills/finetuning/dataset-curation/references/data-formats.md`:
+Stream every JSONL line through a validator against `${CLAUDE_PLUGIN_ROOT}/skills/finetuning/dataset-curation/references/data-formats.md`:
 
 - One JSON object per line; `messages` present for SFT records.
 - Roles ∈ `system|user|assistant` (`tool` only where the chat template supports it); at most one system turn, at index 0.
@@ -100,7 +100,7 @@ Full-stream counters: class balance by `task_type`/`source`, length percentiles 
 
 Use the Agent tool with `subagent_type="ai-engineer:ml-engineer"`. Prompt:
 
-"Read-only deep audit of the datasets at {paths} (roles: {train/val/eval}). Raw results — schema: {summary}; duplication: {exact ratio (full), near-dup rate (sample={N}, seed={s})}; contamination: {pairs + eval-set version | not checked}; PII/secrets: {classes + counts, pointers only}; license/provenance: {ledger status}; distribution: {stats}. Intended use: {task class if known}. Assess fitness against `skills/finetuning/dataset-curation`: size vs task-class range, system-turn policy, split hygiene (stratified by source/task_type, recorded seed), dataset versioning, and whether each flagged contamination pair is benign boilerplate or verbatim leakage. Don't edit files or quote scanned values. Return findings as `{file, line, check, severity (P0-P3), why, fix, confidence}` plus a remediation list; say so directly when a dimension is clean."
+"Read-only deep audit of the datasets at {paths} (roles: {train/val/eval}). Raw results — schema: {summary}; duplication: {exact ratio (full), near-dup rate (sample={N}, seed={s})}; contamination: {pairs + eval-set version | not checked}; PII/secrets: {classes + counts, pointers only}; license/provenance: {ledger status}; distribution: {stats}. Intended use: {task class if known}. Assess fitness against `ai-engineer:dataset-curation`: size vs task-class range, system-turn policy, split hygiene (stratified by source/task_type, recorded seed), dataset versioning, and whether each flagged contamination pair is benign boilerplate or verbatim leakage. Don't edit files or quote scanned values. Return findings as `{file, line, check, severity (P0-P3), why, fix, confidence}` plus a remediation list; say so directly when a dimension is clean."
 
 ### Phase 9: Synthesis & Routing
 
@@ -109,7 +109,7 @@ Merge Phase 2-8 findings, dedupe at `{file, line}`, rank P0-P3, and route each r
 | Remediation kind | Route |
 |------------------|-------|
 | Mechanical fix (converter bug behind schema violations, format normalization, co-splitting a near-dup cluster) | `ai-engineer:ai-code-fixer` follow-up |
-| Curation-process gap (no ledger, unseeded split, no version manifest, no decontamination step, scrub not re-run post-transform) | matching `skills/finetuning/dataset-curation` pipeline stage |
+| Curation-process gap (no ledger, unseeded split, no version manifest, no decontamination step, scrub not re-run post-transform) | matching `ai-engineer:dataset-curation` pipeline stage |
 | Secret/PII waiver dispute | `ai-engineer:ai-security-auditor` sign-off |
 
 ## Output Format
@@ -176,14 +176,14 @@ Merge Phase 2-8 findings, dedupe at `{file, line}`, rank P0-P3, and route each r
 |-----------|----------|
 | No datasets found | `Error: No datasets detected — checked args, dvc.yaml outs, data/ + datasets/ dirs, and HF layouts under {path}.` Suggest an explicit path, e.g. `/ai-engineer:data-audit data/sft/train.jsonl`. |
 | Parquet / arrow / csv | Stream via `uv run --with pyarrow python -c …` (or the csv module); without Python, list the file with a reduced-depth note. Schema checks beyond parsing apply to messages-format JSONL only. |
-| No eval set located | Not an error: contamination "not checked", plus a P2 finding recommending a pinned eval set (`skills/evals/eval-design`). |
+| No eval set located | Not an error: contamination "not checked", plus a P2 finding recommending a pinned eval set (`ai-engineer:eval-design`). |
 | Too large for a full n-gram pass | Use a seeded sample and say so in Coverage. |
 | `uv` / Python missing | Warn, print `curl -LsSf https://astral.sh/uv/install.sh \| sh`, continue with `rg`/`wc` checks; near-dup, entropy, and distribution depth reduced. |
 | `datasketch` unavailable | Near-dup "not measured"; exact-dup still reported. |
 
 ## See Also
 
-- `skills/finetuning/dataset-curation` — the curation gates this audit checks.
-- `skills/_shared/severity-matrix.md` — P0-P3 definitions.
-- `skills/evals/eval-design` — building the eval sets contamination is measured against.
+- `ai-engineer:dataset-curation` — the curation gates this audit checks.
+- `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md` — P0-P3 definitions.
+- `ai-engineer:eval-design` — building the eval sets contamination is measured against.
 - `/ai-engineer:rag-audit` — corpus-side hygiene for retrieval pipelines fed from the same sources.

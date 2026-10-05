@@ -21,7 +21,7 @@ Review changes to AI systems with one read-only specialist per surface present �
 2. **Reviewers are read-only** and return findings only. Edits happen only in the `--fix` step, after synthesis, for P0/P1.
 3. **One reviewer per detected surface**, launched only for surfaces present in scope (e.g. no `ml-engineer` for a prompt-only change), all in parallel.
 4. **The security pass always runs** (except `--quick`), alongside the surface reviewers, whatever surfaces were detected.
-5. **Normalize every finding** to `{file, line, category, severity, why, fix, confidence}` and rank P0-P3 per `skills/_shared/severity-matrix.md`.
+5. **Normalize every finding** to `{file, line, category, severity, why, fix, confidence}` and rank P0-P3 per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md`.
 6. **Behavior changes need eval evidence.** If the scope touches prompt files, model IDs/revisions, or retrieval configs, look for an eval run vs. baseline (change description, CI artifact, or `.context/logs/`). Missing evidence is a P1 finding pointing at `/ai-engineer:eval-run`.
 7. **A missing tool reduces depth, never aborts.** Print the install hint, note the reduced depth for that lens, and continue.
 8. **Silence is a valid result.** If there are no material issues, say so; don't add P2/P3 nits to fill the report.
@@ -60,7 +60,7 @@ Print the file list and diff line ranges before launching reviewers. Exclude `.v
 
 ### Phase 1: Surface Detection
 
-Detect surfaces with `skills/_shared/framework-detection.md` (dependency markers → file markers → structure; its tie-breaks apply). Summary:
+Detect surfaces with `${CLAUDE_PLUGIN_ROOT}/skills/_shared/framework-detection.md` (dependency markers → file markers → structure; its tie-breaks apply). Summary:
 
 | Surface | Markers (shared table has the full list) | Reviewer |
 |---------|------------------------------------------|----------|
@@ -96,7 +96,7 @@ Skip the fan-out: after Phases 0-1, launch only the dominant surface's reviewer 
 1. Merge all reviewer findings. Where the security pass and a surface reviewer flag the same `{file, line}`, keep the higher severity and the clearer fix, crediting both lenses in `why`.
 2. Drop claims without concrete evidence and pure style nits that hide no defect.
 3. Normalize and rank (Rule 5; confidence high/medium/low).
-4. Apply Rule 6: a missing eval is the P1 "behavior change without eval evidence — run `/ai-engineer:eval-run --baseline <ref>`" (per `skills/evals/regression-gates`).
+4. Apply Rule 6: a missing eval is the P1 "behavior change without eval evidence — run `/ai-engineer:eval-run --baseline <ref>`" (per `ai-engineer:regression-gates`).
 5. Emit the Output Format report.
 
 ### `--fix` (P0/P1 only)
@@ -154,7 +154,7 @@ After synthesis, launch `ai-engineer:ai-code-fixer`: "Apply minimal, targeted fi
 
 | Condition | Response |
 |-----------|----------|
-| No AI surfaces in scope | `Note: No AI surfaces (per skills/_shared/framework-detection.md) in the resolved scope: {scope}.` Suggest `/system-developer:review-code` for pure Python/C/C++/Bash changes. |
+| No AI surfaces in scope | `Note: No AI surfaces (per the framework-detection markers) in the resolved scope: {scope}.` Suggest `/system-developer:review-code` for pure Python/C/C++/Bash changes. |
 | No changes (default scope) | `Note: No staged or unstaged changes to review.` Suggest naming a path, branch, or PR number, e.g. `/ai-engineer:review-code src/rag/`. |
 | `gh` unavailable for a PR scope | `Warning: gh CLI not found; cannot fetch PR diff directly. Install: brew install gh (then gh auth login).` Fall back to a branch diff against the default branch. |
 | Ambiguous surface | Apply the framework-detection tie-breaks; if still ambiguous, route the file to `ai-engineer:ai-engineer` and note the routing in the report. |
@@ -170,9 +170,9 @@ After synthesis, launch `ai-engineer:ai-code-fixer`: "Apply minimal, targeted fi
 
 ## See Also
 
-- `skills/_shared/framework-detection.md` — canonical marker → surface → agent routing (keep Phase 1 in sync).
-- `skills/_shared/severity-matrix.md` — P0-P3 definitions.
-- `skills/evals/regression-gates` — the eval-evidence contract behind Rule 6.
+- `${CLAUDE_PLUGIN_ROOT}/skills/_shared/framework-detection.md` — canonical marker → surface → agent routing (keep Phase 1 in sync).
+- `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md` — P0-P3 definitions.
+- `ai-engineer:regression-gates` — the eval-evidence contract behind Rule 6.
 - `/ai-engineer:eval-run` — produce that eval evidence.
 - `/ai-engineer:analyze-security` — deeper, scanner-backed OWASP LLM Top 10 sweep.
 - `/system-developer:review-code` — language-level review for changes with no AI surface.

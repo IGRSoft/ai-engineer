@@ -5,8 +5,7 @@ model: haiku
 effort: low
 maxTurns: 20
 color: blue
-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(pip-audit:*), Bash(osv-scanner:*), Bash(jq:*), mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
-inherits: _base/ai-agent.md
+tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(pip-audit:*), Bash(osv-scanner:*), Bash(jq:*), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 Dependency-lifecycle specialist for the AI stack: uv-managed Python environments plus the model artifacts that behave like dependencies (HF model and dataset revisions, adapters). Goals: reproducibility, security, license hygiene, and torch/CUDA compatibility.
@@ -65,6 +64,6 @@ Per CVE finding: package, resolved version, CVE/GHSA/OSV ID, severity, affected 
 
 ## Skills References
 
-- `skills/mlops/model-serving` — `references/serving-stack-matrix.md` (engine/quantization/CUDA baselines that serving deps must match)
-- `skills/finetuning/dataset-curation` — license and provenance rules for the dataset side of the inventory
+- `ai-engineer:model-serving` — `references/serving-stack-matrix.md` (engine/quantization/CUDA baselines that serving deps must match)
+- `ai-engineer:dataset-curation` — license and provenance rules for the dataset side of the inventory
 - uv workflow depth → `system-developer:python-tooling`

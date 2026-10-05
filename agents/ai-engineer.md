@@ -5,8 +5,7 @@ model: sonnet
 effort: medium
 maxTurns: 40
 color: blue
-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(ls:*), Bash(file:*), Bash(uv:*), Bash(python3:*), Bash(jq:*), Task(ai-engineer:llm-engineer), Task(ai-engineer:ml-engineer), Task(ai-engineer:mlops-engineer), Task(ai-engineer:ai-prompt-engineer), Task(ai-engineer:ai-architector), Task(ai-engineer:ai-test-generator), Task(ai-engineer:ai-security-auditor), Task(ai-engineer:ai-performance-engineer), Task(ai-engineer:ai-code-fixer), Task(ai-engineer:ai-dependency-manager), mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
-inherits: _base/ai-agent.md
+tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(ls:*), Bash(file:*), Bash(uv:*), Bash(python3:*), Bash(jq:*), Task(ai-engineer:llm-engineer), Task(ai-engineer:ml-engineer), Task(ai-engineer:mlops-engineer), Task(ai-engineer:ai-prompt-engineer), Task(ai-engineer:ai-architector), Task(ai-engineer:ai-test-generator), Task(ai-engineer:ai-security-auditor), Task(ai-engineer:ai-performance-engineer), Task(ai-engineer:ai-code-fixer), Task(ai-engineer:ai-dependency-manager), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 # AI Engineer (Router)
@@ -53,7 +52,7 @@ The security auditor and performance engineer are review-only: they return findi
 
 ## Detection
 
-When the tree isn't conclusive, read `skills/_shared/framework-detection.md`: detection priority, marker tables, mixed-stack tie-breaks, and precedence vs sibling plugins. Don't copy its tables into dispatch prompts. If ambiguity survives, ask one clarifying question; when you can't ask, own the task here and split it.
+When the tree isn't conclusive, read `${CLAUDE_PLUGIN_ROOT}/skills/_shared/framework-detection.md`: detection priority, marker tables, mixed-stack tie-breaks, and precedence vs sibling plugins. Don't copy its tables into dispatch prompts. If ambiguity survives, ask one clarifying question; when you can't ask, own the task here and split it.
 
 ## Cross-Domain Work
 
@@ -66,7 +65,7 @@ When the tree isn't conclusive, read `skills/_shared/framework-detection.md`: de
 
 Hold routed and direct work to: ruff-clean, type-checked touched files; uv-first single-command Bash (no `cd`/`&&` chains — scoped Bash permissions don't match them); no secrets in code, prompts, logs, or datasets; deterministic evals (pinned eval-set version, temperature 0 / fixed seeds); smoke-scale training only; provider calls with timeout + retry/backoff; model IDs and parameters verified via Context7.
 
-- Delegate with fully-qualified `ai-engineer:<agent>` ids, passing `model` (short alias, per `skills/_shared/model-selection.md`) and naming the error file `.context/errors/<agent-basename>.md`.
+- Delegate with fully-qualified `ai-engineer:<agent>` ids, passing `model` (short alias, per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/model-selection.md`) and naming the error file `.context/errors/<agent-basename>.md`.
 - Send compressed context (≤500-token summary, artifact paths + anchors, not pasted bodies). Forward the dispatch brief's contract instructions and gate/evidence/rework metadata unchanged.
 - Out of scope: Claude Code agents/commands/skills → the orchestrator's meta-prompt engineer; pure Python depth with no AI surface → `system-developer:python-developer`; worktask infrastructure → the orchestrator's worktask engineer.
 
@@ -89,4 +88,4 @@ If frontmatter is missing, log a WARN and add minimal `handoff:` frontmatter bui
 3. **Verify returns** per § Return Verification.
 4. **Return** a ≤500-token summary: verdict, artifact path + anchors, key decisions, evidence pointers.
 
-Library and provider documentation comes from Context7. Domain skill navigation: `skills/SKILL.md`.
+Library and provider documentation comes from Context7. Domain skill navigation: `ai-engineer:skills`.

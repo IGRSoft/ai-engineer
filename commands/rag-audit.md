@@ -12,16 +12,16 @@ estimated-cost:
 
 # RAG Audit
 
-Audit a retrieval-augmented generation pipeline end to end, read-only. Map the pipeline as implemented (not as documented) from the code, grade every present stage against the `skills/llm-apps/rag-systems` checklists, run the retrieval eval harness when one exists, and fan out to the LLM engineer for the deep pass and the security auditor for the injection/ACL slice. Deliverables: the pipeline map and a P0-P3 findings report with grounding and freshness issues called out. Start from code, not the prompt, because most "the model hallucinates" bugs are retrieval bugs.
+Audit a retrieval-augmented generation pipeline end to end, read-only. Map the pipeline as implemented (not as documented) from the code, grade every present stage against the `ai-engineer:rag-systems` checklists, run the retrieval eval harness when one exists, and fan out to the LLM engineer for the deep pass and the security auditor for the injection/ACL slice. Deliverables: the pipeline map and a P0-P3 findings report with grounding and freshness issues called out. Start from code, not the prompt, because most "the model hallucinates" bugs are retrieval bugs.
 
 ## CRITICAL BEHAVIORAL RULES
 
 1. **Read-only.** No file edits, index mutations, or config changes; Bash is for queries (grep, wc, `uv run` of an existing harness). Remediation is routed in the report, not applied.
 2. **Map first.** Emit the pipeline map (stage → implementation → `file:line`, or MISSING) before any finding. A missing stage is itself a finding, graded by consequence: absent rerank may be fine; absent refusal rule, citations, or ACL pre-filter is not.
 3. **Report only measured metrics.** recall@k / MRR / nDCG come only from a harness executed this run. No harness, a failing harness, or `--no-eval` → the metrics section reads "NOT MEASURED" with the reason; no estimates or stale numbers, because a plausible invented number is worse than an honest gap.
-4. **Grade against the checklists.** Each present stage is audited against `skills/llm-apps/rag-systems` and its references. A clean stage is reported clean; don't add P2/P3 nits to fill the tables.
+4. **Grade against the checklists.** Each present stage is audited against `ai-engineer:rag-systems` and its references. A clean stage is reported clean; don't add P2/P3 nits to fill the tables.
 5. **The security slice always runs**, in parallel with the deep audit, because retrieved content is untrusted input and ACL enforcement is a store-side boundary. ACL enforcement that lives only in the prompt is P0/P1.
-6. **Normalize every finding** to `{file:line, stage, category, severity (P0-P3), why, fix, confidence}` per `skills/_shared/severity-matrix.md`.
+6. **Normalize every finding** to `{file:line, stage, category, severity (P0-P3), why, fix, confidence}` per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md`.
 7. **A missing tool reduces depth, never aborts.** `uv`/`pytest` absent → print the install hint, continue the static audit, metrics "NOT MEASURED (no runnable harness)".
 8. Execute directly; don't enter plan mode.
 
@@ -64,7 +64,7 @@ Emit the map (Rule 2).
 
 ### Phase 2: Static Stage Audit (checklists)
 
-Audit every present stage against `skills/llm-apps/rag-systems`:
+Audit every present stage against `ai-engineer:rag-systems`:
 
 - **Chunking** — strategy fits the content type (prose/code/tables/chat/legal table); tables never split mid-row, code never split mid-function; sizes/overlap measured, not tutorial-copied. Deep dive: `references/chunking-strategies.md`.
 - **Embedding** — model + revision pinned and recorded in collection metadata; one model per collection; input window ≥ max chunk size; re-embed handled as a blue-green collection swap.
@@ -72,7 +72,7 @@ Audit every present stage against `skills/llm-apps/rag-systems`:
 - **Retrieval** — hybrid dense+sparse (or eval-justified BM25-only); exact-identifier queries covered; k matches what the prompt actually receives; tenant/ACL/date filters applied **store-side as pre-filters**.
 - **Rerank** — present with recall@50-vs-precision@5 rationale, or absent with healthy first-stage precision; not cargo-culted either way.
 - **Grounded generation** — per-claim citations against stable chunk ids; explicit refusal rule with a no-evidence eval slice; freshness stamps ("as of <date>"); low temperature for factual QA.
-- **Injection hardening** — retrieved text delimited as data with an ignore-instructions-inside rule; delimiter-collision escaping; model output validated at trust boundaries (`skills/prompt-engineering/prompt-design` hierarchy).
+- **Injection hardening** — retrieved text delimited as data with an ignore-instructions-inside rule; delimiter-collision escaping; model output validated at trust boundaries (`ai-engineer:prompt-design` hierarchy).
 
 ### Phase 3: Retrieval Eval (when a harness exists, unless `--no-eval`)
 
@@ -85,7 +85,7 @@ Audit every present stage against `skills/llm-apps/rag-systems`:
 
 Launch both in one message with the Agent tool; they are independent and read-only. Wait for both before synthesis.
 
-**`subagent_type="ai-engineer:llm-engineer"`** — prompt: "Read-only deep audit of the RAG pipeline at {path}. Pipeline map: {map with file:line anchors}. Static findings so far: {phase-2 findings}. Eval status: {metrics or NOT MEASURED}. {--focus: 'Restrict depth to {dimension}.'} Audit each present stage's implementation quality against `skills/llm-apps/rag-systems` — chunking fit, embedding/revision pinning, index lifecycle (sync, deletes, re-embed), hybrid/rerank rationale, grounded-generation rules (citations, refusal, freshness), and apply the debug order (fix the first failing layer, not the prompt to mask a retrieval miss). Don't edit any file. Return findings as `{file, line, stage, category, severity (P0-P3), why, fix, confidence}`. If a stage is clean, say so."
+**`subagent_type="ai-engineer:llm-engineer"`** — prompt: "Read-only deep audit of the RAG pipeline at {path}. Pipeline map: {map with file:line anchors}. Static findings so far: {phase-2 findings}. Eval status: {metrics or NOT MEASURED}. {--focus: 'Restrict depth to {dimension}.'} Audit each present stage's implementation quality against `ai-engineer:rag-systems` — chunking fit, embedding/revision pinning, index lifecycle (sync, deletes, re-embed), hybrid/rerank rationale, grounded-generation rules (citations, refusal, freshness), and apply the debug order (fix the first failing layer, not the prompt to mask a retrieval miss). Don't edit any file. Return findings as `{file, line, stage, category, severity (P0-P3), why, fix, confidence}`. If a stage is clean, say so."
 
 **`subagent_type="ai-engineer:ai-security-auditor"`** — prompt: "Read-only injection/ACL audit of the RAG pipeline at {path}. Pipeline map: {map}. Cover: poisoned-document prompt injection through retrieved content (delimiting, ignore-instructions rule, delimiter-collision escaping), ACL/tenant filtering enforced store-side vs prompt-side, leakage through citations or evidence blocks, unvalidated model output reaching trust boundaries, and OWASP LLM Top 10 mapping where applicable. Return findings as `{file, line, stage, category, severity (P0-P3), why, fix, confidence}`. If a surface is clean, say so."
 
@@ -152,8 +152,8 @@ NOT MEASURED — {no labeled eval harness in the repo | harness failed: {stage} 
 
 ## See Also
 
-- `skills/llm-apps/rag-systems` — stage checklists, debug order, lifecycle rules; `references/embedding-and-index-tuning.md` for HNSW/IVF parameters, index memory, score normalization, and fusion when a finding is "index tuned by guesswork".
-- `skills/prompt-engineering/prompt-design` — instruction hierarchy and untrusted-input delimiting behind the assemble-stage checks.
-- `skills/evals/eval-design` / `skills/evals/regression-gates` — building the missing retrieval eval set and wiring it into CI.
+- `ai-engineer:rag-systems` — stage checklists, debug order, lifecycle rules; `references/embedding-and-index-tuning.md` for HNSW/IVF parameters, index memory, score normalization, and fusion when a finding is "index tuned by guesswork".
+- `ai-engineer:prompt-design` — instruction hierarchy and untrusted-input delimiting behind the assemble-stage checks.
+- `ai-engineer:eval-design` / `ai-engineer:regression-gates` — building the missing retrieval eval set and wiring it into CI.
 - `/ai-engineer:prompt-optimize` — measured grounding-prompt iteration after retrieval is fixed.
 - `/ai-engineer:data-audit` — hygiene for the datasets and eval sets this pipeline is measured with.

@@ -55,7 +55,7 @@ Print a "Context Detected" block before delegating:
 4. **Eval assets** — `evals/` harnesses, golden-set manifests, judge configs. None is a planning input, not a blocker.
 5. **Training stack** — `torch|transformers|peft|trl|accelerate|bitsandbytes` in `uv.lock`.
 6. **Base model** — `--base`, else an existing id from training configs or `pyproject.toml`, with its parameter count; none → recommended in Phase 2.
-7. **GPU** — `nvidia-smi --query-gpu=name,memory.total --format=csv,noheader`. No binary → "no CUDA on this box", plan the two-host workflow (Mac/MPS smoke loop, Linux/CUDA full run per `skills/finetuning/training-optimization`), and use `--target-gpu` or ask (Rule 3).
+7. **GPU** — `nvidia-smi --query-gpu=name,memory.total --format=csv,noheader`. No binary → "no CUDA on this box", plan the two-host workflow (Mac/MPS smoke loop, Linux/CUDA full run per `ai-engineer:training-optimization`), and use `--target-gpu` or ask (Rule 3).
 
 ### Phase 1: Method Verdict
 
@@ -66,15 +66,15 @@ Use the Agent tool with `subagent_type="ai-engineer:ai-architector"`. Prompt: "F
 
 ### Phase 2: Plan Assembly
 
-1. **Data** — per `skills/finetuning/dataset-curation`: messages-format JSONL (one system-turn policy, strict role alternation, completion-only masking); size range by task class (style/persona ~200–2k · format enforcer ~500–5k · domain assistant ~1k–20k · DPO pairs ~2k–20k); gap = range minus curated inventory; the eight curation gates (collect→normalize→dedupe→decontaminate→scrub→license→split→version, fail-closed on scrub/license). If rows come from already-graded traces, source them via `skills/finetuning/trace-to-training-data`.
+1. **Data** — per `ai-engineer:dataset-curation`: messages-format JSONL (one system-turn policy, strict role alternation, completion-only masking); size range by task class (style/persona ~200–2k · format enforcer ~500–5k · domain assistant ~1k–20k · DPO pairs ~2k–20k); gap = range minus curated inventory; the eight curation gates (collect→normalize→dedupe→decontaminate→scrub→license→split→version, fail-closed on scrub/license). If rows come from already-graded traces, source them via `ai-engineer:trace-to-training-data`.
 2. **Base model** — carry Phase 0's candidate forward; if none, recommend one marked "unpinned". Either way resolve a parameter count, because step 4 is computed from it.
-3. **Method** — per `skills/finetuning/peft-lora` and `skills/finetuning/preference-tuning`: LoRA (behavior/format/domain from gold outputs), QLoRA (same job under step 4's VRAM budget), or SFT→DPO (directional better-vs-worse targets; needs a competent SFT baseline). Give the config starting point (r, alpha ≈ 2r, target_modules, dropout). When success is decided by a program (unit tests, schema validation, math ground truth, tool-call match), use `skills/finetuning/grpo-rlvr-training` instead: DPO for taste, GRPO for reasoning. That branch needs the skill's two preconditions (a verifier exists; base success rate is nonzero); if either fails, plan SFT first.
-4. **GPU memory** — formulas per `skills/finetuning/training-optimization` `references/gpu-memory-math.md` (weights + gradients + optimizer states + activations + ≥10–15% headroom), instantiated from the parameter count against probed or declared hardware only. Verdict fits / tight / doesn't fit, plus which fit-ladder rungs to plan (accumulation, checkpointing, QLoRA). No hardware → symbolic, marked "instantiate on the training host".
+3. **Method** — per `ai-engineer:peft-lora` and `ai-engineer:preference-tuning`: LoRA (behavior/format/domain from gold outputs), QLoRA (same job under step 4's VRAM budget), or SFT→DPO (directional better-vs-worse targets; needs a competent SFT baseline). Give the config starting point (r, alpha ≈ 2r, target_modules, dropout). When success is decided by a program (unit tests, schema validation, math ground truth, tool-call match), use `ai-engineer:grpo-rlvr-training` instead: DPO for taste, GRPO for reasoning. That branch needs the skill's two preconditions (a verifier exists; base success rate is nonzero); if either fails, plan SFT first.
+4. **GPU memory** — formulas per `ai-engineer:training-optimization` `references/gpu-memory-math.md` (weights + gradients + optimizer states + activations + ≥10–15% headroom), instantiated from the parameter count against probed or declared hardware only. Verdict fits / tight / doesn't fit, plus which fit-ladder rungs to plan (accumulation, checkpointing, QLoRA). No hardware → symbolic, marked "instantiate on the training host".
 5. **Hyperparameters** — LR (~2e-4 LoRA-class), cosine schedule + warmup, effective batch = micro × accumulation (retune LR when it changes), fixed seed; DPO beta ~0.1 swept against held-out win rate, never training loss.
-6. **Eval plan** — per `skills/evals/eval-design`: baseline on the pinned eval set before training (temperature 0, eval-set version recorded); target metrics with pass thresholds; a general-capability regression slice that must not regress (the catastrophic-forgetting detector); gate wiring per `skills/evals/regression-gates`; subjective quality via `skills/evals/llm-judge`.
+6. **Eval plan** — per `ai-engineer:eval-design`: baseline on the pinned eval set before training (temperature 0, eval-set version recorded); target metrics with pass thresholds; a general-capability regression slice that must not regress (the catastrophic-forgetting detector); gate wiring per `ai-engineer:regression-gates`; subjective quality via `ai-engineer:llm-judge`.
 7. **Launch** — two printed commands. **Smoke**: capped `max_steps`, ~256-record subsample, fixed seed; minutes; success = falling loss, no NaN, sane trainable-param %, peak memory vs estimate. **Full**: command + dataset version + CUDA host; duration class + cost drivers (GPU-hours ≈ steps × sec/step; spend scales with params, sequence length, epochs).
-8. **Promotion gate** — per `skills/finetuning/checkpoint-promotion`: the frozen baseline and version-pinned capability-drift suite, and the drift budget (≤1pt noise · 2–5pt seed-variation rerun · >5pt hard fail that no target-task gain buys back). Margins carry their half-width; a margin inside its interval is `REJECT (uncertain)`. State the first escalation rung on `REJECT`, because a plan with no reject path silently assumes success.
-9. **Export** — per `skills/finetuning/quantized-export`, as the `PROMOTE` branch: merged vs LoRA-only (LoRA-only pins base repo and revision), target runtime and format, and the pre/post smoke test over 3–5 goldens. Pre-export generations are captured before the export runs; they are the smoke test's only baseline.
+8. **Promotion gate** — per `ai-engineer:checkpoint-promotion`: the frozen baseline and version-pinned capability-drift suite, and the drift budget (≤1pt noise · 2–5pt seed-variation rerun · >5pt hard fail that no target-task gain buys back). Margins carry their half-width; a margin inside its interval is `REJECT (uncertain)`. State the first escalation rung on `REJECT`, because a plan with no reject path silently assumes success.
+9. **Export** — per `ai-engineer:quantized-export`, as the `PROMOTE` branch: merged vs LoRA-only (LoRA-only pins base repo and revision), target runtime and format, and the pre/post smoke test over 3–5 goldens. Pre-export generations are captured before the export runs; they are the smoke test's only baseline.
 
 ### Phase 3: Emit
 
@@ -114,7 +114,7 @@ Fit verdict: {fits with headroom | tight — ladder rungs {N} | doesn't fit — 
 
 ### Eval Plan & Success Criteria
 Baseline: {eval set + version, temperature 0} · Targets: {metric ≥ threshold, …}
-Regression slice: {general-capability slice — must not regress} · Gate: skills/evals/regression-gates
+Regression slice: {general-capability slice — must not regress} · Gate: ai-engineer:regression-gates
 
 ### Launch Plan (commands for the executor — not run by this command)
 Smoke: `{command}` — {success criteria}; duration class: minutes
@@ -131,7 +131,7 @@ Full:  `{command}` — host {host}, dataset {version}; duration class {hours|day
 
 **Verdict: DON'T FINE-TUNE** — {prompting | RAG | hybrid-without-tuning} covers this cheaper.
 **Why:** {2-3 deciding criteria from the decision table, with project inputs}
-**Do instead:** {concrete path + owning skill/agent, e.g. skills/llm-apps/rag-systems via ai-engineer:llm-engineer}
+**Do instead:** {concrete path + owning skill/agent, e.g. ai-engineer:rag-systems via ai-engineer:llm-engineer}
 **Revisit when:** {measurable trigger — e.g. pinned eval set vN proves the cheaper layer's ceiling}
 ```
 
@@ -147,8 +147,8 @@ Full:  `{command}` — host {host}, dataset {version}; duration class {hours|day
 
 ## See Also
 
-- `skills/finetuning/*` — dataset-curation, trace-to-training-data, peft-lora, preference-tuning, grpo-rlvr-training, training-optimization, checkpoint-promotion (+ `references/gate-templates.md`), quantized-export (+ `references/export-commands.md`), as cited in Phase 2.
-- `skills/evals/eval-design`, `skills/evals/regression-gates` — eval sets, thresholds, CI gating for the success criteria.
+- `ai-engineer:finetuning` leaf skills — dataset-curation, trace-to-training-data, peft-lora, preference-tuning, grpo-rlvr-training, training-optimization, checkpoint-promotion (+ `references/gate-templates.md`), quantized-export (+ `references/export-commands.md`), as cited in Phase 2.
+- `ai-engineer:eval-design`, `ai-engineer:regression-gates` — eval sets, thresholds, CI gating for the success criteria.
 - `/ai-engineer:data-audit` — audit the candidate data before collection or training.
 - `/ai-engineer:deploy-check` — readiness gate when the artifact heads to serving.
 - `ai-engineer:ml-engineer` executes the plan; `ai-engineer:ai-test-generator` builds the eval harness.

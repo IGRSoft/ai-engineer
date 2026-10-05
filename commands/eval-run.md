@@ -17,7 +17,7 @@ Discover the eval harnesses the repo actually has, run them with the pinned eval
 ## CRITICAL BEHAVIORAL RULES
 
 1. **Report only measured metrics.** Every number comes from a command run this session and teed to `.context/logs/`. A suite that didn't run is "not run" — not estimated or copied from an earlier report.
-2. **Determinism first.** Run with the harness's pinned eval-set version and temperature 0 / fixed seeds. A suite that is nondeterministic by construction (judge scoring, sampling) is flagged with a pointer to the flake policy in `skills/evals/regression-gates`; its noisy delta isn't a regression verdict.
+2. **Determinism first.** Run with the harness's pinned eval-set version and temperature 0 / fixed seeds. A suite that is nondeterministic by construction (judge scoring, sampling) is flagged with a pointer to the flake policy in `ai-engineer:regression-gates`; its noisy delta isn't a regression verdict.
 3. **Single-command Bash invocations** (`uv run pytest -m eval`, `uv run --project <path> python -m evals`), no `cd`-chains or `&&`, because scoped Bash permissions don't match compound commands.
 4. **Judge suites only with `--judge`.** They cost provider tokens per case and are nondeterministic; when included, state the cost basis in the report.
 5. **No harness → offer, don't impose.** Offer to scaffold one via `ai-engineer:ai-test-generator` and proceed only on explicit user confirmation — a harness commits the team to maintaining golden sets.
@@ -46,7 +46,7 @@ Discover the eval harnesses the repo actually has, run them with the pinned eval
 
 ## Harness Discovery
 
-Record every harness found — a repo can have several. The markers mirror the eval-harness row of `skills/_shared/framework-detection.md`.
+Record every harness found — a repo can have several. The markers mirror the eval-harness row of `${CLAUDE_PLUGIN_ROOT}/skills/_shared/framework-detection.md`.
 
 | Signal (priority order) | Harness | Run command |
 |-------------------------|---------|-------------|
@@ -73,7 +73,7 @@ First match wins:
 
 1. `--baseline <file>` → read the metrics artifact (JSON/CSV).
 2. `--baseline <ref>` → `git show <ref>:<baseline-path>` (path from the gate config, else the harness's conventional output location).
-3. Configured thresholds: promptfoo assertions, or the pytest gate config per `skills/evals/regression-gates`.
+3. Configured thresholds: promptfoo assertions, or the pytest gate config per `ai-engineer:regression-gates`.
 4. Baseline-candidate mode: report metrics with provenance and state there is nothing to compare against.
 
 For each gated metric record direction (higher- or lower-better), absolute floor/ceiling, relative threshold, and warn band — from the gate config, else the `regression-gates` defaults.
@@ -99,7 +99,7 @@ For each gated metric record direction (higher- or lower-better), absolute floor
 
 Ask: "No eval harness found. Scaffold a minimal one (pytest eval marker + pinned golden-set skeleton + baseline artifact + threshold config) via `ai-engineer:ai-test-generator`?" On explicit confirmation, use the Agent tool with `subagent_type="ai-engineer:ai-test-generator"`. Prompt:
 
-"Scaffold a minimal LLM eval harness for {capability/paths}: a versioned golden-set skeleton (JSONL with a version field), pytest wiring under an `eval` marker, deterministic settings (temperature 0, fixed seed), a metrics artifact the run writes, and a threshold/baseline config per `skills/evals/regression-gates`. Seed cases from {source}; mark TODO where human labels are required — don't fabricate golden answers. Return the file list and the exact run command."
+"Scaffold a minimal LLM eval harness for {capability/paths}: a versioned golden-set skeleton (JSONL with a version field), pytest wiring under an `eval` marker, deterministic settings (temperature 0, fixed seed), a metrics artifact the run writes, and a threshold/baseline config per `ai-engineer:regression-gates`. Seed cases from {source}; mark TODO where human labels are required — don't fabricate golden answers. Return the file list and the exact run command."
 
 Then re-run discovery and run the new suite once; its first metrics are the baseline candidate.
 
@@ -146,7 +146,7 @@ Overall verdict line: **PASS** (gate holds) / **REGRESSION** (with the list) / *
 
 ## See Also
 
-- `skills/evals/regression-gates` — thresholds, warn bands, baseline update ritual, flake policy, escape hatch.
-- `skills/evals/eval-design` — designing the eval set and metrics this command runs.
-- `skills/evals/llm-judge` — judge rubrics and calibration behind `--judge` suites.
+- `ai-engineer:regression-gates` — thresholds, warn bands, baseline update ritual, flake policy, escape hatch.
+- `ai-engineer:eval-design` — designing the eval set and metrics this command runs.
+- `ai-engineer:llm-judge` — judge rubrics and calibration behind `--judge` suites.
 - `/ai-engineer:review-code` — expects this command's output as eval evidence for prompt/model/retrieval changes.

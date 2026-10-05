@@ -21,8 +21,8 @@ Optimize a production application prompt by measurement: baseline it on a pinned
 3. **One eval set for the whole run.** Pin the eval set (file + version) in Phase 2 and reuse it unchanged for the baseline and every variant. Don't drop or subset cases mid-run — that invalidates every number; restart instead.
 4. **Deterministic settings.** Temperature 0 (or the provider's deterministic equivalent) and fixed seeds on every run; record the eval-set version next to every metric. If repeat baseline runs disagree, fix the nondeterminism before comparing anything.
 5. **Single-variable variants.** Each variant changes one variable (one anatomy segment, one example, one rule reframed), so every delta is attributable. Redraft any variant that changes two.
-6. **Judge-scored metrics name their judge.** Report the judge prompt version and judge model next to each judge score (`skills/evals/llm-judge`); scores from different judge versions don't go in one ranking.
-7. **Report-only leaves the repo untouched.** Variants live in scratch files (`.context/prompt-optimize/` or a temp dir); revert any temporary repoint right after its run. Apply follows `skills/prompt-engineering/prompt-design` versioning: new version file + CHANGELOG line with the eval delta, never an in-place overwrite.
+6. **Judge-scored metrics name their judge.** Report the judge prompt version and judge model next to each judge score (`ai-engineer:llm-judge`); scores from different judge versions don't go in one ranking.
+7. **Report-only leaves the repo untouched.** Variants live in scratch files (`.context/prompt-optimize/` or a temp dir); revert any temporary repoint right after its run. Apply follows `ai-engineer:prompt-design` versioning: new version file + CHANGELOG line with the eval delta, never an in-place overwrite.
 8. Execute directly; don't enter plan mode.
 
 ## Usage
@@ -41,7 +41,7 @@ Optimize a production application prompt by measurement: baseline it on a pinned
 | `prompt path` | discover | Target prompt file. Precedence: explicit arg > `prompts/` discovery > ask the user. |
 | `--variants N` | 3 | Variants drafted and measured. Each adds one full eval run — size N to the eval set's cost. |
 | `--eval-set PATH` | discover | Pin a specific eval set / harness instead of discovering one. |
-| `--apply` | off (report-only) | After ranking, write the winner as a version bump per `skills/prompt-engineering/prompt-design`. |
+| `--apply` | off (report-only) | After ranking, write the winner as a version bump per `ai-engineer:prompt-design`. |
 
 ## Workflow
 
@@ -59,7 +59,7 @@ Note the current version (`@N` filename, CHANGELOG, or "unversioned") and print 
 
 1. `--eval-set` given → use it. Otherwise discover versioned `evals/*-v*.jsonl` sets, pytest eval harnesses (`tests/eval_*.py`), and eval runner modules/configs. Record the file, version, case count, and run command.
 2. **None exists** → offer the scaffold via the Agent tool, `subagent_type="ai-engineer:ai-test-generator"`:
-   "Scaffold a golden eval set for the prompt at {path} ({feature summary}). Harvest 20-50 cases from real examples — production logs, test fixtures, docs examples — sanitized; don't invent the distribution. Cover typical cases, edge cases, and the refusal/escape-hatch path. Ship as a versioned `evals/{feature}-v1.jsonl` plus a runnable deterministic harness (`uv run` entry point, temperature 0, fixed seed) per `skills/evals/eval-design`. Record provenance per case."
+   "Scaffold a golden eval set for the prompt at {path} ({feature summary}). Harvest 20-50 cases from real examples — production logs, test fixtures, docs examples — sanitized; don't invent the distribution. Cover typical cases, edge cases, and the refusal/escape-hatch path. Ship as a versioned `evals/{feature}-v1.jsonl` plus a runnable deterministic harness (`uv run` entry point, temperature 0, fixed seed) per `ai-engineer:eval-design`. Record provenance per case."
 3. **Scaffold declined** → stop (Rule 1).
 
 ### Phase 3: Baseline Run
@@ -69,7 +69,7 @@ Run the harness against the current prompt as documented (e.g. `uv run pytest te
 ### Phase 4: Draft Variants
 
 Agent tool, `subagent_type="ai-engineer:ai-prompt-engineer"`:
-"Draft {N} optimization variants of the prompt at {path} (version {v}). Baseline: {metrics} on eval set {eval_set} v{ev}; worst cases: {failing case ids/summaries}. Each variant changes exactly one variable from the `skills/prompt-engineering/prompt-design` levers (tighten or reorder one anatomy segment, swap or add one few-shot example, convert one negative rule to a positive contract, tighten the output contract, move one load-bearing rule to an edge). Name the changed variable and the hypothesis for each. Keep the instruction hierarchy and untrusted-input delimiting exactly as they are — injection posture is not a tuning knob. Return each variant as complete prompt text plus a one-line change description. Don't apply anything."
+"Draft {N} optimization variants of the prompt at {path} (version {v}). Baseline: {metrics} on eval set {eval_set} v{ev}; worst cases: {failing case ids/summaries}. Each variant changes exactly one variable from the `ai-engineer:prompt-design` levers (tighten or reorder one anatomy segment, swap or add one few-shot example, convert one negative rule to a positive contract, tighten the output contract, move one load-bearing rule to an edge). Name the changed variable and the hypothesis for each. Keep the instruction hierarchy and untrusted-input delimiting exactly as they are — injection posture is not a tuning knob. Return each variant as complete prompt text plus a one-line change description. Don't apply anything."
 
 Write each variant to a scratch file (Rule 7) and redraft any that changed more than one variable.
 
@@ -125,7 +125,7 @@ Run the same harness once per variant, pointed at it via the harness's documente
 | Condition | Response |
 |-----------|----------|
 | No prompt found / ambiguous target | `Note: {No prompt files found \| N candidate prompts found: {list}}.` + `Suggestion: Pass an explicit path, e.g. /ai-engineer:prompt-optimize prompts/<feature>/system@N.md` |
-| No eval set, scaffold declined | `Stopped: no eval set exists and the scaffold offer was declined. Re-run after building a golden set (skills/evals/eval-design), or accept the ai-test-generator scaffold.` |
+| No eval set, scaffold declined | `Stopped: no eval set exists and the scaffold offer was declined. Re-run after building a golden set (ai-engineer:eval-design), or accept the ai-test-generator scaffold.` |
 | Baseline harness fails | Report the failing command and its log location, then stop; don't draft variants against a partial baseline. |
 | Nondeterministic metrics | `Stopped: repeat baseline runs disagree ({metric}: {v1} vs {v2}). Fix determinism first: temperature 0, fixed seeds, no sampling in any retrieval step, pinned eval-set version. Then re-run.` |
 | No variant beats baseline | Not an error: report it, apply nothing, emit Next Lever. |
@@ -133,7 +133,7 @@ Run the same harness once per variant, pointed at it via the harness's documente
 
 ## See Also
 
-- `skills/prompt-engineering/prompt-design` — anatomy, levers (`references/prompt-patterns.md`), and the versioning rules apply follows.
-- `skills/evals/eval-design` — golden-set construction, metric selection, paired comparison.
-- `skills/evals/regression-gates` — wire the winner's eval into CI so it can't silently regress.
+- `ai-engineer:prompt-design` — anatomy, levers (`references/prompt-patterns.md`), and the versioning rules apply follows.
+- `ai-engineer:eval-design` — golden-set construction, metric selection, paired comparison.
+- `ai-engineer:regression-gates` — wire the winner's eval into CI so it can't silently regress.
 - `/ai-engineer:rag-audit` — when failures are knowledge gaps, audit retrieval instead of tuning the prompt around it.

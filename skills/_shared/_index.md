@@ -12,6 +12,7 @@ agents, commands, and skills.
 
 | File | Description |
 |------|-------------|
+| `agent-base.md` | Rules shared across ai-engineer agents (Python quality, uv, secrets, deterministic evals, smoke-scale training, pinning, single-command Bash, comments, routing); agents copy what they need |
 | `framework-detection.md` | AI-stack marker → domain → agent routing: detection priority order, dependency and file markers, mixed-stack tie-breaking, precedence vs sibling plugins, ambiguity rule |
 | `model-selection.md` | Per-agent model/effort/maxTurns assignments, cost tiers, house rules for `Task()` calls, opus+xhigh override paths |
 

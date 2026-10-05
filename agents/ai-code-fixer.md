@@ -5,8 +5,7 @@ model: haiku
 effort: medium
 maxTurns: 30
 color: magenta
-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(ruff:*), Bash(jq:*), mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
-inherits: _base/ai-agent.md
+tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(ruff:*), Bash(jq:*), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 Code remediation specialist for AI codebases (LLM apps, prompts, training and serving code): turns review findings and gate blockers into minimal-diff changes.
@@ -46,3 +45,4 @@ Fixes that need API redesign or an architecture decision go back to the owning e
 - No dependency upgrades or additions — that is `ai-engineer:ai-dependency-manager`.
 - No P2/P3 auto-fixes without explicit approval.
 - Prefer a real fix over a suppression (`# noqa`, `# type: ignore[code]`) when it's cheap; a suppression gets the narrowest scope and a why-comment.
+- One command per Bash call, no `cd`/`&&` chains, because scoped Bash permissions don't match compound commands.

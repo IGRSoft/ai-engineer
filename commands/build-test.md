@@ -86,7 +86,7 @@ If there is also an importable package, build and test it normally and note the 
 1. Confirm `path` exists, else Error Handling.
 2. Create `.context/logs/` and fix the log path once: `.context/logs/build-<date +%Y%m%d-%H%M%S>.log`. Shell variables don't persist between Bash calls, so use the literal path in every later command.
 3. Pick the manager from the detection table (`--manager` overrides); if nothing matches, check § Pipeline and Eval Projects.
-4. Note the owning surface (LLM app / training / serving / mixed) from the manifest's dependencies per `skills/_shared/framework-detection.md`; used for the report and for triage.
+4. Note the owning surface (LLM app / training / serving / mixed) from the manifest's dependencies per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/framework-detection.md`; used for the report and for triage.
 5. Check the manager's binary with `command -v`; if absent, apply rule 7.
 
 ### Phase 2: Sync
@@ -194,7 +194,7 @@ A missing `nvidia-smi` is never a build failure. CUDA-only tests that hard-fail 
 
 ## See Also
 
-- `skills/_shared/framework-detection.md` — marker → domain → agent routing.
+- `${CLAUDE_PLUGIN_ROOT}/skills/_shared/framework-detection.md` — marker → domain → agent routing.
 - `/ai-engineer:eval-run` — runs eval suites; this command doesn't.
 - `/ai-engineer:review-code` — review once the build is green.
 - `/ai-engineer:deploy-check` — serving readiness for a green build.
