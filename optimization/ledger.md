@@ -17,7 +17,7 @@ This ledger is also the completed list. When a command task cleans up an agent o
 | path | type | status | done by | words before → after | note |
 |---|---|---|---|---|---|
 | commands/analyze-security.md | command | done | commands/analyze-security.md | 1960 → 1402 | Cut extended-thinking block, shouted rules, duplicated usage/workflow steps and rule restatements; error cases to a table; dropped invalid per-call `effort` override; fixed pip-audit/uv.lock note |
-| commands/build-test.md | command | todo | | 2459 → | |
+| commands/build-test.md | command | done | commands/build-test.md | 2459 → 1728 | Cut extended-thinking block, shouted rules, restated rules and duplicated tool-availability text; error cases to a table; `skill: framework-detection` (not a real skill) → file path, marker lists deferred to it; log path made literal since shell vars don't persist across Bash calls; dropped CORPFLOW.md/corpflow refs (seam rule) |
 | commands/data-audit.md | command | todo | | 2034 → | |
 | commands/deploy-check.md | command | todo | | 2017 → | |
 | commands/eval-run.md | command | todo | | 1938 → | |
@@ -29,14 +29,14 @@ This ledger is also the completed list. When a command task cleans up an agent o
 | agents/ai-architector.md | agent | todo | | 2282 → | |
 | agents/ai-code-fixer.md | agent | todo | | 842 → | |
 | agents/ai-dependency-manager.md | agent | todo | | 838 → | |
-| agents/ai-engineer.md | agent | todo | | 1307 → | |
+| agents/ai-engineer.md | agent | done | commands/build-test.md | 1307 → 785 | Dropped agent/model table (dup of frontmatter + decision tree) and closing route restatement; `metadata.model` → Agent `model` param; Return Verification condensed, corpflow script name removed; base-inheritance note dropped |
 | agents/ai-performance-engineer.md | agent | todo | | 1251 → | |
 | agents/ai-prompt-engineer.md | agent | todo | | 1255 → | |
 | agents/ai-security-auditor.md | agent | done | commands/analyze-security.md | 945 → 816 | Persona + base-inheritance note to one line; dropped caller-facing Model Notes; merged Map/Recommend into output format; `disallowed-tools` → `disallowedTools`; pip-audit runs on exported requirements, not uv.lock |
 | agents/ai-test-generator.md | agent | todo | | 1307 → | |
-| agents/llm-engineer.md | agent | todo | | 961 → | |
-| agents/ml-engineer.md | agent | todo | | 1369 → | |
-| agents/mlops-engineer.md | agent | todo | | 922 → | |
+| agents/llm-engineer.md | agent | done | commands/build-test.md | 961 → 656 | Persona + dead base-inheritance note to one line; dropped Skills References list (dup of inline Apply lines); tightened rules/DR Focus; single-command Bash rule inlined from unreachable base |
+| agents/ml-engineer.md | agent | done | commands/build-test.md | 1369 → 961 | Persona + base note to one line; dropped Skills References list (folded the two non-inline skills into steps); removed dead "(base …)" pointers, inlining the GPU-absence rule they referred to |
+| agents/mlops-engineer.md | agent | done | commands/build-test.md | 922 → 600 | Persona + base note to one line; dropped Skills References list (folded into inline refs); tightened rules, capabilities, DR Focus |
 | skills/SKILL.md | skill | todo | | 773 → | |
 | skills/evals/SKILL.md | skill | todo | | 575 → | |
 | skills/evals/eval-design/SKILL.md | skill | todo | | 1067 → | |
@@ -64,6 +64,7 @@ This ledger is also the completed list. When a command task cleans up an agent o
 | skills/prompt-engineering/context-engineering/SKILL.md | skill | todo | | 1002 → | |
 | skills/prompt-engineering/prompt-design/SKILL.md | skill | todo | | 2265 → | |
 | skills/prompt-engineering/structured-outputs/SKILL.md | skill | todo | | 2015 → | |
+| skills/_shared/framework-detection.md | skill | done | commands/build-test.md | 805 → 772 | Light pass: dropped corpflow mentions and CORPFLOW.md ref (seam rule), softened emphasis; tables unchanged (shared by review-code, eval-run, analyze-security) |
 
 ## Needs decision
 
@@ -74,3 +75,8 @@ This ledger is also the completed list. When a command task cleans up an agent o
 - **OWASP LLM IDs** — the auditor's LLM01-LLM10 table follows the 2023 v1.1 numbering (LLM05 Supply Chain, LLM06 Sensitive Info…); the 2025 list renumbers (LLM02 Sensitive Info, LLM03 Supply Chain, LLM05 Improper Output Handling, new LLM07/08). Report IDs are an output interface used by analyze-security, review-code, rag-audit — update together?
 - **Relative `skills/_shared/...` paths** in agent/command bodies resolve against the user's project cwd, not the plugin root. Use `${CLAUDE_PLUGIN_ROOT}` or inline the needed bits?
 - **`## CRITICAL BEHAVIORAL RULES` heading** — all-caps heading kept because scripts/section-lint.sh requires it on every command; rename in the lint and all commands together?
+- **Agents can't reach their skills** — llm/ml/mlops-engineer cite `skills/...` paths (unresolvable from the user's cwd) and have neither the `Skill` tool nor a `skills:` frontmatter preload, so skill content likely never reaches them. Add `skills:` preloads, grant `Skill`, or accept? (found via commands/build-test.md)
+- **Domain skills cited by build-test's agents left todo** — llm-apps/*, finetuning/*, mlops/*, evals/*, prompt-engineering/*, skills/SKILL.md are in scope via llm/ml/mlops/ai-engineer but were left to their own rows (≈30k words, shared by other commands). (found via commands/build-test.md)
+- **`Return Verification` in agents/ai-engineer.md** — restates CORPFLOW.md contract details (handoff frontmatter, state.json patch, screenshot gate) inside an agent, against CORPFLOW's "keep the seam single" rule; condensed but kept since the router may own DV. Move to CORPFLOW.md? (found via commands/build-test.md)
+- **Direct toolchain calls vs CORPFLOW "build/test only through /ai-engineer:build-test"** — llm/ml/mlops-engineer and the router still run `uv run pytest`/`ruff` directly; fine outside a worktask, conflicts inside one. (found via commands/build-test.md)
+- **build-test exit status through `tee`** — the command pipes every phase through `tee`, so the Bash result is tee's exit code; `${PIPESTATUS[0]}` (bash) / `$pipestatus[1]` (zsh) must be read in the same command line, which the scoped `allowed-tools` patterns may not match. Text now says "judge by the tool's exit status, not tee's"; pick a concrete mechanism? (found via commands/build-test.md)
