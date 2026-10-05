@@ -19,7 +19,7 @@ This ledger is also the completed list. When a command task cleans up an agent o
 | commands/analyze-security.md | command | done | commands/analyze-security.md | 1960 → 1402 | Cut extended-thinking block, shouted rules, duplicated usage/workflow steps and rule restatements; error cases to a table; dropped invalid per-call `effort` override; fixed pip-audit/uv.lock note |
 | commands/build-test.md | command | done | commands/build-test.md | 2459 → 1728 | Cut extended-thinking block, shouted rules, restated rules and duplicated tool-availability text; error cases to a table; `skill: framework-detection` (not a real skill) → file path, marker lists deferred to it; log path made literal since shell vars don't persist across Bash calls; dropped CORPFLOW.md/corpflow refs (seam rule) |
 | commands/data-audit.md | command | done | commands/data-audit.md | 2034 → 1479 | Cut extended-thinking block, update comment, shouted rules and phase text restating them (PII echo, no-eval-set, read-only); error cases to a table; See Also trimmed; Task tool → Agent tool; data-formats path made explicit |
-| commands/deploy-check.md | command | todo | | 2017 → | |
+| commands/deploy-check.md | command | done | commands/deploy-check.md | 2017 → 1514 | Cut update comment, extended-thinking block, shouted rules (merged missing-config/status rules), SYNC POINT marker and closing restatement; error cases to a table; See Also condensed; Task tool → Agent tool. Checklist, verdict rules, output format unchanged |
 | commands/eval-run.md | command | todo | | 1938 → | |
 | commands/finetune-plan.md | command | todo | | 2480 → | |
 | commands/prompt-optimize.md | command | todo | | 2024 → | |
@@ -30,7 +30,7 @@ This ledger is also the completed list. When a command task cleans up an agent o
 | agents/ai-code-fixer.md | agent | todo | | 842 → | |
 | agents/ai-dependency-manager.md | agent | todo | | 838 → | |
 | agents/ai-engineer.md | agent | done | commands/build-test.md | 1307 → 785 | Dropped agent/model table (dup of frontmatter + decision tree) and closing route restatement; `metadata.model` → Agent `model` param; Return Verification condensed, corpflow script name removed; base-inheritance note dropped |
-| agents/ai-performance-engineer.md | agent | todo | | 1251 → | |
+| agents/ai-performance-engineer.md | agent | done | commands/deploy-check.md | 1251 → 1054 | Persona + base-inheritance note to one line; dropped caller-facing Model Notes; 6-step loop to 5 (verify folded into output format); de-shouted GPU/price rules; `disallowed-tools` → `disallowedTools`. Domains, cost levers, output format kept |
 | agents/ai-prompt-engineer.md | agent | todo | | 1255 → | |
 | agents/ai-security-auditor.md | agent | done | commands/analyze-security.md | 945 → 816 | Persona + base-inheritance note to one line; dropped caller-facing Model Notes; merged Map/Recommend into output format; `disallowed-tools` → `disallowedTools`; pip-audit runs on exported requirements, not uv.lock |
 | agents/ai-test-generator.md | agent | todo | | 1307 → | |
@@ -59,7 +59,7 @@ This ledger is also the completed list. When a command task cleans up an agent o
 | skills/mlops/experiment-tracking/SKILL.md | skill | todo | | 1156 → | |
 | skills/mlops/ml-pipelines/SKILL.md | skill | todo | | 1198 → | |
 | skills/mlops/model-monitoring/SKILL.md | skill | todo | | 1065 → | |
-| skills/mlops/model-serving/SKILL.md | skill | todo | | 2024 → | |
+| skills/mlops/model-serving/SKILL.md | skill | done | commands/deploy-check.md | 2024 → 1647 | Shorter description; Overview + When to Use (dup of description) folded into one paragraph; dropped Common Rationalizations and Red Flags (dups of anti-patterns/verification), unique points folded in; Related Skills trimmed to non-duplicates. references/serving-stack-matrix.md unchanged (command cites its checklist) |
 | skills/prompt-engineering/SKILL.md | skill | todo | | 590 → | |
 | skills/prompt-engineering/context-engineering/SKILL.md | skill | todo | | 1002 → | |
 | skills/prompt-engineering/prompt-design/SKILL.md | skill | todo | | 2265 → | |
@@ -82,3 +82,6 @@ This ledger is also the completed list. When a command task cleans up an agent o
 - **build-test exit status through `tee`** — the command pipes every phase through `tee`, so the Bash result is tee's exit code; `${PIPESTATUS[0]}` (bash) / `$pipestatus[1]` (zsh) must be read in the same command line, which the scoped `allowed-tools` patterns may not match. Text now says "judge by the tool's exit status, not tee's"; pick a concrete mechanism? (found via commands/build-test.md)
 - **"Task tool" wording in commands** — the subagent tool is now `Agent` (`Task` is a legacy alias). data-audit says "Agent tool"; analyze-security and build-test still say "Task tool", and agent `tools:` lists use `Task(...)`. Align across the repo? (found via commands/data-audit.md)
 - **`skills/_shared/severity-matrix.md` has no ledger row** — used by every command for P0-P3; its trailing "Usage" section is meta-instruction for authors. Add a row? (found via commands/data-audit.md)
+- **ai-performance-engineer P1+ for unbounded spend** — its Output Format ranks "unbounded spend/loops and OOM-risk configs" P1+, while skills/_shared/severity-matrix.md puts unbounded token spend at P2. Intentional override or drift? (found via commands/deploy-check.md)
+- **Peripheral skills cited by deploy-check left todo** — model-monitoring, ml-pipelines, llm-api-patterns (items 8, 9, 5), quantized-export, checkpoint-promotion (See Also) are shared with other commands; left to their own rows. (found via commands/deploy-check.md)
+- **model-serving Verification vs serving-stack-matrix Per-Deploy Checklist** — two overlapping checklists (skill's adds canary + gateway; reference's adds engine version, streaming, load test). Merge into one? (found via commands/deploy-check.md)
