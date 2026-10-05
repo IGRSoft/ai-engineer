@@ -65,9 +65,9 @@ This ledger is also the completed list. When a command task cleans up an agent o
 | skills/prompt-engineering/prompt-design/SKILL.md | skill | done | commands/prompt-optimize.md | 2265 → 1885 | Shorter description; Overview/When-to-Use → intro + Elsewhere list; dropped Common Rationalizations and Red Flags (unique points → Anti-Patterns/Verification); Deep-Dive + Related merged; de-shouted. Anatomy, hierarchy, versioned-file layout, 'When to Stop Prompt-Engineering' unchanged. references: prompt-patterns 1313 → 1311, claude-prompting 1350 → 1289 (de-shouted, prefill dup bullets merged) |
 | skills/prompt-engineering/structured-outputs/SKILL.md | skill | done | commands/prompt-optimize.md | 2015 → 1534 | Shorter description; Overview/When-to-Use → one-line rule + Elsewhere list; Rationalizations/Red Flags → Anti-Patterns rows; de-shouted; provider-neutral caveats that some current models reject forced tool_choice, prefill, and temperature; no-eval() rule kept. references/schema-patterns.md 1179 → 1183: de-shouted, same temperature caveat |
 | skills/_shared/framework-detection.md | skill | done | commands/build-test.md | 805 → 772 | Light pass: dropped corpflow mentions and CORPFLOW.md ref (seam rule), softened emphasis; tables unchanged (shared by review-code, eval-run, analyze-security) |
-| skills/_shared/_index.md | skill | todo | | 191 → | |
-| skills/_shared/model-selection.md | skill | todo | | 573 → | |
-| skills/_shared/severity-matrix.md | skill | todo | | 569 → | |
+| skills/_shared/_index.md | skill | done | skills/_shared/_index.md | 191 → 152 | G7: two one-table sections merged; Quick Links cut to the three § pointers not already in the table |
+| skills/_shared/model-selection.md | skill | done | skills/_shared/model-selection.md | 573 → 506 | G7: dropped corpflow "orchestrator's model-selection" pointer (seam rule) and effort glyphs; stale "xhigh only on Opus 4.8 / Fable 5" → "available levels depend on the model" (+`max`), per current subagent docs; de-bolded house rules; override section no longer restates effort or review-only (once, at end). Assignment table unchanged (matches frontmatter) |
+| skills/_shared/severity-matrix.md | skill | done | skills/_shared/severity-matrix.md | 569 → 447 | G7: Severity Levels table (row-for-row dup of P0-P3) folded in as Severity + Response columns; ASCII quadrant (dup of Priority Matrix) → one "Avoid" row; stale Usage section cut; added `eval`/`exec` on model output to P0 so structured-outputs' P0 cite holds. Coverage/code-smell tables unchanged (cited by ai-test-generator, prompt-design) |
 
 ## Decisions
 
@@ -81,7 +81,7 @@ Answered 2026-10-05. Each group runs as one Opus task in this order, one commit 
 | G4 Corpflow seam | done | `chore(optimization): Apply G4 corpflow seam decisions` |
 | G5 Security IDs & exit codes | done | `chore(optimization): Apply G5 security ID and exit code decisions` |
 | G6 Content fixes | done | `chore(optimization): Apply G6 content fix decisions` |
-| G7 `_shared` rows (process the three todo rows above per the brief) | todo | |
+| G7 `_shared` rows (process the three todo rows above per the brief) | done | `chore(optimization): Apply G7 shared reference cleanup` |
 
 ### G1 Agent infrastructure
 - Move `agents/_base/ai-agent.md` to `skills/_shared/agent-base.md` (a reference doc, not an agent). Drop `inherits:` from every agent and copy into each agent only the base rules it needs (some are already copied). Update references to the old path.
@@ -137,3 +137,4 @@ Answered 2026-10-05. Each group runs as one Opus task in this order, one commit 
 - ai-performance-engineer runs `uv run pytest` benchmarks but did not get the build-test line, since it is review-only and benchmarks aren't a build or test gate. Add it there too?
 - G5 applied `>> log 2>&1` (append), not `> log`, because each build-test phase and each eval-run suite appends to one shared log. `tail` is a built-in read-only command; build-test lists `Bash(tail:*)` anyway and dropped `Bash(tee:*)`. Redirect targets are checked against Edit rules and working dirs, so `.context/logs/` inside the repo still passes. mlops-engineer, ai-test-generator and rag-audit still say "tee transcripts to `.context/logs/`" (generic, outside G5's two commands). Switch them to redirects too?
 - G5: structured-outputs/SKILL.md and agent-design/references/tool-design.md still name the old category "insecure output handling" (no ID). Rename to "improper output handling" (LLM05:2025)?
+- G7: model-selection.md, severity-matrix.md and framework-detection.md keep `name`/`description`/`effort` frontmatter, but they aren't SKILL.md files, so Claude Code never loads them as skills and the fields do nothing. Drop the frontmatter, or keep it as metadata?
