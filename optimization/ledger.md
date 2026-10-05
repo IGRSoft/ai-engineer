@@ -65,44 +65,70 @@ This ledger is also the completed list. When a command task cleans up an agent o
 | skills/prompt-engineering/prompt-design/SKILL.md | skill | done | commands/prompt-optimize.md | 2265 → 1885 | Shorter description; Overview/When-to-Use → intro + Elsewhere list; dropped Common Rationalizations and Red Flags (unique points → Anti-Patterns/Verification); Deep-Dive + Related merged; de-shouted. Anatomy, hierarchy, versioned-file layout, 'When to Stop Prompt-Engineering' unchanged. references: prompt-patterns 1313 → 1311, claude-prompting 1350 → 1289 (de-shouted, prefill dup bullets merged) |
 | skills/prompt-engineering/structured-outputs/SKILL.md | skill | done | commands/prompt-optimize.md | 2015 → 1534 | Shorter description; Overview/When-to-Use → one-line rule + Elsewhere list; Rationalizations/Red Flags → Anti-Patterns rows; de-shouted; provider-neutral caveats that some current models reject forced tool_choice, prefill, and temperature; no-eval() rule kept. references/schema-patterns.md 1179 → 1183: de-shouted, same temperature caveat |
 | skills/_shared/framework-detection.md | skill | done | commands/build-test.md | 805 → 772 | Light pass: dropped corpflow mentions and CORPFLOW.md ref (seam rule), softened emphasis; tables unchanged (shared by review-code, eval-run, analyze-security) |
+| skills/_shared/_index.md | skill | todo | | 191 → | |
+| skills/_shared/model-selection.md | skill | todo | | 573 → | |
+| skills/_shared/severity-matrix.md | skill | todo | | 569 → | |
+
+## Decisions
+
+Answered 2026-10-05. Each group runs as one Opus task in this order, one commit per group. Prompt: `Apply decision group {G#} from optimization/ledger.md following optimization/brief.md`. The decisions below override the brief's "Keep → file layout" rule where they say so. When done, mark the group done and note the commit.
+
+| group | status | commit |
+|---|---|---|
+| G1 Agent infrastructure | todo | |
+| G2 Tool names & frontmatter | todo | |
+| G3 Lint & shared docs | todo | |
+| G4 Corpflow seam | todo | |
+| G5 Security IDs & exit codes | todo | |
+| G6 Content fixes | todo | |
+| G7 `_shared` rows (process the three todo rows above per the brief) | todo | |
+
+### G1 Agent infrastructure
+- Move `agents/_base/ai-agent.md` to `skills/_shared/agent-base.md` (a reference doc, not an agent). Drop `inherits:` from every agent and copy into each agent only the base rules it needs (some are already copied). Update references to the old path.
+- Agents reach skills through the `Skill` tool: add `Skill` to each agent's `tools` and cite skills by name (`ai-engineer:<skill>`), not by `skills/...` path.
+- Prefix the remaining `skills/_shared/...` paths in agent and command bodies with `${CLAUDE_PLUGIN_ROOT}/`.
+
+### G2 Tool names & frontmatter
+- `disallowed-tools`: drop it where `tools` already excludes Write/Edit; rename it to `disallowedTools` elsewhere, including README, MEMORY and model-selection.md.
+- Rename "Task tool" to "Agent tool" in prose, and `Task(...)` to `Agent(...)` in `tools` lists.
+- Add `Agent` to `allowed-tools` in every command that launches subagents.
+- model-selection.md: the per-call override passes `model` only; reasoning effort is set in agent frontmatter (`effort:`).
+- Drop the `estimated-cost` field from command frontmatter and from the README.
+
+### G3 Lint & shared docs
+- Rename `## CRITICAL BEHAVIORAL RULES` to `## Rules` in `scripts/section-lint.sh` and in all commands.
+- Remove the `## Workflow Integration` requirement from section-lint.
+- Remove the empty Workflow Integration section from `skills/_shared/_index.md`.
+- ai-performance-engineer: rank unbounded spend P2, matching severity-matrix.md.
+
+### G4 Corpflow seam
+- Move the Return Verification details out of `agents/ai-engineer.md` into `CORPFLOW.md`; leave a one-line pointer in the agent.
+- Add one line to the agents that build or test: inside a worktask, build and test only through `/ai-engineer:build-test`.
+- Add to CORPFLOW.md: AI QA passes only when the tests pass and the eval gate holds (rule from regression-gates).
+- Remove the "orchestrator's meta-prompt engineer" routing line wherever it appears.
+
+### G5 Security IDs & exit codes
+- Move the OWASP LLM Top 10 IDs to the 2025 numbering in ai-security-auditor, analyze-security, review-code and rag-audit, all in this one commit.
+- build-test and eval-run: replace `| tee log` with `> log 2>&1`, then `tail` the log, so the tool's real exit code survives. Check that the `allowed-tools` patterns still match.
+
+### G6 Content fixes
+- Merge the model-serving Verification list into the Per-Deploy Checklist in `references/serving-stack-matrix.md`; the skill links to it.
+- Sync the skill summaries in README.md and skills/_index.md to the trimmed descriptions.
+- prompt-engineering index: restore "(temperature 0 where supported)" in the iteration-loop row.
+- training-optimization: restore "distributed training" to its description.
+- trace-to-training-data `references/conversion-recipes.md`:
+  - make `assert_no_golden_leak` catch plain SFT, correction and masked rows;
+  - define `_user_turn` and `_assistant_turn`;
+  - make `build_pairs` skip tasks that have no failing traces instead of crashing.
+- quantized-export `references/export-commands.md`: label `tools.generate`, `tools.quantize` and `BASE_REV` as project placeholders.
+- README.md:66: change `/system-developer:code-review` to `/system-developer:review-code`. Leave CHANGELOG.md history alone.
+
+### Decided: keep as is
+- `.context/...` corpflow paths in peft-lora and training-optimization.
+- rag-audit's own grading rubric alongside rag-systems' Verification list.
+- The one-line "every change ships with an eval run" pointers in each skill.
+- Emphasis inside judge templates and repair prompts, since that text goes to the product model.
+- Provider-neutral caveats in structured-outputs.
 
 ## Needs decision
 
-- **`inherits:` frontmatter (all agents)** — not a Claude Code field; subagents never load `agents/_base/ai-agent.md`, so its constraints/routing don't reach them. Inline what each agent needs, or drop the field? (found via commands/analyze-security.md)
-- **`disallowed-tools` → `disallowedTools`** — agent frontmatter only recognizes camelCase. Fixed in ai-security-auditor; ai-performance-engineer, README.md, MEMORY.md, skills/_shared/model-selection.md still say `disallowed-tools`. (Redundant anyway where `tools` already omits Write/Edit.)
-- **Per-call `effort` override** — skills/_shared/model-selection.md says to pass `model`/`effort` on the Task() call; the Agent tool takes `model` only. Rewrite the override path.
-- **`estimated-cost` command frontmatter** — not a Claude Code field (ignored); README advertises it. Keep as plugin metadata or drop?
-- **OWASP LLM IDs** — the auditor's LLM01-LLM10 table follows the 2023 v1.1 numbering (LLM05 Supply Chain, LLM06 Sensitive Info…); the 2025 list renumbers (LLM02 Sensitive Info, LLM03 Supply Chain, LLM05 Improper Output Handling, new LLM07/08). Report IDs are an output interface used by analyze-security, review-code, rag-audit — update together?
-- **Relative `skills/_shared/...` paths** in agent/command bodies resolve against the user's project cwd, not the plugin root. Use `${CLAUDE_PLUGIN_ROOT}` or inline the needed bits?
-- **`## CRITICAL BEHAVIORAL RULES` heading** — all-caps heading kept because scripts/section-lint.sh requires it on every command; rename in the lint and all commands together?
-- **Agents can't reach their skills** — llm/ml/mlops-engineer cite `skills/...` paths (unresolvable from the user's cwd) and have neither the `Skill` tool nor a `skills:` frontmatter preload, so skill content likely never reaches them. Add `skills:` preloads, grant `Skill`, or accept? (found via commands/build-test.md)
-- **Domain skills cited by build-test's agents left todo** — llm-apps/*, finetuning/*, mlops/*, evals/*, prompt-engineering/*, skills/SKILL.md are in scope via llm/ml/mlops/ai-engineer but were left to their own rows (≈30k words, shared by other commands). (found via commands/build-test.md)
-- **`Return Verification` in agents/ai-engineer.md** — restates CORPFLOW.md contract details (handoff frontmatter, state.json patch, screenshot gate) inside an agent, against CORPFLOW's "keep the seam single" rule; condensed but kept since the router may own DV. Move to CORPFLOW.md? (found via commands/build-test.md)
-- **Direct toolchain calls vs CORPFLOW "build/test only through /ai-engineer:build-test"** — llm/ml/mlops-engineer and the router still run `uv run pytest`/`ruff` directly; fine outside a worktask, conflicts inside one. (found via commands/build-test.md)
-- **build-test exit status through `tee`** — the command pipes every phase through `tee`, so the Bash result is tee's exit code; `${PIPESTATUS[0]}` (bash) / `$pipestatus[1]` (zsh) must be read in the same command line, which the scoped `allowed-tools` patterns may not match. Text now says "judge by the tool's exit status, not tee's"; pick a concrete mechanism? (found via commands/build-test.md)
-- **"Task tool" wording in commands** — the subagent tool is now `Agent` (`Task` is a legacy alias). data-audit says "Agent tool"; analyze-security and build-test still say "Task tool", and agent `tools:` lists use `Task(...)`. Align across the repo? (found via commands/data-audit.md)
-- **`skills/_shared/severity-matrix.md` has no ledger row** — used by every command for P0-P3; its trailing "Usage" section is meta-instruction for authors. Add a row? (found via commands/data-audit.md)
-- **`${CLAUDE_SKILL_DIR}/<other-domain>/...` cross-tree paths** — `CLAUDE_SKILL_DIR` is the skill's own folder, so these resolve to e.g. `skills/llm-apps/prompt-engineering/...`. Fixed in evals/, finetuning/, llm-apps/, mlops/, and prompt-engineering/ SKILL.md + _index.md; check any other domain indexes. (found via skills/evals/SKILL.md)
-- **ai-performance-engineer P1+ for unbounded spend** — its Output Format ranks "unbounded spend/loops and OOM-risk configs" P1+, while skills/_shared/severity-matrix.md puts unbounded token spend at P2. Intentional override or drift? (found via commands/deploy-check.md)
-- **Peripheral skills cited by deploy-check left todo** — model-monitoring, ml-pipelines, llm-api-patterns (items 8, 9, 5), quantized-export, checkpoint-promotion (See Also) are shared with other commands; left to their own rows. (found via commands/deploy-check.md)
-- **model-serving Verification vs serving-stack-matrix Per-Deploy Checklist** — two overlapping checklists (skill's adds canary + gateway; reference's adds engine version, streaming, load test). Merge into one? (found via commands/deploy-check.md)
-- **regression-gates "QA passes only when tests pass and the eval gate holds"** — the skill cited `CORPFLOW.md` for this, but CORPFLOW.md doesn't state it (QA there is consultation-only for ai-test-generator). Citation removed, claim kept; confirm the rule and put it in CORPFLOW.md, or drop it? (found via commands/eval-run.md)
-- **Eval skills cited by eval-run/ai-test-generator left todo** — evals/eval-design, evals/llm-judge (See Also / Test Categories pointers) and llm-apps/rag-systems (retrieval-evaluation reference) are shared with prompt-optimize, rag-audit, finetune-plan; left to their own rows. (found via commands/eval-run.md)
-- **finetuning skill refs to corpflow artifacts** — peft-lora and training-optimization's smoke-scale rule/Verification cite `.context/development-N.md` and `.context/logs/` (corpflow worktask outputs, not in this repo); left as is. Confirm or reword plugin-neutrally? (found via commands/finetune-plan.md)
-- **trace-to-training-data `references/conversion-recipes.md` sketch bugs** — `assert_no_golden_leak` keys on `_provenance["task_id"]`, which only `build_pairs` sets (SFT/correction/masked rows never flagged); `_user_turn`/`_assistant_turn` undefined; `build_pairs` crashes on a task with passing but no failing traces. Behavior change, so left. (found via commands/finetune-plan.md)
-- **quantized-export `references/export-commands.md`** — `tools.generate`/`tools.quantize` don't exist in the repo (read as project placeholders); added a `BASE_REV = "<commit-sha>"` placeholder where it was undefined — confirm. (found via commands/finetune-plan.md)
-- **training-optimization description** dropped "weighing distributed training" as a trigger (still covered by fit-ladder rung 7 + `references/distributed-training.md`); restore if routing on "distributed" matters. (found via commands/finetune-plan.md)
-- **Skill index summaries out of sync** — README.md, skills/_index.md still carry (finetuning/_index.md and SKILL.md synced by skills/finetuning/SKILL.md) the old longer finetuning skill summaries (accurate, just longer). (found via commands/finetune-plan.md)
-- **Eval/RAG skills cited by finetune-plan left todo** — evals/eval-design, evals/llm-judge (Phase 2 step 6), llm-apps/rag-systems (Output B example) are shared with prompt-optimize, rag-audit; left to their own rows. (found via commands/finetune-plan.md)
-- **ai-architector lacks `## Workflow Integration`** — section-lint's advisory required-H2 for agents; not added (would be new content). Add or exempt? (found via commands/finetune-plan.md)
-- **Unnamed owner for Claude Code meta-prompts** — ai-prompt-engineer, prompt-design, and _base route agent/command/skill prompts to "the orchestrator's meta-prompt engineer", which no file in this repo names (corpflow can't be, per the seam rule). Keep the vague routing line, or drop it? (found via commands/prompt-optimize.md)
-- **Emphasis inside product-prompt text** — judge templates (llm-judge/references/judge-prompt-templates.md) and the structured-outputs repair prompts keep "ONLY"/"ONE"; they're sent to the product model, not Claude Code, and changing them would need re-calibration. Left as is. (found via commands/prompt-optimize.md)
-- **Structured-outputs provider caveats** — now says some current models reject forced `tool_choice`, assistant prefill, and `temperature` (checked against the claude-api skill) and stays provider-neutral rather than naming Anthropic's `output_config.format` / `strict`. Confirm the wording. (found via commands/prompt-optimize.md)
-- **"Every change ships with an eval run" stated in several skills** — eval-design, regression-gates, prompt-design, context-engineering, and _base all carry it; kept as one-line pointers since each is read independently. Pick one owner? (found via commands/prompt-optimize.md)
-- **rag-audit Phase 2 checklist vs rag-systems Verification** — the command lists its own per-stage grading bullets, overlapping the skill's Verification list; kept since it is the explicit rubric the audit grades and reports against. Make the skill list the single source? (found via commands/rag-audit.md)
-- **README.md / CHANGELOG.md say `/system-developer:code-review` is unaffected** — the system-developer plugin's command is `review-code` (no `code-review` exists); fixed in commands/review-code.md, README.md:66 and CHANGELOG.md:220 still name the old one. (found via commands/review-code.md)
-- **review-code `allowed-tools: Read, Glob, Grep, Bash`** — the command fans out to subagents but `Agent` isn't listed; other commands have the same frontmatter. Add `Agent` across commands, or rely on default permissions? (found via commands/review-code.md)
-- **ai-code-fixer lacks `## Workflow Integration`** — section-lint's advisory required-H2; not added (would be new content). (found via commands/review-code.md)
-- **`agents/_base/ai-agent.md` is loaded as a live subagent** — plugin.json declares the `agents` dir, so Claude Code registers it as `ai-engineer:_base:ai-agent` with no description and every tool, while no agent actually receives its text (`inherits:` is ignored). Move it out of `agents/`, add frontmatter, or accept? (found via agents/_base/ai-agent.md)
-- **ai-dependency-manager lacks `## Workflow Integration`** — section-lint's advisory required-H2; not added (would be new content). Its `skills/...` references have the same unreachable-path issue as the other agents (no `Skill` tool or `skills:` preload). (found via agents/ai-dependency-manager.md)
-- **`skills/_shared/_index.md` has an empty `## Workflow Integration` table** — the workflow-integration file it listed no longer exists, and the file (plus `_shared/model-selection.md`, `_shared/severity-matrix.md`) has no ledger row. Drop the empty section / add rows? (found via skills/SKILL.md)
