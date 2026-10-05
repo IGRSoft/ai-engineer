@@ -1,8 +1,7 @@
 # Eval Skills Index
 
-Quick navigation for the `skills/evals/` subtree. Start at
-[SKILL.md](SKILL.md) for the guided entry with determinism snapshot and
-decision tree.
+Quick navigation for the `skills/evals/` subtree. Guided entry with the
+determinism snapshot: [SKILL.md](SKILL.md).
 
 ## Skills
 
@@ -25,8 +24,7 @@ decision tree.
 | Topic | Location |
 |-------|----------|
 | Retrieval-specific metrics (recall@k, MRR) | [llm-apps/rag-systems/references/retrieval-evaluation.md](../llm-apps/rag-systems/references/retrieval-evaluation.md) |
-| Keeping training data out of eval sets | `${CLAUDE_SKILL_DIR}/finetuning/dataset-curation/SKILL.md` |
-| Logging eval runs, tracing reported metrics | `${CLAUDE_SKILL_DIR}/mlops/experiment-tracking/SKILL.md` |
-| Judge evals on live traffic, feedback loops | `${CLAUDE_SKILL_DIR}/mlops/model-monitoring/SKILL.md` |
-| pytest mechanics (fixtures, parametrization) | `system-developer:python-skills` (python-testing) |
-| Workflow stage participation | `CORPFLOW.md` |
+| Keeping training data out of eval sets | [finetuning/dataset-curation/SKILL.md](../finetuning/dataset-curation/SKILL.md) |
+| Logging eval runs, tracing reported metrics | [mlops/experiment-tracking/SKILL.md](../mlops/experiment-tracking/SKILL.md) |
+| Judge evals on live traffic, feedback loops | [mlops/model-monitoring/SKILL.md](../mlops/model-monitoring/SKILL.md) |
+| pytest mechanics (fixtures, parametrization) | `system-developer:python-testing` |
