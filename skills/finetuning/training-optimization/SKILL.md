@@ -6,7 +6,8 @@ description: >-
   optimizers, QLoRA), cuda/mps/cpu device strategy, throughput and loss-curve
   triage, checkpoint/resume. Use when a run OOMs or crawls, when picking
   batch/accumulation/precision, when a loss curve is flat, spiky, or
-  diverging, or when planning a Mac smoke → CUDA full run.
+  diverging, when planning a Mac smoke → CUDA full run, or when weighing
+  distributed training.
 ---
 
 # Training Optimization

@@ -7,6 +7,11 @@ invocation against each tool's docs (context7) and pin the versions in
 `uv.lock`, because an export produced by an unpinned toolchain is not
 reproducible.
 
+`tools.generate`, `tools.quantize`, and `BASE_REV` below are project
+placeholders, not published packages: point them at your own generation and
+quantization scripts (wrapping the pinned library) and your base model's
+commit hash.
+
 ## Contents
 
 - [Capture the pre-export baseline first](#capture-the-pre-export-baseline-first)
@@ -50,7 +55,7 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 BASE, ADAPTER = "org/base-model", "artifacts/adapter"
-BASE_REV = "<commit-sha>"  # pin a commit hash, not a branch
+BASE_REV = "<commit-sha>"  # placeholder: the base model's commit hash, not a branch
 
 # dtype is pinned explicitly: merging under a different dtype than training
 # silently changes the merged weights, and the difference is small enough to

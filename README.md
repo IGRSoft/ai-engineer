@@ -63,9 +63,9 @@ All commands degrade gracefully when a tool is missing: they print an install hi
 | `/ai-engineer:code-review` | `/ai-engineer:review-code` |
 | `/ai-engineer:security-scan` | `/ai-engineer:analyze-security` |
 
-`/system-developer:code-review` is a different plugin's command and is unaffected.
+`/system-developer:review-code` is a different plugin's command and is unaffected.
 
-## Skills (28)
+## Skills (27)
 
 ```
 skills/
@@ -91,47 +91,47 @@ skills/
 
 | Skill | Description |
 |-------|-------------|
-| `prompt-design` | Prompt anatomy (role → context → instructions → examples → output contract), instruction hierarchy with injection-resistant layering, few-shot design, prompts as versioned files. |
-| `context-engineering` | Context hierarchy, per-segment token budgets, packing and compaction strategies, lost-in-the-middle placement, context observability. |
-| `structured-outputs` | Extraction-mode selection (tool-call vs native structured modes vs prompted JSON), schema design, Pydantic validate → repair-once → fail-closed, streaming partial JSON. |
+| `prompt-design` | Five-segment prompt anatomy, instruction hierarchy with delimited untrusted input, few-shot design, positive framing, prompts as versioned files; product prompts only. |
+| `context-engineering` | Segment hierarchy and token budgets, packing, compaction triggers, lost-in-the-middle placement, retrieved-context hygiene, per-request context manifests. |
+| `structured-outputs` | Extraction-mode choice (tool-call, native structured mode, prompted JSON), flat enum-closed schemas, Pydantic validate → repair-once → fail-closed, streaming partial JSON, common parse failures. |
 
 ### LLM Apps
 
 | Skill | Description |
 |-------|-------------|
-| `rag-systems` | Ingest→chunk→embed→index→retrieve→rerank→ground pipeline, hybrid retrieval, grounded citations with refusal rules, index lifecycle. |
-| `agent-design` | Escalation ladder (single call → workflow → agent → multi-agent), loop anatomy, stop conditions and budgets, tool contracts, guardrails with human confirmation, step-level tracing. |
-| `llm-api-patterns` | Timeout/retry discipline, rate limits, streaming with TTFT, prompt caching, batch APIs, fallback chains with circuit breakers, cost accounting, secrets hygiene. |
+| `rag-systems` | Ingest→chunk→embed→index→retrieve→rerank→ground pipeline, chunking by content type, embedder and vector-store choice, hybrid retrieval, reranking, grounded answers with citations and refusal, index lifecycle (sync, deletes, re-embed). |
+| `agent-design` | Escalation ladder (single call → workflow → agent with tools → multi-agent), stop conditions and budgets, tool contracts, memory, human approval for irreversible actions, failure handling, step tracing. |
+| `llm-api-patterns` | Timeouts and retry/backoff, rate limits, streaming with TTFT and mid-stream recovery, prompt caching, batch APIs, fallback chains with circuit breakers, cost accounting, secrets. |
 
 ### Fine-Tuning
 
 | Skill | Description |
 |-------|-------------|
-| `dataset-curation` | Chat-format normalization, exact + near-dup dedup, eval-set decontamination, PII scrubbing, license/provenance ledgers, stratified splits, dataset versioning. |
-| `peft-lora` | When adapters beat full fine-tuning or RAG, LoRA/QLoRA config anatomy, smoke-scale SFTTrainer loops, adapter save/merge/serve lifecycle, before/after evals. |
-| `training-optimization` | GPU memory model with estimation formulas, bf16/fp16/tf32 precision, gradient accumulation vs batch size, checkpointing, cuda/mps/cpu device strategy, loss-curve triage. |
-| `preference-tuning` | SFT-only vs DPO vs ORPO/KTO vs RLHF selection, preference-pair construction, DPO mechanics, reward-hacking detection and mitigation. |
-| `grpo-rlvr-training` | Reinforcement learning from verifiable rewards (GRPO/RLVR) — when a program can check the answer (tests, schemas, math), reward function design, group-relative advantage mechanics. |
-| `trace-to-training-data` | Turning graded eval traces into training data — rejection sampling, preference pairs from graded traces, goldens-holdout during conversion. |
-| `checkpoint-promotion` | Deciding whether a checkpoint ships — drift budgets, paired comparison, catastrophic-forgetting checks. |
-| `quantized-export` | Exporting a promoted checkpoint for a target runtime — merged safetensors, LoRA-only, GGUF+imatrix, FP8. |
+| `dataset-curation` | Messages-schema normalization, exact and near-dup dedup, eval-set decontamination, PII/secret scrubbing, license ledgers, stratified splits, versioning. |
+| `peft-lora` | Whether an adapter beats RAG or full fine-tuning, LoRA/QLoRA config starting points (r, alpha, dropout, target_modules), QLoRA memory trade-offs, smoke-scale SFTTrainer loops, adapter merge-vs-serve, before/after evals. |
+| `training-optimization` | GPU memory model and estimation, the fit ladder (precision, accumulation, checkpointing, 8-bit optimizers, QLoRA), cuda/mps/cpu device strategy, throughput and loss-curve triage, checkpoint/resume, distributed training. |
+| `preference-tuning` | SFT-only vs DPO vs ORPO/KTO vs RLHF selection, building and labeling chosen/rejected pairs, DPO (beta, reference model), reward-hacking detection (length bias, sycophancy, style collapse). |
+| `grpo-rlvr-training` | Verifiable-reward RL (GRPO/RLVR) when a program checks success (unit tests, schemas, math): applicability preconditions, reward-function design, the inspection gate, variant selection. |
+| `trace-to-training-data` | Graded eval traces → SFT rows or preference pairs: rejection sampling, step-level masking, same-task pair construction, goldens holdout. |
+| `checkpoint-promotion` | Whether a trained checkpoint ships: four-stage gate, capability-drift budget, paired comparison vs base, forgetting checks, terminal PROMOTE or REJECT verdict. |
+| `quantized-export` | Exporting a promoted checkpoint for its target runtime: merged vs LoRA-only, format choice (FP8, AWQ INT4, GGUF), the pre/post smoke test. |
 
 ### MLOps
 
 | Skill | Description |
 |-------|-------------|
-| `experiment-tracking` | Run contract (config, seed, dataset version, commit, environment), MLflow vs W&B mapping, LLM-specific logging, eval-gated registry promotion. |
-| `model-serving` | Managed-API vs self-hosted ladder (Ollama, vLLM, TGI, Triton, llama.cpp), quantization (GPTQ/AWQ/GGUF), KV-cache capacity math, LoRA hot-swap vs merge, hardening. |
-| `model-monitoring` | System/quality/business planes, LLM trace observability, drift via scheduled judge evals, cost dashboards and spend alarms, feedback loops. |
-| `ml-pipelines` | Pipeline-as-DAG with idempotent steps, DVC vs git-lfs, orchestrator ladder, PR smoke gates, eval-gated promotion, lineage, environment discipline. |
+| `experiment-tracking` | Run contract (config, seed, dataset version, commit, environment, metrics), MLflow/W&B mapping, sweep hygiene, LLM-specific logging, eval-gated registry promotion via aliases. |
+| `model-serving` | Engine choice (Ollama, vLLM, TGI, Triton, llama.cpp) vs managed API, pinned artifact to OpenAI-compatible endpoint behind a gateway, serve-time quantization, KV-cache capacity math, LoRA hot-swap vs merge, probes, warmup, drain, canary, rollback. |
+| `model-monitoring` | System, quality, and business planes; LLM traces, scheduled judge evals on sampled traffic, spend alarms, feedback loops into eval sets, canary vs control. |
+| `ml-pipelines` | Pipeline-as-DAG with idempotent steps, DVC vs git-lfs, orchestrator ladder, PR smoke gates, eval-gated promotion, deploys as registry alias flips, lineage, pinned environments. |
 
 ### Evals
 
 | Skill | Description |
 |-------|-------------|
-| `eval-design` | Assertion→metric→judge→human hierarchy, task-grounded eval sets from real traffic, paired prompt A/B comparison, statistical honesty, failure analysis. |
-| `llm-judge` | Pointwise vs pairwise selection, anchored rubrics, bias mitigations, calibration against human labels (Cohen's kappa), judge regression tests. |
-| `regression-gates` | Pre-commit→PR→nightly→release gate ladder, floors plus relative thresholds, baseline update ritual, flake policy, pytest integration, escape hatch. |
+| `eval-design` | Task-grounded eval sets from real traffic, the assertion→metric→judge→human hierarchy, metric selection by task type, paired prompt A/B comparison, set sizing and statistical honesty, eval-set versioning, failure analysis. |
+| `llm-judge` | Pointwise vs pairwise selection, anchored rubrics, bias mitigations (position, length, self-preference, sycophancy), Cohen's kappa calibration against human labels, evidence-first structured prompts, judge versioning, cost control. |
+| `regression-gates` | Pre-commit→PR→nightly→release gate ladder, absolute floors plus relative-to-baseline thresholds with warn bands, baseline update ritual, flake policy for judge metrics, cost-bounded subsets, pytest integration, recorded escape hatch. |
 
 
 ## Model & Effort

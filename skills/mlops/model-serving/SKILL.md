@@ -139,8 +139,8 @@ weights; quantize the KV cache (engine-dependent). Continuous-batching engines
 with paged KV allocate by actual tokens used, so real concurrency beats the
 worst-case math when typical requests are short.
 
-Worked example, degraded single-GPU/CPU configs, and the per-deploy
-checklist: `references/serving-stack-matrix.md`.
+Worked example and degraded single-GPU/CPU configs:
+`references/serving-stack-matrix.md`.
 
 ## Operational Hardening
 
@@ -199,14 +199,8 @@ config and eval each adapter against its task set before it becomes routable.
 
 ## Verification
 
-- [ ] Artifact source + revision pinned and recorded; resolvable from the registry (`skills/mlops/experiment-tracking`)
-- [ ] KV-cache budget computed from the model's real `config.json`; `max_model_len` and max concurrency documented with the arithmetic
-- [ ] Quantized artifact (if any) passed the eval suite vs the fp16 baseline — pinned eval set, temperature 0
-- [ ] Readiness gated on load + warmup; liveness separate; drain covers the longest allowed stream
-- [ ] Rollback rehearsed: the previous revision flips back in minutes without a rebuild
-- [ ] Canary plan states traffic fraction, predeclared metrics, and uses the same monitors as control
-- [ ] Gateway enforces authn, rate limits, per-tenant quotas; exposure reviewed by `ai-engineer:ai-security-auditor`
-- [ ] Latency/throughput targets stated as TTFT/TPOT on the real workload; tuning routed to `ai-engineer:ai-performance-engineer`
+Run the per-deploy checklist in
+[`references/serving-stack-matrix.md`](references/serving-stack-matrix.md#per-deploy-verification-checklist).
 
 ## Related Skills
 

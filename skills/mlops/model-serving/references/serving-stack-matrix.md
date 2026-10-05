@@ -118,12 +118,13 @@ Reading the result:
 ## Per-Deploy Verification Checklist
 
 - [ ] Engine + version recorded; serving config versioned in git next to the code
-- [ ] Model source + revision pinned (registry alias resolved and logged at deploy)
-- [ ] `config.json`-derived KV math attached to the deploy PR (L, H_kv, D, B, C, S_max)
+- [ ] Model source + revision pinned, resolved from the registry and logged at deploy (`skills/mlops/experiment-tracking`)
+- [ ] `config.json`-derived KV math attached to the deploy PR (L, H_kv, D, B, C, S_max); `max_model_len` and max concurrency follow from it
 - [ ] Quantized artifact eval'd vs the fp16 baseline on the pinned eval set, temperature 0
-- [ ] Warmup requests issued before readiness; first-token latency spot-checked
+- [ ] Readiness gated on load + warmup (first-token latency spot-checked); liveness separate; drain covers the longest allowed stream
 - [ ] Streaming verified end-to-end through the gateway (no buffering, sane backpressure)
+- [ ] Gateway enforces authn, rate limits, per-tenant quotas; exposure reviewed by `ai-engineer:ai-security-auditor`
 - [ ] OpenAI-compat surface exercised by the actual client code (tools/logprobs if used)
-- [ ] Rollback rehearsed: the previous revision flips back without an image rebuild
-- [ ] Load test at expected concurrency + context mix; TTFT/TPOT recorded as the baseline
-- [ ] Monitors live before ramp (`skills/mlops/model-monitoring`)
+- [ ] Rollback rehearsed: the previous revision flips back in minutes without an image rebuild
+- [ ] Load test at expected concurrency + context mix; TTFT/TPOT recorded as the baseline; tuning routed to `ai-engineer:ai-performance-engineer`
+- [ ] Canary plan states traffic fraction and predeclared metrics; monitors live before ramp, same for canary and control (`skills/mlops/model-monitoring`)

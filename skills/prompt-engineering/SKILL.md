@@ -21,7 +21,7 @@ The cheapest quality lever: exhaust it before RAG or fine-tuning.
 | Output validation | Pydantic schema + validate → repair-once → fail-closed | Never `eval()` model output |
 | Extraction mode | Tool-call vs native structured mode vs prompted JSON | Provider support shifts — verify via context7 |
 | Context budgets | Per-segment token budgets with compaction triggers | Window sizes are volatile — verify per model |
-| Iteration loop | Change → run versioned eval set → compare to baseline | See [eval-design](../evals/eval-design/SKILL.md) |
+| Iteration loop | Change → run versioned eval set (temperature 0 where supported) → compare to baseline | See [eval-design](../evals/eval-design/SKILL.md) |
 
 Structured-output modes, cache mechanics, and context-window sizes change
 between releases: name the mechanism and verify against current provider docs
