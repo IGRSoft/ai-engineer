@@ -79,7 +79,7 @@ Answered 2026-10-05. Each group runs as one Opus task in this order, one commit 
 | G2 Tool names & frontmatter | done | `chore(optimization): Apply G2 tool name and frontmatter decisions` |
 | G3 Lint & shared docs | done | `chore(optimization): Apply G3 lint and shared doc decisions` |
 | G4 Corpflow seam | done | `chore(optimization): Apply G4 corpflow seam decisions` |
-| G5 Security IDs & exit codes | todo | |
+| G5 Security IDs & exit codes | done | `chore(optimization): Apply G5 security ID and exit code decisions` |
 | G6 Content fixes | todo | |
 | G7 `_shared` rows (process the three todo rows above per the brief) | todo | |
 
@@ -135,3 +135,5 @@ Answered 2026-10-05. Each group runs as one Opus task in this order, one commit 
 - CORPFLOW.md is 285 lines after G4 (was 275) and its footer lists two size budgets, ≤260 and ≤280 (a third duplicate ≤280 row was dropped). Which budget holds, and should the file be trimmed to it?
 - regression-gates/SKILL.md still states the AI QA rule (QA passes only when tests pass and the eval gate holds), now also in CORPFLOW.md. Keep it in the skill or cut it there?
 - ai-performance-engineer runs `uv run pytest` benchmarks but did not get the build-test line, since it is review-only and benchmarks aren't a build or test gate. Add it there too?
+- G5 applied `>> log 2>&1` (append), not `> log`, because each build-test phase and each eval-run suite appends to one shared log. `tail` is a built-in read-only command; build-test lists `Bash(tail:*)` anyway and dropped `Bash(tee:*)`. Redirect targets are checked against Edit rules and working dirs, so `.context/logs/` inside the repo still passes. mlops-engineer, ai-test-generator and rag-audit still say "tee transcripts to `.context/logs/`" (generic, outside G5's two commands). Switch them to redirects too?
+- G5: structured-outputs/SKILL.md and agent-design/references/tool-design.md still name the old category "insecure output handling" (no ID). Rename to "improper output handling" (LLM05:2025)?

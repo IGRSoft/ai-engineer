@@ -1,7 +1,7 @@
 ---
 description: Detect the Python environment and manifest for an AI/ML project, sync dependencies, verify the package imports, and run the test suite. Use as the build gate for the `ai` platform in DV/DR/QA, or before handing work to review.
 argument-hint: [path (default .)] [--manager uv|pip|conda] [--clean] [--no-test] [-k EXPR]
-allowed-tools: Read, Agent, Glob, Grep, Bash(uv:*), Bash(python3:*), Bash(python:*), Bash(pytest:*), Bash(pip:*), Bash(conda:*), Bash(dvc:*), Bash(ls:*), Bash(mkdir:*), Bash(rm:*), Bash(date:*), Bash(command:*), Bash(tee:*), Bash(jq:*)
+allowed-tools: Read, Agent, Glob, Grep, Bash(uv:*), Bash(python3:*), Bash(python:*), Bash(pytest:*), Bash(pip:*), Bash(conda:*), Bash(dvc:*), Bash(ls:*), Bash(mkdir:*), Bash(rm:*), Bash(date:*), Bash(command:*), Bash(tail:*), Bash(jq:*)
 ---
 
 # Build & Test
@@ -15,7 +15,7 @@ AI/ML projects have no compile step, so "build" means the environment resolves a
 1. **One environment manager.** Take the first match in the detection table (or `--manager`); don't run two managers in one invocation.
 2. **No delegation on success.** When sync, import, and tests pass, report and stop.
 3. **Single-command Bash.** Use each tool's directory flag (`uv sync --project <path>`, `uv run --project <path> pytest`, `pytest --rootdir <path>`) instead of `cd` or `&&` chains, which the scoped `allowed-tools` patterns don't match.
-4. **Tee every phase to the log** (`tee -a <log>`); triage reads the log, not scrollback.
+4. **Log every phase**: append with `>> <log> 2>&1`, not a `tee` pipe, so the Bash exit code is the tool's own; then `tail` the log. Triage reads the log, not scrollback.
 5. **Don't invent a compile step.** If the real build is a pipeline or eval, report that and route per § Pipeline and Eval Projects.
 6. **Classify before delegating.** Pass one domain agent the classified excerpt — never the whole log, never a second agent.
 7. **A missing tool never hard-fails.** Print the install hint, skip that manager, continue down the priority order, and report the skip.
@@ -85,8 +85,8 @@ If there is also an importable package, build and test it normally and note the 
 ### Phase 2: Sync
 
 1. With `--clean`, recreate the environment first.
-2. Run the sync command, e.g. `uv sync --project <path> 2>&1 | tee -a <log>`.
-3. Judge success by the sync's exit status, not `tee`'s. Non-zero → Failure Triage, stage `env`.
+2. Run the sync command, e.g. `uv sync --project <path> >> <log> 2>&1`.
+3. Non-zero exit → Failure Triage, stage `env`.
 
 ### Phase 3: Import Check
 
@@ -95,7 +95,7 @@ The `--no-test` gate's substance: a package that syncs but doesn't import otherw
 1. Resolve top-level package names from `pyproject.toml` (`[project].name`, setuptools/hatch package config) or the `src/` layout.
 2. Import them without running entry points:
    ```bash
-   uv run --project <path> python -c "import importlib,sys; [importlib.import_module(m) for m in sys.argv[1:]]" <pkg> 2>&1 | tee -a <log>
+   uv run --project <path> python -c "import importlib,sys; [importlib.import_module(m) for m in sys.argv[1:]]" <pkg> >> <log> 2>&1
    ```
 3. Non-zero → Failure Triage, stage `import`. No importable package → skip and record why.
 
@@ -104,7 +104,7 @@ The `--no-test` gate's substance: a package that syncs but doesn't import otherw
 1. With `--no-test`, skip and record "tests skipped (--no-test)"; green phases 2-3 are a PASS.
 2. Run pytest, deselecting training and paid-eval markers unless the user asked for them, and passing `-k` through:
    ```bash
-   uv run --project <path> pytest -x -q -m "not slow and not training and not eval_paid" 2>&1 | tee -a <log>
+   uv run --project <path> pytest -x -q -m "not slow and not training and not eval_paid" >> <log> 2>&1
    ```
    On pip/conda projects run `pytest --rootdir <path>` directly.
 3. Exit code 5 (no tests collected) is not a failure: build PASS, test N/A. Any other non-zero → Failure Triage, stage `test`.

@@ -10,7 +10,7 @@ Discover the eval harnesses the repo actually has, run them with the pinned eval
 
 ## Rules
 
-1. **Report only measured metrics.** Every number comes from a command run this session and teed to `.context/logs/`. A suite that didn't run is "not run" — not estimated or copied from an earlier report.
+1. **Report only measured metrics.** Every number comes from a command run this session and logged to `.context/logs/`. A suite that didn't run is "not run" — not estimated or copied from an earlier report.
 2. **Determinism first.** Run with the harness's pinned eval-set version and temperature 0 / fixed seeds. A suite that is nondeterministic by construction (judge scoring, sampling) is flagged with a pointer to the flake policy in `ai-engineer:regression-gates`; its noisy delta isn't a regression verdict.
 3. **Single-command Bash invocations** (`uv run pytest -m eval`, `uv run --project <path> python -m evals`), no `cd`-chains or `&&`, because scoped Bash permissions don't match compound commands.
 4. **Judge suites only with `--judge`.** They cost provider tokens per case and are nondeterministic; when included, state the cost basis in the report.
@@ -74,12 +74,12 @@ For each gated metric record direction (higher- or lower-better), absolute floor
 
 ### Phase 3: Run
 
-1. `mkdir -p .context/logs` first — `tee` won't create it.
-2. Run each selected suite as one command, teed to the log:
+1. `mkdir -p .context/logs` first — the redirect won't create it.
+2. Run each selected suite as one command, appending to the log, then `tail` the log for its output:
    ```bash
-   uv run pytest -m eval -q 2>&1 | tee -a .context/logs/eval-run-<timestamp>.log
+   uv run pytest -m eval -q >> .context/logs/eval-run-<timestamp>.log 2>&1
    ```
-   Judge the outcome by the suite's exit status, not tee's.
+   No pipe, so the exit code is the suite's own.
 3. A nonzero exit with no metrics output is an infrastructure failure: report that suite as ERROR (neither regression nor pass) and keep running the others.
 4. Parse metrics from the harness's native output (pytest metrics artifact, promptfoo JSON, deepeval results). Take the eval-set version, temperature/seeds, and model revisions from the run output/config, not from assumptions.
 5. With `--judge`, run judge suites after the programmatic ones; record judge model + rubric version and the per-case cost basis (calls × cases).

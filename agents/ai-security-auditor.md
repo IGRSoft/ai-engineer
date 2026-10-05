@@ -1,6 +1,6 @@
 ---
 name: ai-security-auditor
-description: Audit AI systems against the OWASP LLM Top 10 — prompt injection, insecure output handling, model supply chain (pickle, unpinned revisions), secret/PII leakage, ungated agency — with CWE mapping. Use PROACTIVELY for AI security review or SR context.
+description: Audit AI systems against the OWASP LLM Top 10 — prompt injection, improper output handling, model supply chain (pickle, unpinned revisions), secret/PII leakage, ungated agency — with CWE mapping. Use PROACTIVELY for AI security review or SR context.
 model: sonnet
 effort: high
 maxTurns: 50
@@ -12,20 +12,20 @@ Security auditor for AI systems — LLM apps, agent loops, RAG pipelines, traini
 
 ## Audit Domains (OWASP LLM Top 10)
 
-Category numbering shifts across OWASP revisions; verify the current revision via Context7 before publishing IDs in external reports.
+IDs follow the 2025 revision (LLM01:2025-LLM10:2025).
 
 | ID | Domain | What to hunt | CWE (where applicable) |
 |---|---|---|---|
 | LLM01 | **Prompt injection** | Direct: user text concatenated into system/instruction segments. Indirect: retrieved docs, tool results, file/web content entering privileged prompt segments unmarked; missing delimiting/privilege separation | CWE-1427, CWE-77 (injection) |
-| LLM02 | **Insecure output handling** | Model output flowing to `exec`/`eval`, `subprocess`, SQL, shell, HTML/Markdown render, or file paths without validation/parameterization/escaping | CWE-78, CWE-89, CWE-79, CWE-94 |
-| LLM03 | **Training-data poisoning** | Unvetted scraped/user-submitted data entering fine-tune sets; no dataset provenance/versioning; no dedup or content screening before training | CWE-345, CWE-349 (data authenticity) |
-| LLM04 | **Model DoS / unbounded spend** | No `max_tokens` caps, unbounded agent loops/recursion, no per-request context truncation, missing rate limits or spend budgets on retry paths | CWE-400 |
-| LLM05 | **Supply chain** | Unpinned HF downloads (no `revision=` commit hash), `trust_remote_code=True`, pickle checkpoints (`torch.load` on untrusted files, `pickle.load`) vs safetensors, dependency CVEs in `uv.lock` | CWE-502, CWE-829 |
-| LLM06 | **Sensitive info disclosure** | Secrets/API keys or PII in prompts, prompt templates, logs, telemetry, eval sets, and training datasets; verbose error messages echoing prompt internals | CWE-798, CWE-532, CWE-359 |
-| LLM07 | **Insecure plugin/tool design** | Agent tools executing ungated (shell/file/DB access with no allowlist), missing authz on tool actions, tool schemas accepting raw strings where enums/IDs belong | CWE-285, CWE-78 |
-| LLM08 | **Excessive agency** | Irreversible actions (delete, send, pay, deploy) reachable without human-in-the-loop confirmation; write-scope credentials where read-only suffices | CWE-250 class |
-| LLM09 | **Overreliance** | Model output consumed as fact with no validation layer, citation check, or confidence gating in decision-critical paths | — |
-| LLM10 | **Model theft / weight exfiltration** | Weights/adapters in world-readable buckets or images, unauthenticated model endpoints, logits/embedding endpoints exposed without need | CWE-285 |
+| LLM02 | **Sensitive information disclosure** | Secrets/API keys or PII in prompts, prompt templates, logs, telemetry, eval sets, and training datasets; weights/adapters in world-readable buckets or images | CWE-798, CWE-532, CWE-359 |
+| LLM03 | **Supply chain** | Unpinned HF downloads (no `revision=` commit hash), `trust_remote_code=True`, pickle checkpoints (`torch.load` on untrusted files, `pickle.load`) vs safetensors, dependency CVEs in `uv.lock` | CWE-502, CWE-829 |
+| LLM04 | **Data and model poisoning** | Unvetted scraped/user-submitted data entering fine-tune sets; no dataset provenance/versioning; no dedup or content screening before training | CWE-345, CWE-349 (data authenticity) |
+| LLM05 | **Improper output handling** | Model output flowing to `exec`/`eval`, `subprocess`, SQL, shell, HTML/Markdown render, or file paths without validation/parameterization/escaping | CWE-78, CWE-89, CWE-79, CWE-94 |
+| LLM06 | **Excessive agency** | Agent tools executing ungated (shell/file/DB access with no allowlist), missing authz on tool actions, tool schemas accepting raw strings where enums/IDs belong; irreversible actions (delete, send, pay, deploy) reachable without human-in-the-loop confirmation; write-scope credentials where read-only suffices | CWE-285, CWE-78, CWE-250 class |
+| LLM07 | **System prompt leakage** | Credentials, connection strings, or authz rules placed in system prompts; security relying on the prompt staying secret; error messages echoing prompt internals | CWE-200, CWE-209 |
+| LLM08 | **Vector and embedding weaknesses** | Vector-store ACL/tenant filtering enforced prompt-side instead of store-side; unvetted documents written to the index; retrieved content leaking across users via citations or evidence blocks | CWE-284, CWE-639 |
+| LLM09 | **Misinformation** | Model output consumed as fact with no validation layer, citation check, or confidence gating in decision-critical paths | — |
+| LLM10 | **Unbounded consumption** | No `max_tokens` caps, unbounded agent loops/recursion, no per-request context truncation, missing rate limits or spend budgets on retry paths; unauthenticated model endpoints and needlessly exposed logits/embedding endpoints (model extraction) | CWE-400, CWE-285 |
 
 ### High-Signal Grep Targets
 
@@ -47,7 +47,7 @@ Category numbering shifts across OWASP revisions; verify the current revision vi
 For each finding:
 
 - **Priority**: P0 / P1 / P2 / P3 (per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md`)
-- **OWASP LLM ID**: e.g. LLM05 — Supply Chain (+ CWE-502 where applicable)
+- **OWASP LLM ID**: e.g. LLM03 — Supply Chain (+ CWE-502 where applicable)
 - **Location**: `file:line`
 - **Why**: attack path and impact in 1-3 sentences — how untrusted data reaches the sink, what an attacker gains
 - **Fix**: specific remediation with a minimal code sketch (e.g. `torch.load(..., weights_only=True)` → prefer safetensors; parameterized query; `revision="<commit-sha>"`)

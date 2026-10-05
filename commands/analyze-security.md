@@ -6,7 +6,7 @@ allowed-tools: Read, Agent, Glob, Grep, Bash
 
 # AI Security Scan
 
-Sweep the AI surfaces in scope against the OWASP Top 10 for LLM Applications by delegating to the review-only `ai-engineer:ai-security-auditor`, armed with whichever scanners this machine has. Findings come back mapped to LLM01-LLM10 plus CWE, ranked P0-P3, deduplicated against any same-session code review, and routed to a remediation agent.
+Sweep the AI surfaces in scope against the OWASP Top 10 for LLM Applications by delegating to the review-only `ai-engineer:ai-security-auditor`, armed with whichever scanners this machine has. Findings come back mapped to LLM01-LLM10 (2025 revision) plus CWE, ranked P0-P3, deduplicated against any same-session code review, and routed to a remediation agent.
 
 ## Rules
 
@@ -34,8 +34,8 @@ Sweep the AI surfaces in scope against the OWASP Top 10 for LLM Applications by 
 | Option | Default | Effect |
 |--------|---------|--------|
 | `scope` | working changes | File, directory, PR number, or branch. |
-| `--deps-only` | off | Supply-chain surface only: manifests + lockfiles (`pyproject.toml`, `uv.lock`, `requirements*.txt`), model-artifact loading (`from_pretrained` pins, pickle vs safetensors, `trust_remote_code`), CVE scans. Findings concentrate in LLM05; remediation routes to `ai-engineer:ai-dependency-manager`. |
-| `--prompts-only` | off | Prompt assets plus prompt-assembly and output-handling code: injection (LLM01), insecure output handling (LLM02), secrets/PII in prompts, templates, and logs (LLM06). |
+| `--deps-only` | off | Supply-chain surface only: manifests + lockfiles (`pyproject.toml`, `uv.lock`, `requirements*.txt`), model-artifact loading (`from_pretrained` pins, pickle vs safetensors, `trust_remote_code`), CVE scans. Findings concentrate in LLM03; remediation routes to `ai-engineer:ai-dependency-manager`. |
+| `--prompts-only` | off | Prompt assets plus prompt-assembly and output-handling code: injection (LLM01), improper output handling (LLM05), secrets/PII in prompts, templates, and logs (LLM02), secrets or authz rules in system prompts (LLM07). |
 
 ## Scope Resolution
 

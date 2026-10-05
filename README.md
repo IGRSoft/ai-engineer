@@ -33,7 +33,7 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 | `ai-prompt-engineer` | sonnet / high | Product prompt engineering — the prompts shipped *inside* your LLM product — with eval-driven optimization. |
 | `ai-architector` | opus / xhigh | AI system architecture: prompt-vs-RAG-vs-fine-tune-vs-hybrid decisions, agent topology, serving stack, build-vs-buy, cost/latency modeling. AR-stage consultant. |
 | `ai-test-generator` | sonnet / high | pytest suites plus LLM eval harnesses — golden sets, LLM-judge scoring, regression gates — with pinned eval sets and deterministic settings. |
-| `ai-security-auditor` | sonnet / high (review-only) | OWASP LLM Top 10 audit: prompt injection, insecure output handling, model supply chain (pickle vs safetensors, unpinned revisions), secret/PII leakage, ungated agency. No Write/Edit in `tools`. |
+| `ai-security-auditor` | sonnet / high (review-only) | OWASP LLM Top 10 audit: prompt injection, improper output handling, model supply chain (pickle vs safetensors, unpinned revisions), secret/PII leakage, ungated agency. No Write/Edit in `tools`. |
 | `ai-performance-engineer` | sonnet / high (review-only) | Inference performance and cost review: TTFT/latency, throughput/batching, KV-cache and context budgets, quantization, GPU utilization, token spend. No Write/Edit in `tools`. |
 | `ai-code-fixer` | haiku / medium | Minimal-diff remediation for findings from review, `ai-security-auditor`, `ai-performance-engineer`, and DR/QA gate blockers. |
 | `ai-dependency-manager` | haiku / low | uv lockfiles, torch/CUDA compatibility triage, pip-audit/osv-scanner CVE reports, HF model revision pinning, model/dataset license inventory. |
