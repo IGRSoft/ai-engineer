@@ -1,16 +1,15 @@
 # LLM Apps Skills Index
 
-Quick navigation for the `skills/llm-apps/` subtree. Start at
-[SKILL.md](SKILL.md) for the guided entry with stack snapshot and decision
-tree.
+Quick navigation for the `skills/llm-apps/` subtree. Guided entry with the
+stack snapshot: [SKILL.md](SKILL.md).
 
 ## Skills
 
 | Skill | Use it for |
 |-------|------------|
-| [rag-systems/SKILL.md](rag-systems/SKILL.md) | Ingest→chunk→embed→index→retrieve→rerank→ground pipeline, chunking by content type, embedder/vector-store selection, hybrid dense+sparse retrieval, grounded answers with citations and refusal rules, index lifecycle |
+| [rag-systems/SKILL.md](rag-systems/SKILL.md) | Ingest→chunk→embed→index→retrieve→rerank→ground pipeline, chunking by content type, embedder and vector-store choice, hybrid retrieval, reranking, grounded answers with citations and refusal, index lifecycle (sync, deletes, re-embed) |
 | [agent-design/SKILL.md](agent-design/SKILL.md) | Escalation ladder (single call → workflow → agent → multi-agent), loop anatomy, stop conditions and budgets, tool contracts, memory patterns, guardrails with human confirmation, failure handling, step-level tracing |
-| [llm-api-patterns/SKILL.md](llm-api-patterns/SKILL.md) | Timeout/retry/backoff discipline, rate-limit handling, streaming with mid-stream recovery, prompt caching, batch APIs, fallback chains with circuit breakers, cost accounting, observability, secrets hygiene |
+| [llm-api-patterns/SKILL.md](llm-api-patterns/SKILL.md) | Timeouts and retry/backoff, rate limits, streaming with TTFT and mid-stream recovery, prompt caching, batch APIs, fallback chains with circuit breakers, cost accounting, secrets |
 
 ## References
 
@@ -26,9 +25,8 @@ tree.
 
 | Topic | Location |
 |-------|----------|
-| Reliable JSON from RAG/agent calls | `${CLAUDE_SKILL_DIR}/prompt-engineering/structured-outputs/SKILL.md` |
-| Budgeting retrieved chunks into the window | `${CLAUDE_SKILL_DIR}/prompt-engineering/context-engineering/SKILL.md` |
-| The prompt behind the feature | `${CLAUDE_SKILL_DIR}/prompt-engineering/prompt-design/SKILL.md` |
-| Self-hosting the model behind the app | `${CLAUDE_SKILL_DIR}/mlops/model-serving/SKILL.md` |
-| Measuring RAG faithfulness / agent success | `${CLAUDE_SKILL_DIR}/evals/eval-design/SKILL.md` |
-| Workflow stage participation | `CORPFLOW.md` |
+| Reliable JSON from RAG/agent calls | [prompt-engineering/structured-outputs/SKILL.md](../prompt-engineering/structured-outputs/SKILL.md) |
+| Budgeting retrieved chunks into the window | [prompt-engineering/context-engineering/SKILL.md](../prompt-engineering/context-engineering/SKILL.md) |
+| The prompt behind the feature | [prompt-engineering/prompt-design/SKILL.md](../prompt-engineering/prompt-design/SKILL.md) |
+| Self-hosting the model behind the app | [mlops/model-serving/SKILL.md](../mlops/model-serving/SKILL.md) |
+| Measuring RAG faithfulness / agent success | [evals/eval-design/SKILL.md](../evals/eval-design/SKILL.md) |
