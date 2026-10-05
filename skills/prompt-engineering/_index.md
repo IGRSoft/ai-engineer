@@ -1,16 +1,15 @@
 # Prompt Engineering Skills Index
 
-Quick navigation for the `skills/prompt-engineering/` subtree. Start at
-[SKILL.md](SKILL.md) for the guided entry with stack snapshot and decision
-tree.
+Quick navigation for the `skills/prompt-engineering/` subtree. Guided entry
+with the stack snapshot: [SKILL.md](SKILL.md).
 
 ## Skills
 
 | Skill | Use it for |
 |-------|------------|
-| [prompt-design/SKILL.md](prompt-design/SKILL.md) | Prompt anatomy (role → context → instructions → examples → output contract), instruction hierarchy with injection-resistant layering, few-shot design, positive framing, prompts as versioned files |
-| [context-engineering/SKILL.md](context-engineering/SKILL.md) | Context hierarchy, per-segment token budgets, packing strategies (selective include, hierarchical summary, sliding window + pinned facts), compaction triggers, lost-in-the-middle placement, context observability |
-| [structured-outputs/SKILL.md](structured-outputs/SKILL.md) | Extraction-mode selection (tool-call vs native structured vs prompted JSON), schema design, Pydantic validate → repair-once → fail-closed, streaming partial JSON, failure modes |
+| [prompt-design/SKILL.md](prompt-design/SKILL.md) | Five-segment prompt anatomy, instruction hierarchy with delimited untrusted input, few-shot design, positive framing, prompts as versioned files |
+| [context-engineering/SKILL.md](context-engineering/SKILL.md) | Segment hierarchy and token budgets, packing, compaction triggers, lost-in-the-middle placement, retrieved-context hygiene, per-request context manifests |
+| [structured-outputs/SKILL.md](structured-outputs/SKILL.md) | Extraction-mode choice (tool-call, native structured, prompted JSON), flat enum-closed schemas, Pydantic validate → repair-once → fail-closed, streaming partial JSON, parse failures |
 
 ## References
 
@@ -25,9 +24,8 @@ tree.
 
 | Topic | Location |
 |-------|----------|
-| Measuring whether a prompt change helped | `${CLAUDE_SKILL_DIR}/evals/eval-design/SKILL.md` |
-| CI gates for prompt changes | `${CLAUDE_SKILL_DIR}/evals/regression-gates/SKILL.md` |
-| Retrieval when the prompt needs knowledge | `${CLAUDE_SKILL_DIR}/llm-apps/rag-systems/SKILL.md` |
-| Provider calls, caching, streaming | `${CLAUDE_SKILL_DIR}/llm-apps/llm-api-patterns/SKILL.md` |
-| Fine-tuning when prompting hits its ceiling | `${CLAUDE_SKILL_DIR}/finetuning/peft-lora/SKILL.md` |
-| Workflow stage participation | `CORPFLOW.md` |
+| Measuring whether a prompt change helped | [evals/eval-design/SKILL.md](../evals/eval-design/SKILL.md) |
+| CI gates for prompt changes | [evals/regression-gates/SKILL.md](../evals/regression-gates/SKILL.md) |
+| Retrieval when the prompt needs knowledge | [llm-apps/rag-systems/SKILL.md](../llm-apps/rag-systems/SKILL.md) |
+| Provider calls, caching, streaming | [llm-apps/llm-api-patterns/SKILL.md](../llm-apps/llm-api-patterns/SKILL.md) |
+| Fine-tuning when prompting hits its ceiling | [finetuning/peft-lora/SKILL.md](../finetuning/peft-lora/SKILL.md) |
