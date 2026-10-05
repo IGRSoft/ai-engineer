@@ -1,10 +1,10 @@
-<!-- Never add a `## Routing` heading: it is reserved for a CORPFLOW.md at a user project root. -->
+<!-- Never add a `## Routing` or `## Models` heading: both are reserved for a CORPFLOW.md at a user project root or `~/.claude/CORPFLOW.md`. -->
 
 # corpflow Integration — ai-engineer
 
 The only file in ai-engineer that knows corpflow exists — delete it and the plugin is
-standalone. Nothing in `agents/`, `commands/`, `skills/`, or `hooks/` may reference corpflow;
-dispatch injects `Read CORPFLOW.md and follow it` into every delegation prompt.
+standalone. Nothing in `agents/`, `commands/`, `skills/`, or `hooks/` may reference corpflow.
+Dispatch names ai-engineer's loaded install root in every prompt: resolve paths under it, never search.
 
 ## Are we in a worktask?
 
@@ -21,19 +21,21 @@ stage ran — read `state.json`.
 
 | Stage | ai-engineer agent | Handoff data |
 |---|---|---|
-| AR (Architecture) | `ai-architector` | planning context + platform constraints — **consultation only**, corpflow retains the stage |
+| AR (Architecture) | `ai-architector` | planning context + platform constraints |
 | DV (Development) | `ai-engineer`, `llm-engineer`, `ml-engineer`, `mlops-engineer` | planning + architecture context |
-| DR (Developer Review) | `ai-code-fixer` | `metadata.gate_blockers[]` + minimal-diff remediation — **consultation only**, corpflow retains the stage and writes the artifact |
-| SR (Security) | `ai-security-auditor` | development context + AI/ML security checklist — **consultation only**, corpflow retains the stage and writes the artifact |
-| QA (Quality) | `ai-test-generator` | development context + test requirements — **consultation only**, corpflow retains the stage and writes the artifact |
+| DR (Developer Review) | `ai-code-fixer` | `metadata.gate_blockers[]` + minimal-diff remediation |
+| SR (Security) | `ai-security-auditor` | development context + AI/ML security checklist |
+| QA (Quality) | `ai-test-generator` | development context + test requirements |
 | DV-support | `ai-performance-engineer`, `ai-prompt-engineer`, `ai-dependency-manager` | scoped findings returned to the parent DV agent, which owns the artifact |
+AR, DR, SR, and QA are **consultation only** — corpflow retains the stage and writes the artifact for each.
 
-**DV is the only stage ownership transfers for.** Read `tasks.DV0.agent`: a `ai-engineer:` id
-means you own `development-N.md`, patch the ledger, and your frontmatter is what the harness
-validates; routed via `corpflow:developer` it owns the artifact and you return implementation plus a
-≤500-token summary.
-Every other stage is **consultation** — corpflow writes the artifact and every `state.json` entry.
-DV-support owns no stage, writes under `.context/logs/`, never patches.
+#### Who owns the artifact
+
+**DV is the only stage ownership transfers for.** Read your DV row's `agent`: a `ai-engineer:` id means you
+own that row's own `metadata.artifact`, patch the ledger by row id, and your frontmatter is what the
+harness validates; routed via `corpflow:developer` it owns the artifact and you return implementation
+plus a ≤500-token summary. Every other stage is **consultation** — corpflow writes the artifact and
+every `state.json` entry. DV-support owns no stage, writes under `.context/logs/`, never patches.
 
 ## Evidence declaration
 
@@ -41,7 +43,7 @@ DV-support owns no stage, writes under `.context/logs/`, never patches.
 |---|---|
 | `requires_screenshots` default | `false` |
 | Build Evidence adapter | `cli_fallback_adapter (eval reports, metrics, training logs)` |
-| Error file | `.context/errors/llm-engineer.md` (basename of the agent file, not the qualified id) |
+| Error file | `.context/errors/llm-engineer.md` |
 
 Build Evidence is eval reports, metric tables, and training transcripts under `.context/logs/`. Security review follows the OWASP LLM Top 10 — prompt injection, training/inference data leakage, model supply chain. Eval sets are pinned; report the eval baseline alongside any model or prompt change.
 
@@ -68,21 +70,20 @@ You run in an isolated git worktree; `task.metadata.workspace_path` is the tree 
 - Never create or move worktrees. Writes outside your tree are never yours — report, do not make.
 - Record it as `worktree: true` in the DV frontmatter. Absent or false is a hard DR fail
   (`worktree_isolation_violation`).
-- Screenshots append to the run's `screenshots.md` manifest, which is the record of authority.
-  Never read or write `state.json facts.screenshots` — it is capped and merged last-writer-wins, so
+- Screenshots go to your task's own `screenshots-<TASK_ID>.md` manifest, which is the record of
+  authority; pass your ledger task id as `--task-id` to every capture script. Never read or write `state.json facts.screenshots` — it is capped and merged last-writer-wins, so
   in a multi-stream run it keeps one stream and silently drops the rest.
 
 ## Artifacts
 
 Write to `.context/`; in DV you also own the source paths corpflow assigned you inside your
-worktree, and nothing else. `<N>` is `run_index`. Basenames are a convenience for the
-`SubagentStop` hook — the frontmatter is the contract. Errors go to
-`.context/errors/<agent-basename>.md`.
+worktree, and nothing else. `<N>` is `run_index`. Basenames are a convenience for the `SubagentStop`
+hook — the frontmatter is the contract. Errors go to `.context/errors/<agent-basename>.md`.
 
 | Stage | Artifact |
 |---|---|
 | AR | `.context/ai-architecture.md` (consultation output, ≤500-token return summary) |
-| DV | `.context/development-<N>.md` |
+| DV | your row's `metadata.artifact` — `.context/development-<N>-<stream>.md`, or `.context/development-<N>.md` when the run has one DV row |
 | DR | `.context/developer-review-<N>.md` (written by corpflow:technical-lead) |
 | SR | `.context/security-review-<N>.md` (written by corpflow:security-reviewer) |
 | QA | `.context/testing-<N>.md` (written by corpflow:qa-engineer) |
@@ -109,11 +110,17 @@ handoff:
   files_touched:
     - <path>
   next_stage_focus: "<imperative: what DR/QA must focus on>"
+```
+
+#### DV schema, continued — sweep, refs and architecture
+
+```yaml
+# …continued: the same handoff: mapping, second half.
   open_questions:              # REQUIRED — [] when nothing to elicit, never omitted
-    - { id: sw-DV0-1, class: decision, ref: "development-N.md#elicitation-sweep" }
+    - { id: sw-DV0-1, class: decision, ref: "<this artifact>#elicitation-sweep", blocks_next_stage: false }
   refs:
     decisions: architecture-N.md#decisions    # ONLY when AR ran; omit otherwise
-    tests: development-N.md#tests-added
+    tests: <this artifact>#tests-added
   architecture:                # ONLY when AR ran; omit the whole object otherwise
     ref: architecture-N.md#decisions
     applied: true              # your truthful statement that AR's decisions were followed
@@ -131,6 +138,8 @@ report `missing_input`, either without AR trips the inverse guard.
 | DR / SR | `key_decisions` = findings; no `files_touched` | pass / fail |
 | QA | `files_touched` = tests added, `key_decisions` = results | go / no-go |
 | IR | `key_decisions` = root cause | ok / escalate |
+
+#### Verdict and artifact rules
 
 `key_decisions` items are stubs: `{ id: ad1, summary: "<≤160 chars>", anchor: "<artifact>#decisions" }`.
 A `verdict` outside `ok|blocked|escalate|pass|fail|go|no-go|approve|reject` reaches the ledger
@@ -153,8 +162,10 @@ yours to resolve, not the user's — cost is not an exemption.
 | Where | Carries |
 |---|---|
 | artifact `## elicitation-sweep` H2 | the FULL item. Canonical. Heading present even when the array is empty. |
-| `handoff.open_questions[]` | the stub `{{ id, class, ref }}` |
+| `handoff.open_questions[]` | the stub `{ id, class, ref }` |
 | `state-patch.sh --facts` | the stub plus `stage`, `blocks_next_stage`, `status` |
+
+#### The item, as written in the artifact
 
 ```markdown
 ## elicitation-sweep
@@ -168,11 +179,14 @@ yours to resolve, not the user's — cost is not an exemption.
   - `<label ≤24>` — <detail ≤120>
 ```
 
+#### Rules
+
 - `id` is `sw-<TASK_ID>-<n>` — the ledger unions on `.id`, so an unscoped `q1` overwrites another
   stage's question. Max 4 per stage; more is handing the user your triage.
 - `escalate` is never auto-answered, `decision` may be; the orchestrator raises your label, never
-  lowers it. `blocks_next_stage: true` costs a round trip at your own boundary, absent/`false`
-  batches at the final gate.
+  lowers it. `blocks_next_stage` is REQUIRED on every stub and on BOTH stub transports —
+  `handoff.open_questions[]` **and** the `state-patch.sh --facts` payload — and the two copies must
+  agree — `true` costs a round trip at your own boundary, `false` batches at the final gate.
 - Re-emitting after a rework or retry carries `status` and `resolution` forward.
 - You never ask — no plugin agent holds an ask tool; the orchestrator renders every item.
 - Not the sweep, each already has a channel: runtime evidence (`requests_test_evidence:`), a skipped
@@ -185,14 +199,16 @@ Run `state-patch.sh --stage <CODE> --prev <PREV>` when its path is supplied (pro
 write `state.json`. Patch fails → proceed and return; the `SubagentStop` hook rebuilds from your
 frontmatter. Exit 3 means your artifact is not on disk — write it and re-run.
 
+### Facts on the same call
+
 Pass `--facts` on the **same** call. Arrays union on identity, so send only your own entries:
 
 ```bash
-state-patch.sh --stage DV --prev <PREV> --facts '{
+state-patch.sh --stage DV --task-id <ID> --artifact <your artifact> --prev <PREV> --facts '{
   "files_modified": ["<path>"], "tests_added": ["<path>"],
-  "decisions": [{"id":"dv-1","summary":"≤160 chars","ref":"development-0.md#decisions"}],
+  "decisions": [{"id":"dv-1","summary":"≤160 chars","ref":"development-<N>[-<stream>].md#decisions"}],
   "open_questions": [{"id":"sw-DV0-1","stage":"DV","class":"decision",
-                      "ref":"development-0.md#elicitation-sweep",
+                      "ref":"development-<N>[-<stream>].md#elicitation-sweep",
                       "blocks_next_stage":false,"status":"open"}]
 }'
 ```
@@ -220,16 +236,21 @@ On re-dispatch after a DR or QA rejection, `metadata.gate_blockers[]` carries th
 review artifact's `## blockers`. **Fix those and nothing else**: address every entry or say in the
 artifact why one is not actionable, and dispute via `error_escalated_to:` rather than by ignoring.
 
-## Return verification
+### Consultant return — consultant-return.v1
 
-When `ai-engineer` routes a stage to a specialist, it checks the return before passing it on:
-handoff frontmatter present and the artifact named `<stage>-N.md`; `state.json` patched or the
-reason logged; for DV, `### build-evidence` from this run (`python -VV`, framework versions from
-`uv.lock`, ruff/type-check status, test-transcript path under `.context/logs/`, an eval row when
-prompts, models, or retrieval changed); the screenshot skip-rationale line, or when armed a
-`screenshots.md` with `source: cli-fallback` rows; on rework, every `gate_blockers[]` item
-answered in `.context/errors/<agent-basename>.md`. Frontmatter missing → log a WARN and add minimal
-`handoff:` frontmatter from the specialist's summary.
+DR and SR consultations end the return with exactly one `json` fence, placed last, holding one
+`consultant-return.v1` object (`schema_version`, `verdict`, `severity_counts`, `findings[]`) with
+lowercase severities. A rejected return is re-dispatched once and never hand-fixed.
+
+### Return verification
+
+Routing a stage to a specialist, `ai-engineer` checks the return before passing it on: frontmatter
+present, artifact at the row's `metadata.artifact`, `state.json` patched or the reason logged; for
+DV a fresh `### build-evidence` (`python -VV`, `uv.lock` versions, ruff/type-check, transcript under
+`.context/logs/`, an eval row when prompts, models or retrieval changed) and the screenshot skip
+line or a `screenshots-<TASK_ID>.md` with `source: cli-fallback` rows; on rework every
+`gate_blockers[]` item answered in `.context/errors/<agent-basename>.md`. Frontmatter missing → WARN
+and add minimal `handoff:` frontmatter from the specialist's summary.
 
 ## Orchestrator agent roles
 
@@ -239,12 +260,14 @@ an id appears. Resolve the id, then check your available agent list: **present**
 
 **Roles with a local equivalent are not dispatched through corpflow at all.** Architect, QA
 engineer, and security reviewer resolve to routers that come straight back here, so app-layer work
-calls this plugin's own architect, test generator, and security auditor directly (those aliases are
-corpflow's inbound routing, resolved at worktask init).
+calls this plugin's own architect, test generator, and security auditor directly. Those aliases are
+corpflow's *inbound* routing, resolved at worktask init; these commands run outside any worktask.
 
 **Split by layer, not by role.** The local architect selects this platform's patterns; service
 decomposition, storage topology, and API contracts have no local equivalent and go to the
 orchestrator's architect. Routing system-level design at the local architect is misrouted.
+
+### Role to agent id
 
 | Role named in a command | Agent id |
 |---|---|
@@ -259,9 +282,6 @@ orchestrator's architect. Routing system-level design at the local architect is 
 | the orchestrator's worktask engineer | `corpflow:workflow-engineer` |
 | the orchestrator's platform router | `corpflow:developer` |
 
-A standard that is absent is simply unavailable — the skill's own guidance stands alone. Never
-fork a standard's text into this plugin; a copy drifts silently.
-
 ## Keeping the seam single
 
 - Never add a corpflow reference to an agent, command, skill, or hook, and never split this file
@@ -269,11 +289,12 @@ fork a standard's text into this plugin; a copy drifts silently.
 - Hooks say "the orchestrator" generically, so they work standalone.
 - Shared standards are the exception, referenced by id: `corpflow:code-comment-standard`,
   `corpflow:security-review-process`, `corpflow:claude-constitution`, `corpflow:logging-conventions`.
+  An absent standard is unavailable and the skill's own guidance stands; never fork its text here.
 - ai-engineer's version does not track corpflow's. Bump the target below when the contract changes.
 
 | | |
 |---|---|
-| Targets corpflow | `4.0.27` |
-| Size budget | ≤280 lines |
+| Targets corpflow | `4.1.1` |
+| Consultant return | `consultant-return.v1` |
+| Size budget | ≤300 lines |
 | Contract source | `corpflow skills/cross-plugin-handoff/references/plugin-contract.md` |
-| Template | `corpflow skills/cross-plugin-handoff/templates/CORPFLOW.md` |
