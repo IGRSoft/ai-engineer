@@ -1,28 +1,18 @@
 ---
 name: dataset-curation
 description: >-
-  Builds fine-tuning datasets that survive review: chat-format normalization
-  (messages schema, chat templates, multi-turn handling), exact + near-dup
-  dedup, eval-set decontamination, PII/secret scrubbing gates,
-  license/provenance ledgers, stratified splits, and dataset versioning tied
-  to every downstream metric. Use when assembling or auditing SFT or
-  preference data, converting raw logs/docs into JSONL training records,
-  sizing a dataset for a task class, chasing inflated eval scores from
-  suspected leakage, or preparing data for a LoRA/QLoRA/DPO run.
+  Build and audit fine-tuning datasets: messages-schema normalization, exact
+  and near-dup dedup, eval-set decontamination, PII/secret scrubbing,
+  license ledgers, stratified splits, and versioning. Use when assembling SFT
+  or preference data from raw sources, sizing a dataset, or chasing inflated
+  eval scores from suspected leakage.
 ---
 
 # Dataset Curation
 
-**The dataset is the model behavior — curate it like production code**
-
-## Overview
-
-Fine-tuning quality is decided before the first training step. The model will
-faithfully learn whatever the dataset teaches: its format quirks, its
-duplicated examples, its leaked secrets, and its contamination of your eval
-set. Curation is the discipline of turning raw sources into a versioned,
-deduplicated, decontaminated, scrubbed, license-cleared JSONL artifact — and
-of treating that artifact's version as part of every metric derived from it.
+Turn raw sources into a versioned, deduplicated, decontaminated, scrubbed,
+license-cleared JSONL artifact. The model learns whatever the dataset
+teaches — format quirks, dups, leaked secrets, eval contamination included.
 
 Owned by `ai-engineer:ml-engineer`. Whether to fine-tune at all (vs RAG vs
 prompting) is a method decision — escalate to `ai-engineer:ai-architector`.
@@ -63,18 +53,8 @@ that is a signal to reconsider the method, not to lower the quality bar.
 
 ## The Curation Pipeline
 
-Every batch of records passes the same gates, in order. A batch that fails a
-gate is quarantined — it never silently proceeds.
-
-```
-collect → normalize → dedupe → decontaminate → scrub → license → split → version
-   │          │          │           │            │        │        │        │
-sources    messages   exact hash  n-gram       PII +   ledger  stratified  DVC or
-+ ledger   schema +   + minhash   overlap      secret  complete by task /  hash
-entry      template   clusters    vs eval      gates   per      source     manifest
-           render                 sets         (fail-  batch
-                                               closed)
-```
+Every batch passes these gates in order; a batch that fails one is
+quarantined, not passed along.
 
 | Stage | Gate to pass | Tooling sketch |
 |-------|--------------|----------------|
@@ -125,12 +105,9 @@ and converters: read `references/data-formats.md` when touching format code.
 
 ## Dedup and Decontamination
 
-Duplication wrecks both training and measurement: within-train dups
-overweight examples (memorization, style collapse); dups that straddle the
-train/val split leak answers into validation; dups against the *eval set*
-inflate every metric you report and every gate you trust
-(`skills/evals/regression-gates`). Even modest dup ratios distort loss
-curves enough to mislead hyperparameter sweeps.
+Within-train dups overweight examples (memorization, style collapse); dups
+straddling the train/val split leak answers into validation; dups against
+the eval set inflate every metric and gate (`skills/evals/regression-gates`).
 
 ```python
 """Exact + near-duplicate scan for messages-format JSONL.
@@ -198,8 +175,8 @@ check ran against.
 
 ## Scrubbing Gates and the Provenance Ledger
 
-PII and secrets in training data become PII and secrets the model can emit.
-Scrubbing is a fail-closed gate, not a best-effort pass:
+PII and secrets in training data become output the model can emit, so
+scrubbing is fail-closed:
 
 - **Secrets**: entropy + pattern scanners (gitleaks/trufflehog-style rules)
   over the raw text of every record. Any hit quarantines the batch.
@@ -230,10 +207,9 @@ review rather than deciding unilaterally.
 
 ## Splits and Versioning
 
-- **Stratify — never random-only across mixed sources.** A random split
-  over heterogeneous sources lets one source dominate validation, making
-  metrics incomparable across dataset versions. Stratify by source and task
-  type; keep near-dup clusters on one side.
+- **Stratify by source and task type.** A random split over mixed sources
+  lets one source dominate validation, making metrics incomparable across
+  versions. Keep near-dup clusters on one side.
 - **Seed the splitter** and record the seed — an unreproducible split is an
   unreproducible experiment.
 - **Version the artifact, not the folder.** DVC or a content-hash manifest;
@@ -246,10 +222,9 @@ dvc add data/sft/val.jsonl
 git add data/sft/train.jsonl.dvc data/sft/val.jsonl.dvc data/ledger/
 ```
 
-**The dataset version is part of every downstream metric.** A loss curve,
-an eval score, or a win rate without the dataset hash next to it is not
-evidence — log it with the run config per `skills/mlops/experiment-tracking`
-and quote it in DV artifacts and release notes.
+**The dataset version is part of every downstream metric.** Log the hash
+with the run config (`skills/mlops/experiment-tracking`) and quote it next to
+loss curves, eval scores, and win rates.
 
 ## Anti-Patterns
 
@@ -264,25 +239,11 @@ and quote it in DV artifacts and release notes.
 | Unversioned "latest" dataset folder | Metrics can't be compared across runs | DVC/hash manifest; version quoted with every metric |
 | Training on user turns by default | Model imitates users, wastes capacity | Completion-only masking — `references/data-formats.md` |
 
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "We'll clean it after the first run" | The first run's metrics steer every decision after it; garbage in, garbage steering |
-| "A few duplicates won't matter" | Dup ratio compounds: overweighted examples, leaked validation, inflated gates |
-| "The eval set is separate — contamination is impossible" | The same upstream sources feed both sides; only the n-gram check knows |
-| "It's internal data, no PII concerns" | Internal data is where the real secrets live, and the model will repeat them |
-| "License review slows us down" | An unlicensed batch discovered post-launch means retraining, not paperwork |
-| "We can eyeball 500 examples" | Eyeballs miss near-dups and template drift; run the scanners, then eyeball |
-
 ## Red Flags
 
-- Dedup or contamination scan has never been run on the current dataset version
 - Eval metrics jumped after a data refresh with no model change
-- A batch with no ledger entry, or `consent_class: restricted` records in train
 - `train.jsonl` modified in place with no version bump
-- No format validator — schema enforced by "the trainer didn't crash"
-- Split seed unrecorded, or the split re-rolled between runs being compared
+- Split re-rolled between runs being compared
 - Secret-scanner findings waived without `ai-engineer:ai-security-auditor` sign-off
 
 ## Verification
