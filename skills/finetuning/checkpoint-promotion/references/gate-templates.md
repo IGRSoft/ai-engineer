@@ -146,7 +146,7 @@ Stage 3, in the order the steps have to happen.
 The first rung of the forgetting ladder, expressed as config rather than prose.
 
 ```yaml
-# Replay mix for a re-run after a drift breach. The critical property is that
+# Replay mix for a re-run after a drift breach. The key property is that
 # total row count and step count are held constant against the previous run:
 # adding general rows instead of swapping them changes the optimizer-step count
 # too, and then the drift delta cannot be attributed to the mix.
@@ -190,8 +190,3 @@ replay" stops being true the moment the data disagrees. **Run 5 is the reason
 seed variation is in the budget at all**: a single passing run at 0.9 pts was
 not a clean pass, it was one draw from a distribution straddling the noise
 boundary.
-
-Guidance derived from a single before/after pair is a hypothesis. Label it
-low-confidence, repeat with seed variation before acting on it, and hand a
-two-sided tradeoff — drift cleared but a success-criterion metric now below
-target — to a human rather than descending another rung.

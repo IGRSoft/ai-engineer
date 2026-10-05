@@ -1,48 +1,30 @@
 ---
 name: peft-lora
 description: >-
-  Parameter-efficient fine-tuning with LoRA and QLoRA via PEFT + TRL: when
-  adapters beat full fine-tuning or RAG, config anatomy (r, alpha, dropout,
-  target_modules) with starting points, QLoRA memory trade-offs, smoke-scale
-  SFTTrainer loops, adapter save/merge/serve lifecycle, and before/after eval
-  discipline. Use when adding a LoRA adapter, picking r/alpha/learning-rate
-  values, fitting a fine-tune into limited VRAM, deciding merge-vs-serve for
-  an adapter, or debugging flat loss, catastrophic forgetting, or an overfit
-  adapter.
+  Configure, train, and ship LoRA/QLoRA adapters via PEFT + TRL: whether an
+  adapter beats RAG or full fine-tuning, config starting points (r, alpha, dropout, target_modules), QLoRA memory
+  trade-offs, smoke-scale SFTTrainer loops, adapter merge-vs-serve, and
+  before/after evals. Use when adding a LoRA adapter, picking r/alpha/LR,
+  fitting a fine-tune into limited VRAM, or debugging flat loss, forgetting,
+  or overfit.
 ---
 
 # PEFT / LoRA
 
-**Adapt behavior with ~0.1–1% of the parameters — and prove it with before/after evals**
-
-## Overview
-
-LoRA freezes the base model and injects trainable low-rank matrices into
-targeted linear layers; only those matrices train. That makes fine-tuning
-cheap to run, fast to iterate, and swappable at serve time — an adapter is a
-small file, not a new model. QLoRA additionally quantizes the frozen base to
-4-bit so the same job fits on far smaller GPUs. The craft is in three
-decisions: whether an adapter is the right tool at all, which config to start
-from, and how to prove the adapter helped without breaking anything else.
+LoRA freezes the base model and trains low-rank matrices injected into
+targeted linear layers (~0.1–1% of parameters); the adapter is a small,
+swappable file. QLoRA also quantizes the frozen base to 4-bit so the job fits
+on smaller GPUs. Prove every adapter with before/after evals.
 
 Owned by `ai-engineer:ml-engineer`. The dataset must clear
 `skills/finetuning/dataset-curation` before any config discussion matters.
 
-## When to Use
-
-- Teaching a style, tone, or persona the base model doesn't hold consistently
-- Enforcing an output format (strict JSON, DSL, report structure) prompts can't lock in
-- Adapting to a domain's phrasing and workflows from a curated instruction set
-- Fine-tuning under a VRAM budget (single workstation or consumer GPU)
-- Serving several per-tenant or per-task behaviors over one shared base
-
-**When NOT to use:**
+**Elsewhere:**
 
 - Injecting fresh or changing knowledge → retrieval (`skills/llm-apps/rag-systems`); weights go stale, and facts don't compress into low-rank updates
 - Deep capability shifts (new language, large reasoning gains) → full fine-tune territory; run the method decision with `ai-engineer:ai-architector` first
 - Aligning behavior with preference pairs → `skills/finetuning/preference-tuning` (DPO also trains over LoRA adapters)
 - The run doesn't fit in memory or is slow → `skills/finetuning/training-optimization`
-- The dataset isn't curated/versioned yet → `skills/finetuning/dataset-curation`
 
 ## Is LoRA the Right Tool?
 
@@ -83,17 +65,17 @@ answers:
 | Domain assistant | 16–64 | ≈2r | attention + MLP (gate/up/down) | 0.05 |
 | Any of the above via QLoRA | same | same | often all linear layers | 0.05–0.1 |
 
-- **alpha ≈ 2r is a heuristic starting point, not a law.** Effective scale is
-  `alpha / r`, so the two knobs are coupled — hold the ratio, sweep r and
-  learning rate first, and only then revisit alpha.
+- **alpha ≈ 2r is a heuristic, not a law.** Effective scale is `alpha / r`,
+  so the knobs are coupled — hold the ratio, sweep r and learning rate
+  first, then revisit alpha.
 - Raising r buys capacity, VRAM, and overfit risk together. Before going past
   r ≈ 64, widen `target_modules` to the MLP blocks instead — coverage usually
   beats rank.
 - Module names differ per architecture — print the model to list them, or use
   the all-linear-layers option where your PEFT version supports it (verify
   current PEFT docs via context7).
-- Per-knob effects, sweep order, and three worked config progressions: read
-  `references/hyperparameter-guide.md` before tuning anything.
+- Per-knob effects, sweep order, and worked config progressions: read
+  `references/hyperparameter-guide.md` before tuning.
 
 ## QLoRA: 4-bit Base + Adapters
 
@@ -112,7 +94,7 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 ```
 
-Trade-offs to decide with eyes open:
+Trade-offs:
 
 - **Memory**: the frozen base shrinks ~4x vs bf16, putting 7B-class SFT on a
   single consumer GPU. Worked byte accounting:
@@ -122,7 +104,7 @@ Trade-offs to decide with eyes open:
 - **Quality**: for style/format/domain adaptation, QLoRA typically tracks
   bf16 LoRA closely; degradation shows first on precision-sensitive targets
   (math, code edge cases, long structured outputs). Decide with the
-  before/after eval, never by assumption.
+  before/after eval, not by assumption.
 - **Platform**: bitsandbytes is CUDA-centric; support elsewhere varies —
   verify current docs. On a no-CUDA dev box (Mac), skip 4-bit: smoke-test the
   pipeline with a small base model instead, and run QLoRA on the Linux/CUDA
@@ -228,13 +210,11 @@ git.
 
 ## Evaluating Adapters
 
-An adapter without a before/after eval is an anecdote:
-
 1. **Baseline first**: run the pinned eval set (version recorded) against the
    bare base model — temperature 0, fixed seeds, per the determinism rules in
    `skills/evals/eval-design`.
 2. **Same command, adapter on**: the target metrics must move.
-3. **General-capability slice**: a held-out slice of unrelated tasks must NOT
+3. **General-capability slice**: a held-out slice of unrelated tasks must not
    regress — this is the catastrophic-forgetting detector.
 4. **Gate it**: wire both into `skills/evals/regression-gates`; subjective
    quality (style, tone) goes through `skills/evals/llm-judge`.
@@ -256,33 +236,16 @@ An adapter without a before/after eval is an anecdote:
 |---------|---------|-----|
 | LoRA to inject facts | Facts don't fit low-rank updates and go stale immediately | RAG (`skills/llm-apps/rag-systems`); `ai-engineer:ai-architector` consult |
 | Raising r before fixing data | Capacity amplifies noise | Curate first, then sweep r on a subsample |
-| Tuning alpha as a free knob | Scale is `alpha / r` — the knobs are coupled | Hold alpha ≈ 2r; sweep r and LR first |
 | "Loss went down, ship it" | Loss ≠ behavior; regressions are invisible without evals | Before/after pinned evals + general-capability slice |
 | Committing a merged model to git | Multi-GB repo, unusable history | Save the adapter; artifacts go to a registry/DVC |
 | Pickle checkpoints | Unsafe deserialization on load | safetensors everywhere (`safe_serialization=True`) |
 | Unpinned base revision | Upstream update silently breaks adapter compatibility | Pin `revision=<sha>` for model and tokenizer; record it |
 | Uncapped training in DV | Violates the smoke-scale rule; DR fails the artifact | `max_steps` cap + documented full-run launch plan |
 
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "The loss curve looks great, ship it" | Overfit adapters produce beautiful loss and broken behavior; only the eval pair knows |
-| "r=256, more capacity can't hurt" | It can: overfit, VRAM, slower steps; widen modules or fix data instead |
-| "QLoRA quality loss won't matter here" | Maybe — but that's an eval result, not an assumption |
-| "One more epoch won't overfit" | On a 1k-example set, one epoch is a large dose; watch val each epoch |
-| "Skip the general-capability slice, we only changed style" | Forgetting is silent; the target metric can improve while everything else degrades |
-| "The default chat template will be fine" | Template mismatch is the top "trained fine, serves garbage" cause |
-
 ## Red Flags
 
-- `print_trainable_parameters()` never checked — or shows 0% or ~100%
-- No baseline eval existed before training started
 - Adapter trained against one base revision, served against another
 - fp16 NaNs being "fixed" by restarting the run
-- An uncapped training invocation in a DV transcript
-- Adapter files tracked in git, or checkpoints saved via pickle
-- Eval-set version or dataset version missing from the run config
 
 ## Verification
 

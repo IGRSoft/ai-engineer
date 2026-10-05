@@ -65,10 +65,8 @@ bad grader's output impossible to withdraw later.
 Keeping the top-reward fraction rather than everything that passed.
 
 ```python
-import statistics
-
 def rejection_sample(traces: list[dict], *, keep_fraction: float) -> list[dict]:
-    """Keep the highest-reward passing traces, one per task.
+    """Keep the highest-reward fraction of passing traces within each task.
 
     Per-task grouping matters: a global top-N over all tasks silently drops
     every hard task, because hard tasks score lower everywhere. The result is
@@ -111,7 +109,7 @@ output, which is a stronger signal than any grader score.
 def correction_to_sft(trace: dict, corrected_output: str) -> dict:
     """Emit an SFT row from a human-corrected failing trace.
 
-    No reward threshold applies — the correction IS the label. The original
+    No reward threshold applies — the correction is the label. The original
     failing assistant turn is replaced, not appended, so the model never sees
     the failure as part of the target it should imitate.
     """
@@ -174,7 +172,7 @@ import statistics
 def build_pairs(traces: list[dict]) -> list[dict]:
     """Build same-task preference pairs, rejecting near mu-2sigma.
 
-    Same-task is non-negotiable: pairing across tasks teaches a preference
+    Same-task only: pairing across tasks teaches a preference
     between topics rather than between responses. Selecting the rejected member
     by distribution rather than by minimum avoids pairing against crashes and
     truncations, which teach a distinction the model already makes.
@@ -234,8 +232,8 @@ def assert_no_golden_leak(rows: list[dict], golden_ids: set[str]) -> None:
 ```
 
 Task-ID matching catches the direct case. Near-duplicate leakage — a paraphrase
-of a golden that carries a different ID — needs the embedding-similarity sweep
-in `skills/finetuning/dataset-curation`'s decontamination section; run both.
+of a golden that carries a different ID — needs the n-gram decontamination
+check in `skills/finetuning/dataset-curation`; run both.
 
 ## Dataset card fields
 

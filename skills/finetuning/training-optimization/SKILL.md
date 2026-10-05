@@ -1,44 +1,26 @@
 ---
 name: training-optimization
 description: >-
-  Makes training runs fit in memory and run fast: the GPU memory model
-  (weights, gradients, optimizer states, activations) with estimation
-  formulas, bf16/fp16/tf32 precision, gradient accumulation vs batch size,
-  gradient checkpointing, 8-bit/paged optimizers, cuda/mps/cpu device
-  strategy, throughput triage, loss-curve triage, and checkpoint/resume
-  discipline. Use when a run OOMs, when picking batch, accumulation, or
-  precision, when the GPU sits idle or steps are slow, when a loss curve is
-  flat, spiky, or diverging, when planning Mac-dev → CUDA full runs, or when
-  weighing distributed training.
+  Make training runs fit in memory and run fast: GPU memory model and
+  estimation, the fit ladder (precision, accumulation, checkpointing, 8-bit
+  optimizers, QLoRA), cuda/mps/cpu device strategy, throughput and loss-curve
+  triage, checkpoint/resume. Use when a run OOMs or crawls, when picking
+  batch/accumulation/precision, when a loss curve is flat, spiky, or
+  diverging, or when planning a Mac smoke → CUDA full run.
 ---
 
 # Training Optimization
 
-**Estimate memory before you launch, verify with the tools, change one lever at a time**
+Three failure classes — doesn't fit (memory), too slow (throughput), not
+learning (loss pathology) — each with a fixed triage order. Estimate first,
+measure second, change one lever at a time. This changes how a run
+executes, never what it learns.
 
-## Overview
+Owned by `ai-engineer:ml-engineer`. Works without CUDA: the dev loop runs on
+MPS/CPU at smoke scale; the full run is a documented launch plan for a
+Linux/CUDA host.
 
-Most "training problems" are one of three things: the run doesn't fit
-(memory), the run is slow (throughput), or the run isn't learning (loss
-pathology). Each has a deterministic triage order, and all three start from
-the same habit — estimate first, measure second, and never turn two knobs at
-once. This skill is the fit-and-speed layer under every fine-tuning method;
-it changes how a run executes, never what it learns.
-
-Owned by `ai-engineer:ml-engineer`. Everything here degrades gracefully
-without CUDA: the dev loop runs on MPS/CPU at smoke scale, and the full run
-is a documented launch plan for a Linux/CUDA host.
-
-## When to Use
-
-- A training run OOMs, or you're sizing a job for given hardware before launch
-- Choosing precision, batch size, accumulation, checkpointing, or optimizer variant
-- Steps are slow, or the GPU utilization graph sawtooths to idle
-- A loss curve is flat, spiky, diverging, or the train–val gap is growing
-- Planning the Mac (MPS/CPU) dev loop and the Linux/CUDA full run
-- Deciding whether multi-GPU/distributed is worth the complexity
-
-**When NOT to use:**
+## When Not to Use
 
 - Choosing the training *method* (LoRA vs full FT vs DPO) → `skills/finetuning/peft-lora`, `skills/finetuning/preference-tuning`, `ai-engineer:ai-architector`
 - Loss weirdness caused by data (dups, contamination, masking bugs) → `skills/finetuning/dataset-curation`
@@ -72,18 +54,17 @@ launch on new hardware.
 ## The Fit Ladder
 
 When the estimate doesn't fit, apply rungs in order and re-estimate after
-each — every rung has a cost, so stop at the first one that fits with
-headroom:
+each; stop at the first that fits with headroom, since every rung has a cost.
 
-```
-1. bf16, not fp32              → halves weights/grads              (free on supported HW)
-2. micro-batch ↓ + accumulation → activations ↓, effective batch kept (wall-clock ↑ slightly)
-3. gradient checkpointing       → activations ↓↓                    (~20–30% step-time cost)
-4. 8-bit / paged optimizer      → optimizer states ↓                (full-FT / large-adapter cases)
-5. 4-bit base (QLoRA)           → frozen weights ↓ ~4x              (throughput ↓ — skills/finetuning/peft-lora)
-6. sequence cap / packing       → activations scale with seq        (data decision — verify nothing truncates answers)
-7. distributed / sharding       → references/distributed-training.md (complexity tax — last resort)
-```
+| # | Rung | Effect | Cost |
+|---|------|--------|------|
+| 1 | bf16, not fp32 | Halves weights/grads | Free on supported HW |
+| 2 | Micro-batch ↓ + accumulation | Activations ↓, effective batch kept | Slightly more wall-clock |
+| 3 | Gradient checkpointing | Activations ↓↓ | ~20–30% step time |
+| 4 | 8-bit / paged optimizer | Optimizer states ↓ | Only helps full FT / large adapters |
+| 5 | 4-bit base (QLoRA) | Frozen weights ↓ ~4x | Throughput ↓ — `skills/finetuning/peft-lora` |
+| 6 | Sequence cap / packing | Activations scale with seq | Data decision — verify no answer truncation |
+| 7 | Distributed / sharding | `references/distributed-training.md` | Complexity tax — last resort |
 
 ## Precision
 
@@ -134,7 +115,7 @@ args = SFTConfig(
 
 ## Device Strategy (cuda / mps / cpu)
 
-Select at runtime; never hardcode `.cuda()` or a device string:
+Select at runtime rather than hardcoding `.cuda()` or a device string:
 
 ```python
 import torch
@@ -159,7 +140,7 @@ The two-host workflow:
 
 When `nvidia-smi` is absent, run the reduced-depth verification (allocator
 stats only, `references/gpu-memory-math.md`), note the reduced depth in the
-artifact, and continue — never hard-fail for a missing GPU.
+artifact, and continue rather than failing.
 
 ## Throughput Triage (in this order)
 
@@ -190,7 +171,8 @@ every change:
 | Val noisy beyond reading | Val split too small or unstratified | Fix the split → `skills/finetuning/dataset-curation` |
 
 Data-shaped causes (masking, dups, splits) outnumber knob-shaped causes —
-check the data explanation before the hyperparameter one.
+check the data explanation before the hyperparameter one. NaNs "fixed" by
+reseeding are unexplained, not fixed.
 
 ## Checkpoint / Resume Discipline
 
@@ -199,14 +181,13 @@ check the data explanation before the hyperparameter one.
 - A real resume restores model + optimizer + scheduler + RNG state:
   `trainer.train(resume_from_checkpoint=...)`. Weights-only "resume" corrupts
   the schedule and the curve.
-- **Verify continuity**: after any resume, the first logged losses must
-  continue the prior curve. A jump at the resume point is a broken resume —
-  investigate, don't shrug.
-- Weights in safetensors; never load pickle checkpoints from untrusted
+- **Verify continuity**: after a resume, the first logged losses continue
+  the prior curve. A jump at the resume point is a broken resume — investigate.
+- Weights in safetensors; don't load pickle checkpoints from untrusted
   sources. Checkpoints live in a registry/DVC/object storage, out of git;
   the path is recorded in the run config (`skills/mlops/experiment-tracking`).
 
-## Smoke-Scale Rule (restated)
+## Smoke-Scale Rule
 
 DV never launches full training runs. Every DV training invocation is
 smoke-scale: capped `max_steps`/epochs, subsampled data, fixed seed, loss
@@ -228,27 +209,7 @@ and the peak recorded.
 | Weights-only resume | Silent schedule/RNG corruption, curve jump | `resume_from_checkpoint` with full state; verify continuity |
 | Peak memory never recorded | Full run launches blind | Log `max_memory_allocated` on every smoke run |
 | Multi-GPU before rungs 1–6 exhausted | Complexity tax without need | Fit ladder first; then `references/distributed-training.md` |
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "It OOMed — we need more GPUs" | Rungs 2–6 fix most OOMs on one GPU; distributed is the last rung, not the second |
-| "fp16, bf16 — same thing" | Different exponent range; fp16 NaNs cost days of debugging |
-| "The Mac run proves nothing, skip it" | It proves the whole pipeline: data, template, masking, falling loss — the cheap 80% of failures |
-| "We'll tune throughput after the run works" | A 30% idle GPU across the full run is real money and calendar time |
-| "Checkpoints slow us down, save at the end" | One crash then unpicks the entire run |
-| "Loss is just noisy, ignore it" | Every shape in the triage table has a cause; unexplained shapes hide data bugs |
-
-## Red Flags
-
-- fp32 full-model training on a memory-limited card
-- GPU utilization sawtoothing to zero on every step
-- NaN losses being "fixed" by rerunning with a new seed
-- No memory estimate before a multi-hour/multi-day launch
-- A loss discontinuity at a resume point that nobody investigated
-- torch/CUDA version drift between the smoke host and the full-run host (route to `ai-engineer:ai-dependency-manager`)
-- Throughput never measured, so optimizations can't be judged
+| torch/CUDA drift between smoke and full-run hosts | Smoke result doesn't transfer | Pin both; drift → `ai-engineer:ai-dependency-manager` |
 
 ## Verification
 
@@ -269,5 +230,5 @@ and the peak recorded.
 - `skills/finetuning/dataset-curation` — data-shaped causes behind many loss pathologies
 - `skills/finetuning/preference-tuning` — DPO-class runs; same fit and triage discipline applies
 - `skills/mlops/experiment-tracking` — where estimates, peaks, and curves get logged
-- `references/gpu-memory-math.md` — byte accounting, worked 7B examples, OOM ladder
+- `references/gpu-memory-math.md` — byte accounting, worked 7B examples, OOM ladder, unified memory
 - `references/distributed-training.md` — DDP/FSDP/DeepSpeed selection, accelerate, multi-node

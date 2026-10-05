@@ -1,77 +1,59 @@
 ---
 name: preference-tuning
 description: >-
-  Aligns model behavior with preferences: choosing between SFT-only, DPO,
-  ORPO/KTO, and full RLHF/PPO; building preference pairs (generation,
-  labeling rubrics, annotator agreement); DPO mechanics (beta, reference
-  model, smoke-scale TRL loop); detecting reward hacking (length bias,
-  sycophancy, style collapse) + mitigations; and distillation.
-  Use when SFT output is close-but-not-quite, when picking a preference
-  method, when labeling chosen/rejected pairs, when tuned outputs grow longer
-  or sycophantic, or when measuring win-rate against a baseline. Not
-  verifiable-reward RL (grpo-rlvr-training).
+  Align a tuned model with preferences: pick SFT-only vs DPO vs ORPO/KTO vs
+  RLHF, build and label chosen/rejected pairs, run DPO (beta, reference
+  model), and catch reward hacking (length bias, sycophancy, style collapse).
+  Use when SFT output is close-but-not-quite, when outputs grow longer or
+  sycophantic after tuning, or when measuring win rate against a baseline.
+  Not verifiable-reward RL (grpo-rlvr-training).
 ---
 
 # Preference Tuning
 
-**DPO-first for app teams — and every run is judged by held-out win rate, not vibes**
-
-## Overview
-
-Preference tuning teaches directional judgment — "this answer over that
-one" — where SFT teaches imitation of gold outputs. It comes *after* SFT: a
-preference method pointed at an incompetent policy spends its signal fixing
-basics that gold examples would fix cheaper. The method ladder runs from
-SFT-only through DPO-class offline methods to full RLHF, with cost and
-fragility rising at each rung; the failure ladder runs alongside it, because
-every preference optimizer will exploit whatever its signal underspecifies
-(length, flattery, style). This skill covers picking the rung, building the
-pairs, running DPO at smoke scale, and catching the exploits.
+Preference tuning teaches directional judgment ("this answer over that
+one"); SFT teaches imitation of gold outputs. It comes after SFT, because
+preference signal spent on an incompetent policy fixes basics that gold
+examples fix cheaper. Every preference optimizer exploits what its signal
+underspecifies (length, flattery, style), and every run is judged by
+held-out win rate.
 
 Owned by `ai-engineer:ml-engineer`. Method escalations (RLHF proposals,
 reward-model builds) go through `ai-engineer:ai-architector`.
 
-## When to Use
+**Out of scope — route elsewhere:**
 
-- An SFT/instruct model is close but systematically off: tone, verbosity, hedging, refusal calibration, judgment calls
-- You can articulate "better vs worse" far more easily than you can write gold outputs
-- You hold (or can generate) comparison data: ranked samples, edit pairs, thumbs up/down telemetry
-- A tuned model has drifted — longer, sycophantic, or samey — and you need to diagnose why
-
-**When NOT to use:**
-
-- No competent SFT baseline yet → `skills/finetuning/peft-lora` first; DPO needs a reasonable starting policy
-- The target is objective correctness (exact format, factual QA) → SFT on gold outputs; preference signal only adds noise there
-- Success is decidable by a *program* (unit tests, schema validation, math ground truth) → `skills/finetuning/grpo-rlvr-training`; a verifiable reward is a stronger signal than a preference, so do not spend it on pairs
-- *Sourcing* pairs from already-graded traces (rejection sampling, passing-vs-failing trajectories) → `skills/finetuning/trace-to-training-data`; it supplies the trajectories, this skill owns the selection formula and the run
-- Pair *format* and dataset hygiene (dedup, scrub, versioning) → `skills/finetuning/dataset-curation` (+ `skills/finetuning/dataset-curation/references/data-formats.md` for the chosen/rejected schema)
+- No competent SFT baseline yet → `skills/finetuning/peft-lora` first
+- Objective correctness targets (exact format, factual QA) → SFT on gold outputs; preference signal adds noise
+- Success decidable by a program (unit tests, schema validation, math) → `skills/finetuning/grpo-rlvr-training`; a verifiable reward is a stronger signal than pairs
+- Sourcing pairs from already-graded traces → `skills/finetuning/trace-to-training-data`; it supplies trajectories, this skill owns the selection formula and the run
+- Pair format and hygiene (dedup, scrub, versioning) → `skills/finetuning/dataset-curation` (`skills/finetuning/dataset-curation/references/data-formats.md` for the chosen/rejected schema)
 - Judge rubrics and bias controls → `skills/evals/llm-judge`
-- The run doesn't fit or is slow → `skills/finetuning/training-optimization`
+- Run doesn't fit or is slow → `skills/finetuning/training-optimization`
 
 ## Method Selection
 
 | Method | Data needed | Compute / infra | Stability | When it wins |
 |--------|-------------|-----------------|-----------|--------------|
 | SFT-only | Gold outputs | 1 model | Very stable | You can write the right answer; correctness targets |
-| DPO | prompt + chosen/rejected pairs | Policy + frozen reference (adapter tricks avoid a second copy) | Stable | **Default first preference method for app teams** |
+| DPO | prompt + chosen/rejected pairs | Policy + frozen reference (adapter tricks avoid a second copy) | Stable | Default first preference method for app teams |
 | ORPO | Pairs | 1 model, no reference | Stable | Single-stage SFT+preference; smaller pipelines |
 | KTO | Independent good/bad labels (unpaired) | ~DPO | Stable | You have thumbs-up/down telemetry, not pairs |
 | RLHF (PPO-class) | Prompts + trained reward model (+ pairs to train it) | 3–4 models live, online sampling, RL loop | Fragile, expensive | Platform/frontier scale, dense custom rewards — rarely justified for app teams |
-| GRPO / RLVR → `skills/finetuning/grpo-rlvr-training` | Prompts + a *programmatic verifier*; no pairs, no reward model | Online generation + RL loop | Sensitive to reward design | **Success is machine-checkable** (tests, schemas, math). Routes out of this skill entirely — see that skill, not this table |
+| GRPO / RLVR | Prompts + a programmatic verifier; no pairs, no reward model | Online generation + RL loop | Sensitive to reward design | Success is machine-checkable — routes to `skills/finetuning/grpo-rlvr-training` |
 
-**DPO for taste, GRPO for reasoning.** The discriminator is not difficulty, it
-is whether a program can decide the outcome: if a verifier returns pass/fail,
-the last row applies and preference pairs are the weaker signal.
+**DPO for taste, GRPO for reasoning.** The discriminator is whether a program
+can decide the outcome, not difficulty.
 
-The DPO-first default: if DPO on good pairs doesn't move the win rate, the
-fix is almost always better pairs, not a fancier algorithm. Any move to
-PPO-class RLHF is an architecture decision — `ai-engineer:ai-architector`
-signs off, or it doesn't happen. Exact ORPO/KTO availability and trainer
-APIs shift across TRL versions — verify current TRL docs (context7).
+If DPO on good pairs doesn't move the win rate, the fix is almost always
+better pairs, not a fancier algorithm. Moving to PPO-class RLHF is an
+architecture decision that needs `ai-engineer:ai-architector` sign-off.
+ORPO/KTO availability and trainer APIs shift across TRL versions — check
+current TRL docs (context7).
 
 ## Deep Dives
 
-Read `references/dpo-and-preference-data.md` for preference-pair construction and labeling, DPO mechanics (beta, reference model), reward-hacking detection, distillation, and run evaluation.
+Read `references/dpo-and-preference-data.md` for pair construction and labeling, DPO mechanics (beta, reference model, smoke-scale TRL loop), reward-hacking detection, distillation, and run evaluation.
 
 ## Anti-Patterns
 
@@ -79,54 +61,34 @@ Read `references/dpo-and-preference-data.md` for preference-pair construction an
 |---------|---------|-----|
 | DPO before SFT competence | Preference signal wasted on basics | SFT first (`skills/finetuning/peft-lora`); pairs teach judgment, not correctness |
 | Pairs that differ mainly in length | Model learns "longer = better" | Length-matched pairs; length-controlled win rate |
-| Same judge labels pairs and scores the eval | Self-confirming loop measures judge agreement, not quality | Different judge/config for eval; human-audited slice |
-| Beta tuned by training loss | Loss ≠ alignment quality | Sweep beta against held-out win rate |
+| Same judge labels pairs and scores the eval | Measures judge agreement, not quality | Different judge/config for eval; human-audited slice |
+| Beta tuned by training loss | Loss ≠ alignment quality | Sweep beta (start ~0.1) against held-out win rate |
 | RLHF "because that's what the labs do" | 3–4 model infra and fragility for marginal app-scale gains | DPO-first; `ai-engineer:ai-architector` sign-off before any PPO work |
 | Unversioned pair set | Wins and regressions can't be attributed | Version pairs like any dataset (`skills/finetuning/dataset-curation`) |
 | Win rate measured on training-adjacent prompts | Overfit invisible | Held-out prompt set, pinned version, reported with the number |
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "The model just needs RLHF" | It usually needs better pairs or better SFT data; RLHF amplifies whatever signal you have, including the flaws |
-| "Longer answers really are better here" | Then encode that in the rubric explicitly — and still report length-controlled win rate |
-| "Synthetic pairs are free" | They're paid for in inherited judge bias; a human-audited slice is the price of using them |
-| "Win rate went up, ship it" | Check the regression slice; capability tax is silent and cumulative |
-| "Kappa is low but the labels are fine" | Low agreement means the rubric doesn't define the preference; scaling it multiplies noise |
-| "We'll eyeball drift" | Length creep and sycophancy grow a few percent per run — only the tracked metrics see it |
+| Low inter-annotator agreement waved through | Rubric doesn't define the preference; scaling multiplies noise | Fix the rubric before scaling labeling |
 
 ## Red Flags
 
-- `rewards/accuracies` pinned near 0.5 all run (noise pairs) or at ~1.0 within the first steps (trivial or leaked pairs)
+- `rewards/accuracies` near 0.5 all run (noisy pairs) or ~1.0 within the first steps (trivial or leaked pairs)
 - Mean output length trending upward across training
-- The baseline was never evaluated on the same prompt set as the tuned model
-- One rubric text used for labeling, judging, and the ship decision
-- PPO/reward-model infrastructure being built without an architecture decision record
 - Teacher-generated pairs with no license/ToS entry in the provenance ledger
-- Beta changed and win-rate delta attributed without re-running the held-out eval
 
 ## Verification
 
-- [ ] SFT baseline competent and evaluated before any preference run started
+- [ ] SFT baseline competent and evaluated on the same prompt set before any preference run
 - [ ] Method chosen from the selection table; deviations from DPO-first recorded with `ai-engineer:ai-architector`
 - [ ] Pair set versioned, deduped, decontaminated, scrubbed (`skills/finetuning/dataset-curation` gates passed)
 - [ ] Rubric written with anchors and tie/both-bad outcomes; IAA measured on a double-labeled slice and reported
 - [ ] Synthetic labels (if any) audited against a human slice; judge biases checked per `skills/evals/llm-judge`
 - [ ] Smoke DPO run: capped steps, subsample, fixed seed, sane `rewards/accuracies`; transcript in `.context/logs/`
-- [ ] Beta swept against held-out win rate, not training loss
-- [ ] Win rate vs baseline measured pairwise, position-debiased, pinned eval-set version, judge at temperature 0
+- [ ] Beta swept against held-out win rate, not training loss; each beta change re-runs the held-out eval
+- [ ] Win rate vs baseline measured pairwise, position-debiased, length-controlled, pinned eval-set version, judge at temperature 0
 - [ ] General-capability regression slice passed (`skills/evals/regression-gates`)
 - [ ] Full-run launch plan documented (command, pair-set version, host, expected duration/cost)
 
 ## Related Skills
 
-- `skills/finetuning/peft-lora` — the SFT stage that precedes preference tuning; adapter mechanics
-- `skills/finetuning/grpo-rlvr-training` — the sibling method when a program can verify success; this skill owns preference signals, that one owns verifiable rewards
-- `skills/finetuning/trace-to-training-data` — sources chosen/rejected pairs from graded traces; this skill owns the selection formula it applies
-- `skills/finetuning/checkpoint-promotion` — the drift gate a tuned checkpoint clears before it ships
-- `skills/finetuning/dataset-curation` — pair formats, hygiene gates, provenance ledger
-- `skills/finetuning/training-optimization` — fitting and running DPO jobs; loss triage
-- `skills/evals/llm-judge` — win-rate judging, rubrics, position/length bias controls
+- `skills/finetuning/checkpoint-promotion` — drift gate a tuned checkpoint clears before it ships
 - `skills/evals/regression-gates` — CI gates on win rate and capability regression
-- `skills/mlops/experiment-tracking` — logging pair-set/eval-set versions with every metric
+- `skills/mlops/experiment-tracking` — log pair-set and eval-set versions with every metric

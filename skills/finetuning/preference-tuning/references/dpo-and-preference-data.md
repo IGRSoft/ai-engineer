@@ -40,7 +40,7 @@ that reference:
 
 - **Low beta (~0.05)**: bigger behavioral moves, more drift and hacking risk.
 - **High beta (~0.5)**: conservative, stays near the reference.
-- **Start around 0.1 and sweep against held-out win rate** — never against
+- **Start around 0.1 and sweep against held-out win rate**, not against
   training loss. These are conventional starting points, not constants;
   verify current TRL defaults (context7).
 - **Reference model**: a frozen copy of the starting policy. With PEFT
@@ -72,7 +72,7 @@ def main() -> None:
     args = DPOConfig(
         output_dir="runs/dpo-smoke",
         beta=0.1,                          # starting point — sweep against held-out win rate
-        max_steps=MAX_STEPS,               # smoke cap — never uncapped in DV
+        max_steps=MAX_STEPS,               # smoke cap; uncapped runs belong to the full-run plan
         per_device_train_batch_size=1,
         gradient_accumulation_steps=8,
         learning_rate=5e-7,                # DPO LRs sit far below SFT LRs — verify current TRL guidance
@@ -112,7 +112,7 @@ for these from the first eval, not after shipping:
 | Sycophancy | Agrees with false premises; flattery inflation | Adversarial (wrong-premise) prompts in pairs and evals; rubric penalizes agreement-with-error |
 | Style collapse | Every answer converges on one skeleton and stock phrases | More diverse pair sources; raise beta; fewer steps |
 | Refusal miscalibration | Over- or under-refusing vs baseline | Safety slice in the eval pair; targeted pairs both directions |
-| Eval-set overfit | Dev win rate climbs; held-out win rate flat or falling | Held-out rubric eval; early stop on held-out, never on dev |
+| Eval-set overfit | Dev win rate climbs; held-out win rate flat or falling | Held-out rubric eval; early stop on held-out, not on dev |
 
 Structural mitigations: diversify pair sources (no single generator/judge);
 evaluate on **held-out rubrics** phrased differently from the labeling
