@@ -5,7 +5,7 @@ model: sonnet
 effort: medium
 maxTurns: 40
 color: blue
-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(ls:*), Bash(file:*), Bash(uv:*), Bash(python3:*), Bash(jq:*), Task(ai-engineer:llm-engineer), Task(ai-engineer:ml-engineer), Task(ai-engineer:mlops-engineer), Task(ai-engineer:ai-prompt-engineer), Task(ai-engineer:ai-architector), Task(ai-engineer:ai-test-generator), Task(ai-engineer:ai-security-auditor), Task(ai-engineer:ai-performance-engineer), Task(ai-engineer:ai-code-fixer), Task(ai-engineer:ai-dependency-manager), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
+tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(ls:*), Bash(file:*), Bash(uv:*), Bash(python3:*), Bash(jq:*), Agent(ai-engineer:llm-engineer), Agent(ai-engineer:ml-engineer), Agent(ai-engineer:mlops-engineer), Agent(ai-engineer:ai-prompt-engineer), Agent(ai-engineer:ai-architector), Agent(ai-engineer:ai-test-generator), Agent(ai-engineer:ai-security-auditor), Agent(ai-engineer:ai-performance-engineer), Agent(ai-engineer:ai-code-fixer), Agent(ai-engineer:ai-dependency-manager), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 # AI Engineer (Router)

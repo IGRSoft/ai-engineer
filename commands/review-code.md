@@ -1,14 +1,7 @@
 ---
 description: AI-aware code review — parallel surface reviewers (LLM app, training, serving, prompts) plus an always-on AI security pass, synthesized into a P0-P3 report. Use before merging changes to LLM apps, prompts, training, or serving code.
 argument-hint: [scope: file/dir/PR#/branch — default: working changes] [--quick] [--fix]
-allowed-tools: Read, Glob, Grep, Bash
-estimated-cost:
-  min-tokens: 4000
-  max-tokens: 28000
-  model-distribution:
-    haiku: 15%
-    sonnet: 75%
-    opus: 10%
+allowed-tools: Read, Agent, Glob, Grep, Bash
 ---
 
 # AI-Aware Code Review

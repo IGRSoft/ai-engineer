@@ -1,13 +1,7 @@
 ---
 description: Eval-driven prompt optimization — baseline on a pinned eval set, draft single-variable variants, measure and rank them; --apply ships the winner with a version bump. Use when a prompt underperforms or a prompt edit needs evidence.
 argument-hint: [prompt path (default: discover prompts/)] [--variants N (default 3)] [--eval-set PATH] [--apply]
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash
-estimated-cost:
-  min-tokens: 6000
-  max-tokens: 30000
-  model-distribution:
-    sonnet: 85%
-    opus: 15%
+allowed-tools: Read, Agent, Write, Edit, Glob, Grep, Bash
 ---
 
 # Prompt Optimize

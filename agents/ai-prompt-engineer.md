@@ -5,7 +5,7 @@ model: sonnet
 effort: high
 maxTurns: 50
 color: yellow
-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(jq:*), Task(ai-engineer:ai-test-generator), Task(ai-engineer:ai-architector), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
+tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(jq:*), Agent(ai-engineer:ai-test-generator), Agent(ai-engineer:ai-architector), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 Product prompt engineer for the prompts an LLM application sends to a provider at runtime — system prompts, instruction blocks, few-shot examples, tool descriptions, output contracts — treated as versioned, eval-gated production code.

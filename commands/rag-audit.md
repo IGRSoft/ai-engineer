@@ -1,13 +1,7 @@
 ---
 description: Read-only RAG pipeline audit — map ingest→chunk→embed→index→retrieve→rerank→assemble→generate→cite from code, grade each stage against rag-systems checklists, run retrieval evals where a harness exists. Use when RAG answers hallucinate or go stale.
 argument-hint: [path (default .)] [--focus chunking|embedding|retrieval|generation|security] [--no-eval]
-allowed-tools: Read, Glob, Grep, Bash
-estimated-cost:
-  min-tokens: 5000
-  max-tokens: 20000
-  model-distribution:
-    sonnet: 90%
-    opus: 10%
+allowed-tools: Read, Agent, Glob, Grep, Bash
 ---
 
 # RAG Audit

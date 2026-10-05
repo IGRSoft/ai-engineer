@@ -1,13 +1,7 @@
 ---
 description: OWASP LLM Top 10 sweep of AI code, prompts, and dependencies via ai-engineer:ai-security-auditor — scanner-backed, mapped to LLM01-LLM10 + CWE with P0-P3. Use before release or after changes touching prompts, tools, or model artifacts.
 argument-hint: [scope: file/dir/PR#/branch — default: working changes] [--deps-only] [--prompts-only]
-allowed-tools: Read, Glob, Grep, Bash
-estimated-cost:
-  min-tokens: 4000
-  max-tokens: 20000
-  model-distribution:
-    sonnet: 85%
-    haiku: 15%
+allowed-tools: Read, Agent, Glob, Grep, Bash
 ---
 
 # AI Security Scan
@@ -74,7 +68,7 @@ Resolve and print the scope, then probe scanners. Nothing AI-relevant in scope �
 
 ### Phase 2: Delegated Audit
 
-Use the Task tool with `subagent_type="ai-engineer:ai-security-auditor"`. Prompt:
+Use the Agent tool with `subagent_type="ai-engineer:ai-security-auditor"`. Prompt:
 
 "Read-only OWASP LLM Top 10 audit. Scope ({full | --deps-only | --prompts-only}): {file_list}. Changed binary/model artifacts: {artifact_list_or_none}. Scanners available: {list}; missing: {list} — for missing lenses fall back to manual pattern review and record the reduced depth. Run the available scanners over the scope, then your manual sweep, and verify every candidate in the surrounding code. Also check exposed model endpoints. Do not write or edit; include no working exploit payloads or jailbreak strings; report secrets as file:line + type + scanner, never the value. Return findings as `{file, line, llm_id, cwe, severity, why, fix, confidence}` plus the control checklist. If there are no material issues, say so."
 

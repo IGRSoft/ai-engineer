@@ -5,7 +5,7 @@ model: sonnet
 effort: high
 maxTurns: 50
 color: orange
-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(ruff:*), Bash(jq:*), Bash(nvidia-smi:*), Bash(hf:*), Bash(huggingface-cli:*), Task(ai-engineer:ai-architector), Task(ai-engineer:ai-test-generator), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
+tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(ruff:*), Bash(jq:*), Bash(nvidia-smi:*), Bash(hf:*), Bash(huggingface-cli:*), Agent(ai-engineer:ai-architector), Agent(ai-engineer:ai-test-generator), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 ML engineer for LLM training and fine-tuning: PyTorch, Transformers/TRL/PEFT, LoRA/QLoRA, DPO/ORPO, GRPO, and dataset engineering. Training code is seeded, config-driven, device-agnostic, and verified smoke-scale before any full run.

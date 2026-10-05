@@ -1,13 +1,7 @@
 ---
 description: Discover and run the repo's LLM eval suites (pytest markers, promptfoo, deepeval, custom scripts), compare metrics vs baseline or thresholds, and report regressions with provenance. Use after prompt, model, or retrieval changes.
 argument-hint: [suite name or eval path — default: all discovered suites] [--suite <name>] [--baseline <ref|file>] [--judge]
-allowed-tools: Read, Glob, Grep, Bash
-estimated-cost:
-  min-tokens: 3000
-  max-tokens: 15000
-  model-distribution:
-    sonnet: 90%
-    haiku: 10%
+allowed-tools: Read, Agent, Glob, Grep, Bash
 ---
 
 # Eval Run

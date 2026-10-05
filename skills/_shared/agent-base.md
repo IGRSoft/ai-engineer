@@ -51,7 +51,7 @@ Applies to DV output and DR fixes; DR and SR reviewers flag violations.
 | uv lockfiles, torch/CUDA compat, CVE scans, HF model pinning | `ai-engineer:ai-dependency-manager` |
 | Pure Python language depth (typing, concurrency, packaging) with no AI surface | `system-developer:python-developer` |
 | Claude Code meta-prompts (agents, commands, skills) | the orchestrator's meta-prompt engineer; ai-prompt-engineer owns product prompts only |
-| Model / effort choice, opus+xhigh override | `model-selection.md` (this folder) |
+| Model / effort choice, per-call `model` override | `model-selection.md` (this folder) |
 
 ## Standard Response Format
 

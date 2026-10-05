@@ -14,7 +14,7 @@ agents, commands, and skills.
 |------|-------------|
 | `agent-base.md` | Rules shared across ai-engineer agents (Python quality, uv, secrets, deterministic evals, smoke-scale training, pinning, single-command Bash, comments, routing); agents copy what they need |
 | `framework-detection.md` | AI-stack marker → domain → agent routing: detection priority order, dependency and file markers, mixed-stack tie-breaking, precedence vs sibling plugins, ambiguity rule |
-| `model-selection.md` | Per-agent model/effort/maxTurns assignments, cost tiers, house rules for `Task()` calls, opus+xhigh override paths |
+| `model-selection.md` | Per-agent model/effort/maxTurns assignments, cost tiers, house rules for Agent calls, per-call `model` override paths |
 
 ## Quality
 
@@ -30,5 +30,5 @@ agents, commands, and skills.
 - **Decide who owns a training-vs-serving (or app-vs-prompt) task** → `framework-detection.md § Mixed-Stack Tie-Breaking`
 - **Know when ai-engineer beats system-developer/apple-developer** → `framework-detection.md § Precedence vs Sibling Plugins`
 - **Pick model/effort for a delegation** → `model-selection.md`
-- **Escalate a review agent to opus+xhigh** → `model-selection.md § Applying an Override`
+- **Escalate a review agent to opus** → `model-selection.md § Applying an Override`
 - **Set severity/priority on a finding** → `severity-matrix.md`

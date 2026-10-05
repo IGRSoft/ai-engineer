@@ -1,13 +1,7 @@
 ---
 description: Serving readiness gate for vLLM/TGI/Ollama/Triton deploys — checklist audit of pins, quantization evals, KV-cache math, gateway controls, probes, rollback, monitoring, and lockfiles, returning GO / NO-GO / GO-WITH-RISKS with P0-P3 gaps.
 argument-hint: [scope: serving config dir/file — default: auto-detect] [--stack vllm|tgi|ollama|triton] [--quick]
-allowed-tools: Read, Glob, Grep, Bash
-estimated-cost:
-  min-tokens: 3000
-  max-tokens: 12000
-  model-distribution:
-    sonnet: 90%
-    haiku: 10%
+allowed-tools: Read, Agent, Glob, Grep, Bash
 ---
 
 # Serving Readiness Gate (Deploy Check)

@@ -1,14 +1,7 @@
 ---
 description: Detect the Python environment and manifest for an AI/ML project, sync dependencies, verify the package imports, and run the test suite. Use as the build gate for the `ai` platform in DV/DR/QA, or before handing work to review.
 argument-hint: [path (default .)] [--manager uv|pip|conda] [--clean] [--no-test] [-k EXPR]
-allowed-tools: Read, Glob, Grep, Bash(uv:*), Bash(python3:*), Bash(python:*), Bash(pytest:*), Bash(pip:*), Bash(conda:*), Bash(dvc:*), Bash(ls:*), Bash(mkdir:*), Bash(rm:*), Bash(date:*), Bash(command:*), Bash(tee:*), Bash(jq:*)
-estimated-cost:
-  min-tokens: 1500
-  max-tokens: 12000
-  model-distribution:
-    haiku: 40%
-    sonnet: 55%
-    opus: 5%
+allowed-tools: Read, Agent, Glob, Grep, Bash(uv:*), Bash(python3:*), Bash(python:*), Bash(pytest:*), Bash(pip:*), Bash(conda:*), Bash(dvc:*), Bash(ls:*), Bash(mkdir:*), Bash(rm:*), Bash(date:*), Bash(command:*), Bash(tee:*), Bash(jq:*)
 ---
 
 # Build & Test

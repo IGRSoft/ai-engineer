@@ -230,7 +230,7 @@ fi
 # 4. Command frontmatter: description, argument-hint, allowed-tools
 # ---------------------------------------------------------------------------
 
-TOOL_WHITELIST=" Read Write Edit Glob Grep Bash WebSearch WebFetch "
+TOOL_WHITELIST=" Read Write Edit Glob Grep Bash Agent WebSearch WebFetch "
 
 if [[ -d commands ]]; then
 	while IFS= read -r f; do
@@ -252,7 +252,7 @@ if [[ -d commands ]]; then
 				base="$(printf '%s' "${entry}" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s/\(.*$//')"
 				[[ -z "${base}" ]] && continue
 				if [[ "${TOOL_WHITELIST}" != *" ${base} "* ]]; then
-					err "${rel}" "allowed-tools entry '${base}' not in whitelist" "use only: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch"
+					err "${rel}" "allowed-tools entry '${base}' not in whitelist" "use only: Read, Write, Edit, Glob, Grep, Bash, Agent, WebSearch, WebFetch"
 				fi
 			done
 		fi

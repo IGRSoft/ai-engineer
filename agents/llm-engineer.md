@@ -5,7 +5,7 @@ model: sonnet
 effort: high
 maxTurns: 50
 color: green
-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(ruff:*), Bash(jq:*), Task(ai-engineer:ai-architector), Task(ai-engineer:ai-test-generator), Task(ai-engineer:ai-prompt-engineer), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
+tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(uv:*), Bash(python3:*), Bash(pytest:*), Bash(ruff:*), Bash(jq:*), Agent(ai-engineer:ai-architector), Agent(ai-engineer:ai-test-generator), Agent(ai-engineer:ai-prompt-engineer), Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 LLM application engineer: RAG pipelines, agent loops with tool use, structured outputs, and provider SDK integration, in typed, ruff-clean Python.

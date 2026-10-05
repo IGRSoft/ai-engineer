@@ -1,13 +1,7 @@
 ---
 description: Read-only dataset quality audit for fine-tuning and eval sets — schema, dedup, train/test contamination, PII/secret scan, license/provenance, distribution stats into a P0-P3 report. Use before a training run or when eval scores look too good.
 argument-hint: [dataset path(s) (default: auto-discover)] [--sample N (default 5000)] [--eval-set PATH]
-allowed-tools: Read, Glob, Grep, Bash
-estimated-cost:
-  min-tokens: 4000
-  max-tokens: 16000
-  model-distribution:
-    sonnet: 85%
-    haiku: 15%
+allowed-tools: Read, Agent, Glob, Grep, Bash
 ---
 
 # Data Audit

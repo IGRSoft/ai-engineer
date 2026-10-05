@@ -1,13 +1,7 @@
 ---
 description: Read-only fine-tuning feasibility plan — ai-architector renders the prompt-vs-RAG-vs-finetune verdict, then data requirements, LoRA/QLoRA/DPO method choice, GPU memory math, eval gates, and a smoke-then-full launch plan. Never starts training.
 argument-hint: [task: what the tuned model should do] [--data <path>] [--base <model-id>] [--target-gpu "<name / VRAM>"]
-allowed-tools: Read, Glob, Grep, Bash
-estimated-cost:
-  min-tokens: 4000
-  max-tokens: 18000
-  model-distribution:
-    opus: 40%
-    sonnet: 60%
+allowed-tools: Read, Agent, Glob, Grep, Bash
 ---
 
 # Fine-Tuning Feasibility Plan

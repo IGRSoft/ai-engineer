@@ -17,10 +17,10 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 ## What's in 1.1.0
 
 - **11 agents** — an `ai-engineer` router, four domain implementers (`llm-engineer`, `ml-engineer`, `mlops-engineer`, `ai-prompt-engineer`), `ai-architector` (AR consultant), and five Tier-2 specialists (`ai-test-generator`, `ai-security-auditor`, `ai-performance-engineer`, `ai-code-fixer`, `ai-dependency-manager`). Shared agent rules are documented in `skills/_shared/agent-base.md`; each agent carries the ones it needs.
-- **9 commands** — AI-aware code review, eval running, eval-driven prompt optimization, RAG auditing, fine-tune planning, dataset auditing, serving readiness gating, an OWASP LLM Top 10 sweep, and the `build-test` platform build gate, each with restrictive `allowed-tools` and an `estimated-cost` band.
+- **9 commands** — AI-aware code review, eval running, eval-driven prompt optimization, RAG auditing, fine-tune planning, dataset auditing, serving readiness gating, an OWASP LLM Top 10 sweep, and the `build-test` platform build gate, each with restrictive `allowed-tools`.
 - **Complete skills tree** — 24 `SKILL.md` across 5 domains (`prompt-engineering`, `llm-apps`, `finetuning`, `mlops`, `evals`) plus `_shared`, with deep reference files. **Mechanisms over snapshots** is the product: volatile facts (model IDs, prices, context-window sizes, library minor versions) are never hardcoded — skills name the lever and say "verify against current provider docs (context7)". Every quality claim is backed by an eval; everything degrades gracefully without CUDA.
 - **Plugin-scoped advisory hooks** — `audit-tooluse`, `audit-subagent`, `precompact-checkpoint`, wired in `plugin.json` with corpflow-compatible dedupe keys. Advisory only: never merges `state.json` (orchestrator-owned). See [`hooks/README.md`](hooks/README.md).
-- **CC capabilities adopted** — tiered `maxTurns` runaway-loop backstops, `disallowed-tools: Write, Edit` on the two review-only auditors, fully-qualified `Task(ai-engineer:<agent>)` delegations, scoped `Bash(cmd:*)` allowlists per toolchain, and the context7 MCP pair for library-docs lookups.
+- **CC capabilities adopted** — tiered `maxTurns` runaway-loop backstops, Write/Edit-free `tools` lists on the two review-only auditors, fully-qualified `Agent(ai-engineer:<agent>)` delegations, scoped `Bash(cmd:*)` allowlists per toolchain, and the context7 MCP pair for library-docs lookups.
 
 ## Agents (11)
 
@@ -33,12 +33,12 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 | `ai-prompt-engineer` | sonnet / high | Product prompt engineering — the prompts shipped *inside* your LLM product — with eval-driven optimization. (Claude Code meta-prompts belong to the orchestrator's meta-prompt engineer.) |
 | `ai-architector` | opus / xhigh | AI system architecture: prompt-vs-RAG-vs-fine-tune-vs-hybrid decisions, agent topology, serving stack, build-vs-buy, cost/latency modeling. AR-stage consultant. |
 | `ai-test-generator` | sonnet / high | pytest suites plus LLM eval harnesses — golden sets, LLM-judge scoring, regression gates — with pinned eval sets and deterministic settings. |
-| `ai-security-auditor` | sonnet / high (review-only) | OWASP LLM Top 10 audit: prompt injection, insecure output handling, model supply chain (pickle vs safetensors, unpinned revisions), secret/PII leakage, ungated agency. `disallowed-tools: Write, Edit`. |
-| `ai-performance-engineer` | sonnet / high (review-only) | Inference performance and cost review: TTFT/latency, throughput/batching, KV-cache and context budgets, quantization, GPU utilization, token spend. `disallowed-tools: Write, Edit`. |
+| `ai-security-auditor` | sonnet / high (review-only) | OWASP LLM Top 10 audit: prompt injection, insecure output handling, model supply chain (pickle vs safetensors, unpinned revisions), secret/PII leakage, ungated agency. No Write/Edit in `tools`. |
+| `ai-performance-engineer` | sonnet / high (review-only) | Inference performance and cost review: TTFT/latency, throughput/batching, KV-cache and context budgets, quantization, GPU utilization, token spend. No Write/Edit in `tools`. |
 | `ai-code-fixer` | haiku / medium | Minimal-diff remediation for findings from review, `ai-security-auditor`, `ai-performance-engineer`, and DR/QA gate blockers. |
 | `ai-dependency-manager` | haiku / low | uv lockfiles, torch/CUDA compatibility triage, pip-audit/osv-scanner CVE reports, HF model revision pinning, model/dataset license inventory. |
 
-> `ai-security-auditor` and `ai-performance-engineer` are review-only by default; callers may override to `opus` + `xhigh` for the hardest analyses (`xhigh` is honored only on Opus 4.8 or Fable 5 — the model must be raised with the effort). Fixes always route to `ai-code-fixer`.
+> `ai-security-auditor` and `ai-performance-engineer` are review-only by default; callers may override the model to `opus` for the hardest analyses (effort stays at the agent's frontmatter `effort:`). Fixes always route to `ai-code-fixer`.
 
 ## Commands (9)
 
@@ -84,7 +84,7 @@ skills/
 | Skill | Description |
 |-------|-------------|
 | `framework-detection` | AI-stack marker → domain → agent routing: detection priority, dependency/file markers, mixed-stack tie-breaks, sibling-plugin precedence. |
-| `model-selection` | Per-agent model/effort/maxTurns assignments, cost tiers, and opus+xhigh override paths. |
+| `model-selection` | Per-agent model/effort/maxTurns assignments, cost tiers, and per-call `model` override paths. |
 | `severity-matrix` | P0-P3 review priorities with AI examples, effort/impact quadrant, coverage requirements. |
 
 ### Prompt Engineering
@@ -136,7 +136,7 @@ skills/
 
 ## Model & Effort
 
-`maxTurns` is a runaway-loop backstop. Only `ai-architector` runs `opus`/`xhigh` by default; the domain implementers and review/test agents run `sonnet`/`high` with a documented per-invocation `opus`+`xhigh` override path (see `skills/_shared/model-selection.md`).
+`maxTurns` is a runaway-loop backstop. Only `ai-architector` runs `opus`/`xhigh` by default; the domain implementers and review/test agents run `sonnet`/`high` with a documented per-invocation `opus` model override path (see `skills/_shared/model-selection.md`).
 
 | Agent | Model | Effort | maxTurns |
 |-------|-------|--------|----------|
@@ -188,9 +188,9 @@ After editing `settings.json`, run `/plugins` (or restart the session) to load t
 
 1. `/plugin marketplace add /path/to/ai-engineer`, then install `ai-engineer` and reload the session.
 2. Verify the command surface resolves: `/ai-engineer:review-code` appears in the slash-command list and runs against working changes.
-3. Verify agent resolution: a `Task` call with `subagent_type: "ai-engineer:ai-engineer"` dispatches the router (which can further delegate to `ai-engineer:llm-engineer` etc.).
+3. Verify agent resolution: an Agent tool call with `subagent_type: "ai-engineer:ai-engineer"` dispatches the router (which can further delegate to `ai-engineer:llm-engineer` etc.).
 
-Standalone installation gives you the slash commands, the skills, and direct `Task(ai-engineer:*)` delegation. **corpflow auto-routing** (the the orchestrator's platform router DV stage detecting AI stacks and dispatching ai-engineer specialists, plus `--platform ai` on `/worktask`) additionally requires the companion edits to the corpflow plugin documented in [`docs/corpflow-registration.md`](docs/corpflow-registration.md) — applied via a corpflow PR, not from this repo.
+Standalone installation gives you the slash commands, the skills, and direct `Agent(ai-engineer:*)` delegation. **corpflow auto-routing** (the the orchestrator's platform router DV stage detecting AI stacks and dispatching ai-engineer specialists, plus `--platform ai` on `/worktask`) additionally requires the companion edits to the corpflow plugin documented in [`docs/corpflow-registration.md`](docs/corpflow-registration.md) — applied via a corpflow PR, not from this repo.
 
 ## corpflow Integration
 

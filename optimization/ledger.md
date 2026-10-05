@@ -76,7 +76,7 @@ Answered 2026-10-05. Each group runs as one Opus task in this order, one commit 
 | group | status | commit |
 |---|---|---|
 | G1 Agent infrastructure | done | `chore(optimization): Apply G1 agent infrastructure decisions` |
-| G2 Tool names & frontmatter | todo | |
+| G2 Tool names & frontmatter | done | `chore(optimization): Apply G2 tool name and frontmatter decisions` |
 | G3 Lint & shared docs | todo | |
 | G4 Corpflow seam | todo | |
 | G5 Security IDs & exit codes | todo | |

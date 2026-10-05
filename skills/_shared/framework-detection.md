@@ -66,4 +66,4 @@ When tiers conflict, or an AI-shaped task matches no marker, ask one clarifying 
 
 ## Related References
 
-- `skills/_shared/model-selection.md` — model/effort to pass with the routed `Task()` call
+- `skills/_shared/model-selection.md` — model to pass with the routed Agent call

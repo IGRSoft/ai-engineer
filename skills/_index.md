@@ -21,7 +21,7 @@ shared references. Routing entry point: [`SKILL.md`](SKILL.md).
 | Skill | Path | Description |
 |-------|------|-------------|
 | framework-detection | [`_shared/framework-detection.md`](_shared/framework-detection.md) | AI-stack marker → domain → agent routing table: detection priority, dependency/file markers, mixed-stack tie-breaks, sibling-plugin precedence |
-| model-selection | [`_shared/model-selection.md`](_shared/model-selection.md) | Per-agent model/effort/maxTurns assignments, cost tiers, and opus+xhigh override paths |
+| model-selection | [`_shared/model-selection.md`](_shared/model-selection.md) | Per-agent model/effort/maxTurns assignments, cost tiers, and per-call `model` override paths |
 | severity-matrix | [`_shared/severity-matrix.md`](_shared/severity-matrix.md) | Severity levels, P0-P3 review priorities with AI examples, effort/impact quadrant, coverage requirements |
 
 ### prompt-engineering
