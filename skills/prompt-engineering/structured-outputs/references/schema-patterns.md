@@ -182,7 +182,7 @@ def parse_or_repair[M: BaseModel](
         return result
 ```
 
-`repair_call` re-invokes the provider with the original messages plus the error feedback, at temperature 0. Export `ExtractionMetrics` to your tracker (`skills/mlops/model-monitoring`); gate releases on the repair rate (`skills/evals/regression-gates`). Never call `eval`/`exec`/`ast.literal_eval` anywhere in this path.
+`repair_call` re-invokes the provider with the original messages plus the error feedback, using deterministic settings (temperature 0 where the model accepts sampling parameters). Export `ExtractionMetrics` to your tracker (`skills/mlops/model-monitoring`); gate releases on the repair rate (`skills/evals/regression-gates`). Don't call `eval`/`exec`/`ast.literal_eval` anywhere in this path.
 
 ## 5. Streaming Accumulator (NDJSON Item Boundaries)
 
@@ -223,7 +223,7 @@ class NdjsonAccumulator[M: BaseModel]:
             return None
 ```
 
-Policy at stream end: if `errors` is non-empty, fail closed or route the failed lines to the repair loop — never silently drop them. Only *validated* items may trigger actions; a line still in `_buf` is display-only ([../SKILL.md](../SKILL.md) § Streaming Partial JSON). The same accumulator shape works for streamed tool-call argument deltas: buffer, then validate the assembled arguments.
+Policy at stream end: if `errors` is non-empty, fail closed or route the failed lines to the repair loop; don't silently drop them. Only *validated* items may trigger actions; a line still in `_buf` is display-only ([../SKILL.md](../SKILL.md) § Streaming Partial JSON). The same accumulator shape works for streamed tool-call argument deltas: buffer, then validate the assembled arguments.
 
 ## Pattern Selection
 
@@ -232,5 +232,5 @@ Policy at stream end: if `errors` is non-empty, fail closed or route the failed 
 | Auditable single-record extraction | 1 (evidence spans) + 4 |
 | Routing/triage with a safe "don't know" | 2 (confidence + abstain) |
 | Many records from one document | 3 (batched envelope) + 4; stream via 5 when long |
-| Any prompted-JSON mode in production | 4 is mandatory, not optional |
+| Any prompted-JSON mode in production | 4 (required) |
 | Live UI over a long extraction | 5, actions on validated items only |

@@ -1,22 +1,13 @@
 # Tool Design (deep dive)
 
-Use this when:
+For writing or reviewing tool schemas, wrong-tool or malformed-argument
+problems, idempotency/dry-run/approval on write actions, and testing or
+versioning a tool set. The loop around the tools is in
+[../SKILL.md](../SKILL.md); one-shot extraction schemas are in
+`skills/prompt-engineering/structured-outputs`.
 
-- Writing or reviewing tool schemas for an agent loop
-- The model picks the wrong tool, malformed arguments keep arriving, or one
-  "do everything" tool has grown modes
-- Adding idempotency, dry-run previews, or approval gates to write actions
-- Setting up tests for tools, or versioning a tool set that agents depend on
-
-Skip this file if:
-
-- You are designing the loop around the tools — use [../SKILL.md](../SKILL.md)
-- The output-schema problem is a one-shot extraction, not a tool — use
-  `skills/prompt-engineering/structured-outputs`
-
-The model never sees your implementation — only the name, description, and
-schema. Those three strings *are* the API contract, and they are prompt text:
-every improvement to them is a prompt improvement.
+The model sees only the name, description, and schema. Those three strings are
+the API contract, and they are prompt text.
 
 ## Schema Quality Checklist
 
@@ -131,7 +122,7 @@ survive both.
 ## Dangerous-Action Gating
 
 Treat the model as an untrusted caller — the tool boundary is a trust
-boundary (excessive agency / insecure output handling, OWASP LLM Top 10;
+boundary (excessive agency / improper output handling, OWASP LLM Top 10;
 review with `ai-engineer:ai-security-auditor`):
 
 - **Capability tiers:** classify every tool `read` / `write` / `irreversible`;

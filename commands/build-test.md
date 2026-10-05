@@ -1,183 +1,145 @@
 ---
 description: Detect the Python environment and manifest for an AI/ML project, sync dependencies, verify the package imports, and run the test suite. Use as the build gate for the `ai` platform in DV/DR/QA, or before handing work to review.
 argument-hint: [path (default .)] [--manager uv|pip|conda] [--clean] [--no-test] [-k EXPR]
-allowed-tools: Read, Glob, Grep, Bash(uv:*), Bash(python3:*), Bash(python:*), Bash(pytest:*), Bash(pip:*), Bash(conda:*), Bash(dvc:*), Bash(ls:*), Bash(mkdir:*), Bash(rm:*), Bash(date:*), Bash(command:*), Bash(tee:*), Bash(jq:*)
-estimated-cost:
-  min-tokens: 1500
-  max-tokens: 12000
-  model-distribution:
-    haiku: 40%
-    sonnet: 55%
-    opus: 5%
+allowed-tools: Read, Agent, Glob, Grep, Bash(uv:*), Bash(python3:*), Bash(python:*), Bash(pytest:*), Bash(pip:*), Bash(conda:*), Bash(dvc:*), Bash(ls:*), Bash(mkdir:*), Bash(rm:*), Bash(date:*), Bash(command:*), Bash(tail:*), Bash(jq:*)
 ---
 
 # Build & Test
-<!-- Updated: July 2026 -->
 
-Detect an AI/ML project's Python environment, sync its dependencies, verify it imports, and run its tests in one call. The happy path is pure Bash — no agent delegation. Agents are engaged only when a phase fails, and only the domain agent that owns the failing surface, with a tight log excerpt.
+Detect an AI/ML project's Python environment, sync its dependencies, verify it imports, and run its tests. The happy path is shell-only; an agent is engaged only when a phase fails, and then only the domain agent that owns the failure, with a short log excerpt.
 
-[Extended thinking: This is the `ai` platform's build gate — `the orchestrator's platform router § Build Verification` routes here, and DR calls it with `--no-test` as its compile-only check. AI/ML projects have no compile step, so "build" here means *the environment resolves and the package imports*: a dependency-resolution failure and an import failure are different bugs with different owners, and both are invisible to a test-only run. Because raw install and pytest logs are the largest avoidable context cost in the pipeline, everything tees to a log and only a classified excerpt is ever handed to an agent. Where a project's real build is a data pipeline or an eval, say so and route there rather than inventing a compile phase that does not exist.]
+AI/ML projects have no compile step, so "build" means the environment resolves and the package imports. Those are separate failures with separate owners, and a test-only run hides both. This is also the DR compile-only gate (`--no-test`).
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
-You MUST follow these rules exactly. Violating any of them is a failure.
-
-1. **Resolve exactly one environment manager.** Walk the detection priority order top-down and stop at the first match. Do NOT run two managers in one invocation. `--manager` overrides detection.
-2. **Happy path is shell-only.** When sync, import check, and tests all succeed, do NOT delegate to any agent. Report and stop.
-3. **Single-command Bash invocations.** Use each tool's own directory flags (`uv sync --project <path>`, `uv run --project <path> pytest`, `pip install -r <path>/requirements.txt`, `pytest --rootdir <path>`). Never `cd`-chain or `&&`-chain — the scoped Bash patterns in this command's `allowed-tools` do not match compound commands.
-4. **Tee every phase to the log.** Each phase pipes through `tee -a` to `.context/logs/build-<timestamp>.log`. The log is the single source of truth for triage; never rely on scrollback.
-5. **There is no compile step — do not invent one.** "Build" is sync + import. If a project's real build artifact is a pipeline or an eval, report that and point at the right command (see § Pipeline and Eval Projects) rather than reporting a fabricated build phase.
-6. **On failure, classify before delegating.** Parse the first error, classify it as `env` / `import` / `test`, then delegate ONLY to the matching domain agent with the excerpt — never the whole log, never a second agent "just in case."
-7. **Tool-missing never hard-fails.** If a manager's binary is absent, print the install hint, skip that manager, and continue down the priority order. Report what was skipped.
-8. **Never launch training or a full eval sweep.** This command builds and tests. Smoke-scale only; a `pytest` marker that triggers a training run or a paid eval sweep must be deselected (see § Test Phase).
-9. **Never enter plan mode.** This command IS the procedure — execute it.
+1. **One environment manager.** Take the first match in the detection table (or `--manager`); don't run two managers in one invocation.
+2. **No delegation on success.** When sync, import, and tests pass, report and stop.
+3. **Single-command Bash.** Use each tool's directory flag (`uv sync --project <path>`, `uv run --project <path> pytest`, `pytest --rootdir <path>`) instead of `cd` or `&&` chains, which the scoped `allowed-tools` patterns don't match.
+4. **Log every phase**: append with `>> <log> 2>&1`, not a `tee` pipe, so the Bash exit code is the tool's own; then `tail` the log. Triage reads the log, not scrollback.
+5. **Don't invent a compile step.** If the real build is a pipeline or eval, report that and route per § Pipeline and Eval Projects.
+6. **Classify before delegating.** Pass one domain agent the classified excerpt — never the whole log, never a second agent.
+7. **A missing tool never hard-fails.** Print the install hint, skip that manager, continue down the priority order, and report the skip.
+8. **No training runs or full eval sweeps.** Smoke-scale only; deselect markers that launch training or paid evals (Phase 4).
+9. Execute directly; don't enter plan mode.
 
 ## Usage
 
 ```bash
-# Detect, sync, import-check, and test the current directory
-/ai-engineer:build-test .
-
-# Build a specific subproject
-/ai-engineer:build-test services/rag
-
-# Compile-only gate (what corpflow's DR stage calls)
-/ai-engineer:build-test . --no-test
-
-# Force pip on a repo that also carries a uv.lock, fresh env
-/ai-engineer:build-test . --manager pip --clean
-
-# Scope the suite to the touched surface
-/ai-engineer:build-test . -k retriever
+/ai-engineer:build-test .                          # detect, sync, import-check, test
+/ai-engineer:build-test services/rag               # a subproject
+/ai-engineer:build-test . --no-test                # compile-only gate (DR)
+/ai-engineer:build-test . --manager pip --clean    # force pip, fresh env
+/ai-engineer:build-test . -k retriever             # scope the suite
 ```
 
 ## Options
 
 | Option | Default | Effect |
 |--------|---------|--------|
-| `path` | `.` | Directory to detect and operate on. The detection scan is rooted here. |
-| `--manager uv\|pip\|conda` | auto | Force the environment manager when detection is ambiguous (e.g. a repo carrying both `uv.lock` and `environment.yml`). |
-| `--clean` | off | Recreate the environment before syncing: `uv sync --reinstall`, a fresh venv for pip, or `conda env create --force`. Slower; use when a stale env is suspected. |
-| `--no-test` | off | Sync and import-check only; skip the test phase. **This is the DR compile-only gate** — the orchestrator's platform router depends on this flag existing. |
-| `-k EXPR` | none | Pass a pytest `-k` selection expression through to the test phase. Use for scoped re-runs; never as a blanket skip. |
+| `path` | `.` | Directory to detect and operate on. |
+| `--manager uv\|pip\|conda` | auto | Force the manager when detection is ambiguous (e.g. both `uv.lock` and `environment.yml`). |
+| `--clean` | off | Recreate the environment before syncing: `uv sync --reinstall`, a fresh venv for pip, or `conda env create --force`. |
+| `--no-test` | off | Sync and import-check only. The DR compile-only gate; callers depend on this flag. |
+| `-k EXPR` | none | Passed to pytest `-k` for scoped re-runs; not a blanket skip. |
 
 ## Detection: Environment Priority
 
-Scan `path` and apply the **first** match top-down. Manifest markers only — never stray imports.
+Scan `path` for manifest markers (not stray imports); the first match wins.
 
 | Priority | Marker | Manager | Sync command |
 |----------|--------|---------|--------------|
 | 1 | `uv.lock` | uv (locked) | `uv sync --project <path>` |
 | 2 | `pyproject.toml` with `[project]` or `[tool.uv]`, no lock | uv (unlocked) | `uv sync --project <path>` |
-| 3 | `pyproject.toml` with `[tool.poetry]` only | pip (PEP 517 fallback) | `pip install -e <path>` |
+| 3 | `pyproject.toml` with `[tool.poetry]` only | pip (PEP 517) | `pip install -e <path>` |
 | 4 | `requirements*.txt` | pip | `pip install -r <path>/requirements.txt` |
-| 5 | `environment.yml` / `environment.yaml` | conda | `conda env update -f <path>/environment.yml` |
-| 6 | `setup.py` with none of the above | pip (legacy) | `pip install -e <path>` |
+| 5 | `environment.yml` / `.yaml` | conda | `conda env update -f <path>/environment.yml` |
+| 6 | `setup.py` only | pip (legacy) | `pip install -e <path>` |
 
-**Tie-break notes:**
-
-- `uv.lock` beats every other marker: a lockfile is the project's declared resolution, and ignoring it produces a build that does not match CI.
-- A repo with both `pyproject.toml` and `requirements*.txt` uses the `pyproject.toml` path; `requirements*.txt` in that case is usually a deploy pin, not the dev env. Mention it in the summary.
-- **Poetry and conda are detected, not mastered.** This plugin's own tooling standard is uv (`skills/_shared` house rule). On a Poetry or conda project, run the sync and report faithfully, but say in the summary that the plugin's guidance assumes uv — do not rewrite the project's manifest as a "fix."
-- No Python manifest at all → see § Pipeline and Eval Projects before reporting a failure.
+- `uv.lock` wins because it is the project's declared resolution; ignoring it builds something CI doesn't.
+- With both `pyproject.toml` and `requirements*.txt`, use `pyproject.toml` (the requirements file is usually a deploy pin) and mention it.
+- Poetry and conda are run faithfully but not mastered: say in the summary that this plugin's guidance assumes uv, and don't rewrite the manifest as a "fix".
+- No manifest → check § Pipeline and Eval Projects before reporting failure.
 
 ## Pipeline and Eval Projects
 
-Some AI/ML repos have no importable package — their real build is a data pipeline or an eval harness. Detect and route rather than reporting a spurious build failure:
+Some repos have no importable package. Route them instead of reporting a spurious failure:
 
-| Marker | What the "build" actually is | Route to |
-|--------|------------------------------|----------|
-| `dvc.yaml` and no importable package | Pipeline reproduction (`dvc repro`) | Report the pipeline stages found; suggest `/ai-engineer:deploy-check` for serving readiness. Do NOT run `dvc repro` here — it can be arbitrarily expensive. |
-| `evals/`, `promptfooconfig.yaml`, deepeval config, and no test suite | An eval run, not a unit-test suite | `/ai-engineer:eval-run` — say so and stop; this command does not run eval suites. |
-| Notebooks only (`*.ipynb`, no package, no tests) | Nothing buildable | Report "no buildable surface"; suggest extracting testable modules. |
+| Marker | Real "build" | Action |
+|--------|--------------|--------|
+| `dvc.yaml`, no importable package | `dvc repro` | Report the stages found; suggest `/ai-engineer:deploy-check`. Don't run `dvc repro` — it can be arbitrarily expensive. |
+| `evals/`, `promptfooconfig.yaml`, or deepeval config, no test suite | An eval run | Point to `/ai-engineer:eval-run` and stop. |
+| Notebooks only | Nothing buildable | Report "no buildable surface"; suggest extracting testable modules. |
 
-When a project has *both* an importable package and one of these, build and test the package normally and note the pipeline/eval surface in the summary.
+If there is also an importable package, build and test it normally and note the other surface in the summary.
 
 ## Workflow
 
-### Phase 1: Detect (Bash)
+### Phase 1: Detect
 
-1. Confirm `path` exists. If not, emit the Error Handling "path not found" message and stop.
-2. Create `.context/logs/` if absent. Compute `TS="$(date +%Y%m%d-%H%M%S)"` and `LOG=".context/logs/build-${TS}.log"`.
-3. Walk the detection priority table top-down; record the first matching marker and manager. `--manager` overrides. If nothing matches, check § Pipeline and Eval Projects before emitting "no recognized Python project".
-4. Read the dependency manifest and pre-resolve the **owning domain agent** from the marker table in `skill: framework-detection` (used only if a later phase fails). Do not fork that table — read it.
-5. Verify the manager's binary exists (`command -v uv` / `pip` / `conda`). If missing, print the install hint (§ Tool Availability), skip to the next eligible manager, and note the skip.
+1. Confirm `path` exists, else Error Handling.
+2. Create `.context/logs/` and fix the log path once: `.context/logs/build-<date +%Y%m%d-%H%M%S>.log`. Shell variables don't persist between Bash calls, so use the literal path in every later command.
+3. Pick the manager from the detection table (`--manager` overrides); if nothing matches, check § Pipeline and Eval Projects.
+4. Note the owning surface (LLM app / training / serving / mixed) from the manifest's dependencies per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/framework-detection.md`; used for the report and for triage.
+5. Check the manager's binary with `command -v`; if absent, apply rule 7.
 
-### Phase 2: Sync (Bash)
+### Phase 2: Sync
 
-1. If `--clean`: recreate the environment first (`uv sync --reinstall --project <path>`, a fresh venv for pip, `conda env create --force`).
-2. Run the sync command from the detection table, teeing to the log:
+1. With `--clean`, recreate the environment first.
+2. Run the sync command, e.g. `uv sync --project <path> >> <log> 2>&1`.
+3. Non-zero exit → Failure Triage, stage `env`.
+
+### Phase 3: Import Check
+
+The `--no-test` gate's substance: a package that syncs but doesn't import otherwise shows up as a confusing collection error.
+
+1. Resolve top-level package names from `pyproject.toml` (`[project].name`, setuptools/hatch package config) or the `src/` layout.
+2. Import them without running entry points:
    ```bash
-   uv sync --project "$path" 2>&1 | tee -a "$LOG"
+   uv run --project <path> python -c "import importlib,sys; [importlib.import_module(m) for m in sys.argv[1:]]" <pkg> >> <log> 2>&1
    ```
-3. Capture the exit status (`${PIPESTATUS[0]}`, not `tee`'s). On non-zero, go to Failure Triage with stage `env`.
+3. Non-zero → Failure Triage, stage `import`. No importable package → skip and record why.
 
-### Phase 3: Import Check (Bash)
+### Phase 4: Test
 
-This is the closest analog to a compile step and the substance of the `--no-test` gate — a package that syncs but does not import is broken, and a test-only run reports that as a confusing collection error.
-
-1. Resolve the top-level package name(s) from `pyproject.toml` (`[project].name`, `[tool.setuptools]`/`[tool.hatch]` package config) or the `src/` layout.
-2. Import each without executing entry points, teeing to the log:
+1. With `--no-test`, skip and record "tests skipped (--no-test)"; green phases 2-3 are a PASS.
+2. Run pytest, deselecting training and paid-eval markers unless the user asked for them, and passing `-k` through:
    ```bash
-   uv run --project "$path" python -c "import importlib,sys; [importlib.import_module(m) for m in sys.argv[1:]]" <pkg> 2>&1 | tee -a "$LOG"
+   uv run --project <path> pytest -x -q -m "not slow and not training and not eval_paid" >> <log> 2>&1
    ```
-3. On non-zero, go to Failure Triage with stage `import`.
-4. If no importable package exists (pipeline/eval/notebook repo), skip this phase and record why — see § Pipeline and Eval Projects.
+   On pip/conda projects run `pytest --rootdir <path>` directly.
+3. Exit code 5 (no tests collected) is not a failure: build PASS, test N/A. Any other non-zero → Failure Triage, stage `test`.
 
-### Phase 4: Test (Bash)
+### Phase 5: Report
 
-1. If `--no-test`: skip; record "tests skipped (--no-test)" and go to Phase 5. This is the DR gate's terminal state and counts as PASS when phases 2-3 are green.
-2. Run pytest, teeing to the log. Deselect training and paid-eval markers per rule 8 unless the user asked for them:
-   ```bash
-   uv run --project "$path" pytest -x -q -m "not slow and not training and not eval_paid" 2>&1 | tee -a "$LOG"
-   ```
-   Pass `-k EXPR` through when supplied. On pip/conda projects use `pytest --rootdir "$path"` directly.
-3. Capture `${PIPESTATUS[0]}`. Exit code 5 (`no tests collected`) is **not** a failure — report "no tests found" and treat the run as PASS for build, N/A for test.
-4. On any other non-zero, go to Failure Triage with stage `test`.
-
-### Phase 5: Report (Bash)
-
-Emit the Output Format summary. On full success, stop — no delegation.
+Emit the Output Format report. On success, stop.
 
 ## Failure Triage
 
-Triggered only when a phase exits non-zero.
+1. Take the first error in the log and classify it:
 
-1. **Parse the first error** from the log, top-down.
-2. **Classify the stage:**
+   | Symptom | Stage |
+   |---------|-------|
+   | `No solution found`, `ResolutionImpossible`, `Could not find a version`, torch/CUDA wheel-platform conflict, `UnsatisfiableError`, network/index failure | `env` |
+   | `ModuleNotFoundError`, `ImportError`, import-time `AttributeError`, `error while loading shared libraries`, pytest `ERROR` during collection | `import` |
+   | pytest `FAILED`, assertion failures, a failing eval-gate assertion | `test` |
 
-   | Symptom in log | Stage |
-   |----------------|-------|
-   | `No solution found`, `ResolutionImpossible`, `Could not find a version`, CUDA/torch wheel-platform conflict, `UnsatisfiableError` (conda), network/index failure | `env` |
-   | `ModuleNotFoundError`, `ImportError`, `AttributeError` at import time, `error while loading shared libraries`, pytest `ERROR` during **collection** | `import` |
-   | pytest `FAILED`, assertion/expectation failures, a failing eval-gate assertion, nonzero pytest exit other than 5 | `test` |
+2. Extract the first error plus ~10 lines of context, and include the log path.
+3. Delegate with the Agent tool to the owning surface's agent: LLM app → `ai-engineer:llm-engineer`; training (including torch/CUDA wheel conflicts) → `ai-engineer:ml-engineer`; serving/MLOps → `ai-engineer:mlops-engineer`; ambiguous or mixed → `ai-engineer:ai-engineer` with the detected markers. Prompt:
 
-3. **Extract a tight excerpt** — the first error plus ~10 lines of surrounding context, not the whole log. Include `$LOG` so the agent can read more.
-4. **Delegate to the domain agent** resolved in Phase 1 from `skill: framework-detection`:
+   "`build-test` failed at the **{stage}** stage for the AI project at `{path}` (manager: {manager}). First error and context from `{log}`:\n```\n{excerpt}\n```\nDiagnose the root cause and propose the minimal fix. If the fix touches dependency pins or the lockfile, say so explicitly. Do not re-run the suite; return the analysis and patch."
 
-   - LLM-app surface (`anthropic`, `openai`, `langchain`, `llama-index`, `litellm`, `instructor`):
-     **Use Task tool with subagent_type="ai-engineer:llm-engineer"**
-     Prompt: "`build-test` failed at the **{stage}** stage for the AI project at `{path}` (manager: {manager}). First error and context from `{LOG}`:\n```\n{excerpt}\n```\nDiagnose the root cause and propose the minimal fix. If the fix touches dependency pins or the lockfile, say so explicitly. Do not re-run the suite; return the analysis and patch."
-   - Training/fine-tuning surface (`torch`, `transformers`, `peft`, `trl`, `accelerate`, `bitsandbytes`, `datasets`) → **subagent_type="ai-engineer:ml-engineer"** (same prompt shape). Torch/CUDA wheel conflicts at stage `env` belong here.
-   - Serving/MLOps surface (`vllm`, `mlflow`, `wandb`, `dvc`, `bentoml`, `kserve`) → **subagent_type="ai-engineer:mlops-engineer"** (same prompt shape).
-   - Ambiguous or multi-surface → **subagent_type="ai-engineer:ai-engineer"** (router) with the excerpt and the detected markers.
-
-5. After the agent returns a fix, re-run from the failing phase (re-sync if the fix touched the manifest, otherwise re-import/re-test). Do NOT iterate silently — report each cycle.
+4. After a fix, re-run from the failing phase (re-sync if the manifest changed). Report each cycle.
 
 ## Tool Availability
 
-Confirm the manager's binary before running it. If missing, print the hint, skip that manager, continue down the priority list, and note the skip.
-
 | Missing tool | Install hint |
 |--------------|--------------|
-| `uv` | `curl -LsSf https://astral.sh/uv/install.sh \| sh` (verify against your toolchain) |
-| `pip` | ships with CPython — `python3 -m ensurepip --upgrade` |
-| `conda` | install Miniforge/Miniconda for your platform |
+| `uv` | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| `pip` | `python3 -m ensurepip --upgrade` |
+| `conda` | install Miniforge/Miniconda |
 | `pytest` | `uv add --dev pytest`, or `pip install pytest` |
 
-GPU-optional discipline applies: absent `nvidia-smi` is never a build failure. Tests requiring CUDA should be marker-skipped by the project; if they hard-fail on a CPU host, report that as a project defect, not a build failure.
-
-Never hard-fail on a missing tool — skip and report.
+A missing `nvidia-smi` is never a build failure. CUDA-only tests that hard-fail on a CPU host are a project defect (they should be marker-skipped), not a build failure.
 
 ## Output Format
 
@@ -215,36 +177,17 @@ Never hard-fail on a missing tool — skip and report.
 
 ## Error Handling
 
-### Path not found
-```
-Error: Path not found: {path}
-Suggestion: Pass a directory that exists, e.g. /ai-engineer:build-test .
-```
-
-### No recognized Python project
-```
-Error: No Python environment detected under {path}.
-Looked for: uv.lock, pyproject.toml, requirements*.txt, environment.yml, setup.py.
-Suggestion: Run from the directory holding the manifest. If this is a pipeline or
-eval-only repo, see the Other Surfaces note above.
-```
-
-### No tests found
-Not an error. pytest exit code 5 means nothing was collected. Report "no tests found — sync and import succeeded" and treat the run as PASS for build, N/A for test. Suggest `/ai-engineer:eval-run` if the repo carries an eval harness instead of a unit suite.
-
-### Manager forced but absent
-```
-Warning: --manager {name} requested but `{binary}` is not installed.
-Falling back to detection order. Install hint: {hint}
-```
-
-### Every manager skipped
-Only when *all* eligible managers are missing does the command report FAIL, with the aggregated install hints.
+| Condition | Response |
+|-----------|----------|
+| Path not found | `Error: Path not found: {path}` — suggest an existing directory, e.g. `/ai-engineer:build-test .` |
+| No recognized Python project | `Error: No Python environment detected under {path}.` List the markers looked for (uv.lock, pyproject.toml, requirements*.txt, environment.yml, setup.py); suggest running from the manifest's directory, or see Other Surfaces for pipeline/eval repos. |
+| No tests found (pytest exit 5) | Not an error: "no tests found — sync and import succeeded"; build PASS, test N/A. Suggest `/ai-engineer:eval-run` if the repo has an eval harness. |
+| `--manager` forced but absent | `Warning: --manager {name} requested but {binary} is not installed.` Fall back to detection order and print the install hint. |
+| Every eligible manager missing | FAIL, with the aggregated install hints. |
 
 ## See Also
 
-- `skill: framework-detection` — canonical marker → domain → agent routing (read it; do not fork the table).
-- `CORPFLOW.md` — how this command's log and verdict feed the DV Build Evidence block and the DR gate.
-- `/ai-engineer:eval-run` — run the eval suites; this command deliberately does not.
+- `${CLAUDE_PLUGIN_ROOT}/skills/_shared/framework-detection.md` — marker → domain → agent routing.
+- `/ai-engineer:eval-run` — runs eval suites; this command doesn't.
 - `/ai-engineer:review-code` — review once the build is green.
 - `/ai-engineer:deploy-check` — serving readiness for a green build.

@@ -1,12 +1,6 @@
----
-name: framework-detection
-description: Shared AI-stack marker-to-domain-to-agent routing table for the ai-engineer router, corpflow DV dispatch, and commands. Reference when deciding which ai-engineer agent owns a task, file, or repository.
-effort: low
----
-
 # Framework Detection & Agent Routing
 
-Single source of truth for the AI-stack marker → domain → agent mapping used by `ai-engineer:ai-engineer` (router), the orchestrator's platform router DV dispatch, and every ai-engineer command that scopes work per domain. Keep command-local detection logic in sync with this file — do not fork the tables.
+Source of truth for the AI-stack marker → domain → agent mapping used by the `ai-engineer:ai-engineer` router, the orchestrator's DV dispatch, and the ai-engineer commands that scope work per domain. Commands that summarize these tables must stay in sync with them.
 
 ## Detection Priority Order
 
@@ -62,9 +56,8 @@ The precedence claim is task-scoped, not repo-scoped: an `anthropic` dep does no
 
 ## Ambiguity Rule
 
-When tiers conflict irreconcilably, or an AI-shaped task matches no marker: ask **one** clarifying question. If asking is impossible (worktask dispatch, batch mode) or the answer still spans domains, route to `ai-engineer:ai-engineer` — the router splits the work and owns the seams. Never guess between `ai-engineer:ml-engineer` and `ai-engineer:mlops-engineer` on a serving-adjacent training task; a misroute costs a full re-dispatch.
+When tiers conflict, or an AI-shaped task matches no marker, ask one clarifying question. If you can't ask (worktask dispatch, batch mode) or the answer still spans domains, route to `ai-engineer:ai-engineer`, which splits the work. Don't guess between `ai-engineer:ml-engineer` and `ai-engineer:mlops-engineer` on a serving-adjacent training task; a misroute costs a full re-dispatch.
 
 ## Related References
 
-- `CORPFLOW.md` — how the routed agent participates in DV
-- `skills/_shared/model-selection.md` — model/effort to pass with the routed `Task()` call
+- `skills/_shared/model-selection.md` — model to pass with the routed Agent call

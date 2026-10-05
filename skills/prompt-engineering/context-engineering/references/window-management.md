@@ -20,7 +20,7 @@ Deep-dive companion to [../SKILL.md](../SKILL.md): the full segment table, per-s
 
 ## Token Budgeting per Segment
 
-Express budgets as **fractions of the usable input budget**, never absolute numbers — window sizes vary per model and change across releases (verify the current limit for your configured model via provider docs / context7). Reserve output room first:
+Express budgets as **fractions of the usable input budget**, not absolute numbers — window sizes vary per model and change across releases (check the configured model's current limit in provider docs / context7). Reserve output room first:
 
 ```
 input_budget = context_window − max_output_tokens − safety_margin
@@ -115,14 +115,14 @@ def pack_history(
 
 ## Compaction
 
-Compaction rewrites accumulated context into a smaller form. Trigger it **proactively** — on any of:
+Compaction rewrites accumulated context into a smaller form. Trigger it proactively on any of:
 
 - **Utilization**: in-window tokens exceed ~70-80% of the input budget
 - **Turn count**: a per-feature threshold measured against your evals
 - **Phase boundary**: before a long tool chain, a subtask handoff, or a topic switch
 - **Repeat overflow**: history blew its share twice in a row
 
-What MUST survive compaction — as a structured note, not a prose blob:
+What survives compaction — as a structured note, not a prose blob:
 
 | Survives | Because |
 |---|---|
@@ -134,15 +134,15 @@ What MUST survive compaction — as a structured note, not a prose blob:
 
 What can go: greetings, superseded drafts, resolved errors, duplicate retrievals, exploratory dead ends.
 
-Compaction discipline: run the summarizer at temperature 0; validate the survival note against a schema before it replaces history ([structured-outputs](../../structured-outputs/SKILL.md)); log the pre-compaction transcript so compaction never destroys evidence; never compact segments 1-2.
+Compaction discipline: run the summarizer at temperature 0; validate the survival note against a schema before it replaces history ([structured-outputs](../../structured-outputs/SKILL.md)); log the pre-compaction transcript so compaction doesn't destroy evidence; don't compact segments 1-2.
 
 ## Placement: Lost in the Middle
 
 Attention is U-shaped — strongest at the start and end of the window, weakest in the middle. Placement rules:
 
-- **Instructions at the start; task/question restated at the end** — after any long content, close with the question and the key constraints (see `references`-level pattern: `skills/prompt-engineering/prompt-design/references/prompt-patterns.md` § Progressive Disclosure).
+- **Instructions at the start; task/question restated at the end** — after any long content, close with the question and the key constraints (`skills/prompt-engineering/prompt-design/references/prompt-patterns.md` § 9. Progressive Disclosure for Long Context).
 - **Rank retrieved documents so the best sit nearest the edges** — highest-relevance docs closest to the final question; low-rank material (if included at all) goes mid-window.
-- **Never bury a constraint update mid-history** — when the user changes a requirement at turn 12 of 40, re-pin it into the pinned-facts block; don't rely on the model spotting it mid-window.
+- **Don't bury a constraint update mid-history** — when the user changes a requirement at turn 12 of 40, re-pin it into the pinned-facts block; don't rely on the model spotting it mid-window.
 - **Long documents before the question**, per provider long-context guidance (`skills/prompt-engineering/prompt-design/references/claude-prompting.md` § Long-Context Placement).
 
 ## Retrieved-Context Hygiene
@@ -154,7 +154,7 @@ retrieve → dedupe → rank → cap → label → cite
 ```
 
 - **Dedupe** near-duplicates (content hash, then similarity threshold) — overlapping chunks of the same source crowd out the document that actually answers.
-- **Rank** by relevance score, never by arrival order.
+- **Rank** by relevance score, not arrival order.
 - **Cap** three ways: top-k documents, per-document token cap, and the segment budget.
 - **Label** every document with a source id and version/timestamp in its delimiter:
 
@@ -189,6 +189,6 @@ For every request, log a **context manifest** — enough to reconstruct what was
 }
 ```
 
-- Attach the manifest to the request trace (`skills/mlops/model-monitoring`); store the full rendered prompt where retention policy allows, scrubbed of secrets/PII per the base constraints.
-- Failure triage starts at the manifest: *Was the needed fact in-window at all? Which segment? Where placed? Was it truncated or compacted away?* Without the manifest, every context bug is unreproducible.
+- Attach the manifest to the request trace (`skills/mlops/model-monitoring`); store the full rendered prompt where retention policy allows, scrubbed of secrets/PII.
+- Failure triage starts at the manifest: *Was the needed fact in-window at all? Which segment? Where placed? Was it truncated or compacted away?* Without it, context bugs are unreproducible.
 - Version everything the manifest references: prompt version, doc versions, compaction count — a regression is diagnosable only when the inputs are identifiable.

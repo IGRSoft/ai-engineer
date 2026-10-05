@@ -3,17 +3,15 @@ name: evals
 description: >-
   Evaluation skills navigation: eval design (assertion→metric→judge→human
   hierarchy, task-grounded eval sets, honest comparison), LLM-as-judge
-  (anchored rubrics, bias mitigation, calibration against humans), and CI
-  regression gates (thresholds, baselines, pytest wiring). Use when measuring
-  LLM quality, building or expanding an eval set, grading outputs with a
-  judge, comparing prompts or models, or gating prompt/model/retrieval changes
-  in CI so quality cannot silently regress.
+  (anchored rubrics, bias mitigation, calibration), and CI regression gates
+  (thresholds, baselines, pytest wiring). Use when measuring LLM quality,
+  building an eval set, grading with a judge, comparing prompts or models, or
+  gating prompt/model/retrieval changes in CI.
 ---
 
 # Eval Skills
 
-**Navigation and determinism snapshot for measuring LLM quality — design the
-measurement, grade with a judge, gate the regression**
+Design the measurement, grade with a judge, gate the regression.
 
 ## Determinism Snapshot
 
@@ -25,58 +23,24 @@ measurement, grade with a judge, gate the regression**
 | Judges | LLM judge with structured output, calibrated to human labels | Uncalibrated "rate 1-10" judges never gate |
 | Cost control | Tiered subsets: smoke (PR) → full (nightly/release) | Judge model choice is a cost ladder — verify current options via context7 |
 
-Language-level pytest mechanics (fixtures, parametrization, coverage) are not
-re-taught here — see `system-developer:python-skills` (python-testing).
+## Where to Go
 
-## Skill Selection Guide
+| I need to... | Read |
+|--------------|------|
+| Decide what to measure; build, size, or version an eval set; compare two prompts or models | [eval-design](eval-design/SKILL.md) (depth: [eval-methodology](eval-design/references/eval-methodology.md)) |
+| Grade what code cannot check (tone, faithfulness); fix a judge that disagrees with humans or drifts | [llm-judge](llm-judge/SKILL.md) |
+| Start from a working judge prompt + output schema | [judge-prompt-templates](llm-judge/references/judge-prompt-templates.md) |
+| Add CI gates, pick thresholds, handle flakes, update a baseline | [regression-gates](regression-gates/SKILL.md) (depth: [gate-implementation](regression-gates/references/gate-implementation.md)) |
 
-| I need to... | Use this skill |
-|--------------|----------------|
-| Decide what and how to measure for an LLM feature | [eval-design/SKILL.md](eval-design/SKILL.md) |
-| Build or expand an eval set; size it for a decision | [eval-design/SKILL.md](eval-design/SKILL.md) |
-| Compare two prompts or models without fooling myself | [eval-design/SKILL.md](eval-design/SKILL.md) (paired comparison) |
-| Grade a dimension code cannot check (tone, faithfulness) | [llm-judge/SKILL.md](llm-judge/SKILL.md) |
-| Fix a judge that disagrees with humans or drifts | [llm-judge/SKILL.md](llm-judge/SKILL.md) (calibration) |
-| Start from a working judge prompt + schema | [llm-judge/references/judge-prompt-templates.md](llm-judge/references/judge-prompt-templates.md) |
-| Add eval gates to CI; pick thresholds | [regression-gates/SKILL.md](regression-gates/SKILL.md) |
-| Handle a flaky gate or update a baseline after an accepted win | [regression-gates/SKILL.md](regression-gates/SKILL.md) |
+## Adjacent Skills
 
-## Decision Tree
+| Topic | Read |
+|-------|------|
+| Retrieval metrics (recall@k, MRR) | [retrieval-evaluation](../llm-apps/rag-systems/references/retrieval-evaluation.md) |
+| Keeping training data out of eval sets | [dataset-curation](../finetuning/dataset-curation/SKILL.md) |
+| Logging eval runs; tracing a reported metric | [experiment-tracking](../mlops/experiment-tracking/SKILL.md) |
+| Judge evals on production traffic; failures back into eval sets | [model-monitoring](../mlops/model-monitoring/SKILL.md) |
+| The prompts these evals gate | [prompt-design](../prompt-engineering/prompt-design/SKILL.md) |
+| pytest mechanics (fixtures, parametrization) | `system-developer:python-testing` |
 
-```
-Eval task?
-├── What/how to measure, building or sizing the set → eval-design/SKILL.md
-├── Quality dimension code cannot check → llm-judge/SKILL.md
-│   └── Working prompt + output schema → llm-judge/references/judge-prompt-templates.md
-├── Wiring evals into CI (thresholds, baselines, flakes) → regression-gates/SKILL.md
-├── Retrieval-specific metrics (recall@k, MRR)
-│   → ${CLAUDE_SKILL_DIR}/llm-apps/rag-systems/references/retrieval-evaluation.md
-├── Logging eval runs / tracing a reported metric
-│   → ${CLAUDE_SKILL_DIR}/mlops/experiment-tracking/SKILL.md
-└── Judge evals on live production traffic
-    → ${CLAUDE_SKILL_DIR}/mlops/model-monitoring/SKILL.md
-```
-
-## File Overview
-
-| File | Purpose |
-|------|---------|
-| [_index.md](_index.md) | Full navigation for the evals/ subtree |
-| [eval-design/SKILL.md](eval-design/SKILL.md) | Metric hierarchy, eval-set construction, paired comparison, statistical honesty |
-| [eval-design/references/eval-methodology.md](eval-design/references/eval-methodology.md) | Deep dive: eval-set construction, metric selection, A/B protocol, statistics |
-| [llm-judge/SKILL.md](llm-judge/SKILL.md) | Judge selection, rubrics, bias mitigations, calibration, judge regression tests |
-| [llm-judge/references/judge-prompt-templates.md](llm-judge/references/judge-prompt-templates.md) | Complete judge prompts + output schemas to start from |
-| [regression-gates/SKILL.md](regression-gates/SKILL.md) | Gate ladder, thresholds, baseline ritual, flake policy, pytest integration |
-| [regression-gates/references/gate-implementation.md](regression-gates/references/gate-implementation.md) | Deep dive: thresholds, baselines, flake policy, pytest wiring, escape hatch |
-
-## Related Skills
-
-- [prompt-design](${CLAUDE_SKILL_DIR}/prompt-engineering/prompt-design/SKILL.md) — the prompts these evals gate
-- [rag-systems](${CLAUDE_SKILL_DIR}/llm-apps/rag-systems/SKILL.md) — faithfulness and retrieval quality as eval targets
-- [dataset-curation](${CLAUDE_SKILL_DIR}/finetuning/dataset-curation/SKILL.md) — decontamination: training data must never leak into eval sets
-- [model-monitoring](${CLAUDE_SKILL_DIR}/mlops/model-monitoring/SKILL.md) — production failures feeding back into eval sets
-
-**Owning agent:** `ai-engineer:ai-test-generator` (pytest + LLM eval
-harnesses). Eval strategy at the architecture level →
-`ai-engineer:ai-architector`; pytest/fixture depth →
-`system-developer:python-skills`.
+Harnesses are built by `ai-engineer:ai-test-generator`; eval strategy at the architecture level → `ai-engineer:ai-architector`.

@@ -1,15 +1,13 @@
 # Skills Index
 
-Root index for all ai-engineer skills (prompt engineering, LLM apps,
-fine-tuning, MLOps, evals, and shared references). **28 SKILL.md across 5
-domains + _shared, plus shared references.** Start at [`SKILL.md`](SKILL.md)
-for the routing entry point.
+Full navigation for ai-engineer skills: 27 SKILL.md across 5 domains, plus
+shared references. Routing entry point: [`SKILL.md`](SKILL.md).
 
 ## Domains
 
 | Directory | Index | Skills | Description |
 |-----------|-------|--------|-------------|
-| [_shared/](_shared/_index.md) | [`_index.md`](_shared/_index.md) | 1 + refs | Cross-cutting references: corpflow integration, AI-stack agent routing, model selection, severity matrix |
+| [_shared/](_shared/_index.md) | [`_index.md`](_shared/_index.md) | refs | Cross-cutting references: AI-stack agent routing, model selection, severity matrix |
 | [prompt-engineering/](prompt-engineering/SKILL.md) | [`_index.md`](prompt-engineering/_index.md) | 1 + 3 leaves | Production prompt design, context-window engineering, reliable structured outputs |
 | [llm-apps/](llm-apps/SKILL.md) | [`_index.md`](llm-apps/_index.md) | 1 + 3 leaves | RAG pipelines, bounded agent loops, production provider-API integration |
 | [finetuning/](finetuning/SKILL.md) | [`_index.md`](finetuning/_index.md) | 1 + 8 leaves | Dataset curation, graded-trace conversion, LoRA/QLoRA adapters, training optimization, preference tuning, verifiable-reward RL, checkpoint promotion, quantized export |
@@ -23,70 +21,59 @@ for the routing entry point.
 | Skill | Path | Description |
 |-------|------|-------------|
 | framework-detection | [`_shared/framework-detection.md`](_shared/framework-detection.md) | AI-stack marker → domain → agent routing table: detection priority, dependency/file markers, mixed-stack tie-breaks, sibling-plugin precedence |
-| model-selection | [`_shared/model-selection.md`](_shared/model-selection.md) | Per-agent model/effort/maxTurns assignments, cost tiers, and opus+xhigh override paths |
+| model-selection | [`_shared/model-selection.md`](_shared/model-selection.md) | Per-agent model/effort/maxTurns assignments, cost tiers, and per-call `model` override paths |
 | severity-matrix | [`_shared/severity-matrix.md`](_shared/severity-matrix.md) | Severity levels, P0-P3 review priorities with AI examples, effort/impact quadrant, coverage requirements |
 
 ### prompt-engineering
 
 | Skill | Path | Description |
 |-------|------|-------------|
-| **prompt-engineering** (entry) | [`prompt-engineering/SKILL.md`](prompt-engineering/SKILL.md) | Prompt engineering skills navigation: prompt design, context engineering, structured outputs, escalation to RAG/fine-tuning |
-| **prompt-design** | [`prompt-engineering/prompt-design/SKILL.md`](prompt-engineering/prompt-design/SKILL.md) | Prompt anatomy, instruction hierarchy with injection-resistant layering, few-shot design, prompts as versioned files |
-| **context-engineering** | [`prompt-engineering/context-engineering/SKILL.md`](prompt-engineering/context-engineering/SKILL.md) | Context hierarchy, per-segment token budgets, packing and compaction strategies, lost-in-the-middle placement, context observability |
-| **structured-outputs** | [`prompt-engineering/structured-outputs/SKILL.md`](prompt-engineering/structured-outputs/SKILL.md) | Extraction-mode selection, JSON schema design, Pydantic validate → repair-once → fail-closed, streaming partial JSON |
+| **prompt-engineering** (entry) | [`prompt-engineering/SKILL.md`](prompt-engineering/SKILL.md) | Prompt engineering skills navigation: prompt design (anatomy, instruction hierarchy, few-shot), context-window engineering (budgets, packing, compaction), structured outputs (extraction modes, schemas, validate-repair) |
+| **prompt-design**None | [`prompt-engineering/prompt-design/SKILL.md`](prompt-engineering/prompt-design/SKILL.md) | Five-segment prompt anatomy, instruction hierarchy with delimited untrusted input, few-shot design, positive framing, prompts as versioned files; product prompts only |
+| **context-engineering**None | [`prompt-engineering/context-engineering/SKILL.md`](prompt-engineering/context-engineering/SKILL.md) | Segment hierarchy and token budgets, packing, compaction triggers, lost-in-the-middle placement, retrieved-context hygiene, per-request context manifests |
+| **structured-outputs**None | [`prompt-engineering/structured-outputs/SKILL.md`](prompt-engineering/structured-outputs/SKILL.md) | Extraction-mode choice (tool-call, native structured mode, prompted JSON), flat enum-closed schemas, Pydantic validate → repair-once → fail-closed, streaming partial JSON, common parse failures |
 
 ### llm-apps
 
 | Skill | Path | Description |
 |-------|------|-------------|
-| **llm-apps** (entry) | [`llm-apps/SKILL.md`](llm-apps/SKILL.md) | LLM application skills navigation: RAG, agent design, provider-API patterns, cross-domain escalation |
-| **rag-systems** | [`llm-apps/rag-systems/SKILL.md`](llm-apps/rag-systems/SKILL.md) | Ingest→chunk→embed→index→retrieve→rerank→ground pipeline, hybrid retrieval, grounded citations with refusal rules, index lifecycle |
-| **agent-design** | [`llm-apps/agent-design/SKILL.md`](llm-apps/agent-design/SKILL.md) | Escalation ladder, loop anatomy, stop conditions and budgets, tool contracts, guardrails with human confirmation, step-level tracing |
-| **llm-api-patterns** | [`llm-apps/llm-api-patterns/SKILL.md`](llm-apps/llm-api-patterns/SKILL.md) | Timeout/retry discipline, rate limits, streaming, prompt caching, batch APIs, fallback chains, cost accounting, secrets hygiene |
+| **llm-apps** (entry) | [`llm-apps/SKILL.md`](llm-apps/SKILL.md) | LLM application skills navigation: RAG systems, agent-loop design (escalation ladder, tool contracts, stop conditions, guardrails), provider-API integration (retries, streaming, caching, fallback, cost accounting) |
+| **rag-systems**None | [`llm-apps/rag-systems/SKILL.md`](llm-apps/rag-systems/SKILL.md) | Ingest→chunk→embed→index→retrieve→rerank→ground pipeline, chunking by content type, embedder and vector-store choice, hybrid retrieval, reranking, grounded answers with citations and refusal, index lifecycle (sync, deletes, re-embed) |
+| **agent-design**None | [`llm-apps/agent-design/SKILL.md`](llm-apps/agent-design/SKILL.md) | Escalation ladder (single call → workflow → agent with tools → multi-agent), stop conditions and budgets, tool contracts, memory, human approval for irreversible actions, failure handling, step tracing |
+| **llm-api-patterns**None | [`llm-apps/llm-api-patterns/SKILL.md`](llm-apps/llm-api-patterns/SKILL.md) | Timeouts and retry/backoff, rate limits, streaming with TTFT and mid-stream recovery, prompt caching, batch APIs, fallback chains with circuit breakers, cost accounting, secrets |
 
 ### finetuning
 
 | Skill | Path | Description |
 |-------|------|-------------|
-| **finetuning** (entry) | [`finetuning/SKILL.md`](finetuning/SKILL.md) | Fine-tuning skills navigation: data → adapter → optimization → preferences, with the fine-tune-at-all decision first |
-| **dataset-curation** | [`finetuning/dataset-curation/SKILL.md`](finetuning/dataset-curation/SKILL.md) | Chat-format normalization, exact + near-dup dedup, eval-set decontamination, PII scrubbing, provenance ledgers, stratified splits, versioning |
-| **peft-lora** | [`finetuning/peft-lora/SKILL.md`](finetuning/peft-lora/SKILL.md) | When adapters beat full fine-tuning or RAG, LoRA/QLoRA config anatomy, smoke-scale SFTTrainer loops, adapter save/merge/serve, before/after evals |
-| **training-optimization** | [`finetuning/training-optimization/SKILL.md`](finetuning/training-optimization/SKILL.md) | GPU memory model with estimation formulas, precision, gradient accumulation vs batch size, checkpointing, throughput and loss-curve triage |
-| **preference-tuning** | [`finetuning/preference-tuning/SKILL.md`](finetuning/preference-tuning/SKILL.md) | SFT-only vs DPO vs ORPO/KTO vs RLHF selection, preference-pair construction, DPO mechanics, reward-hacking detection and mitigation |
-| **grpo-rlvr-training** | [`finetuning/grpo-rlvr-training/SKILL.md`](finetuning/grpo-rlvr-training/SKILL.md) | Verifiable-reward RL: applicability preconditions, GRPO recipe and group-size floor, the reward-inspection gate, DAPO/Dr.GRPO/GSPO variant selection |
-| **trace-to-training-data** | [`finetuning/trace-to-training-data/SKILL.md`](finetuning/trace-to-training-data/SKILL.md) | Graded traces → training rows: top-reward rejection sampling, expert corrections, step-level masking, same-task preference pairs, goldens-holdout hygiene |
-| **checkpoint-promotion** | [`finetuning/checkpoint-promotion/SKILL.md`](finetuning/checkpoint-promotion/SKILL.md) | Four-stage weights gate, drift budget with hard fail, budget-derived sample size, catastrophic-forgetting ladder, terminal PROMOTE/REJECT verdict |
-| **quantized-export** | [`finetuning/quantized-export/SKILL.md`](finetuning/quantized-export/SKILL.md) | Merged vs LoRA-only, format map (FP8/AWQ INT4/GGUF+imatrix), long-context/code/math INT4 override, mandatory pre/post smoke test |
+| **finetuning** (entry) | [`finetuning/SKILL.md`](finetuning/SKILL.md) | Fine-tuning skills navigation: dataset curation, graded-trace conversion, LoRA/QLoRA, training optimization, preference tuning (DPO), verifiable-reward RL (GRPO), checkpoint promotion, quantized export |
+| **dataset-curation**None | [`finetuning/dataset-curation/SKILL.md`](finetuning/dataset-curation/SKILL.md) | Messages-schema normalization, exact and near-dup dedup, eval-set decontamination, PII/secret scrubbing, license ledgers, stratified splits, versioning |
+| **peft-lora**None | [`finetuning/peft-lora/SKILL.md`](finetuning/peft-lora/SKILL.md) | Whether an adapter beats RAG or full fine-tuning, LoRA/QLoRA config starting points (r, alpha, dropout, target_modules), QLoRA memory trade-offs, smoke-scale SFTTrainer loops, adapter merge-vs-serve, before/after evals |
+| **training-optimization**None | [`finetuning/training-optimization/SKILL.md`](finetuning/training-optimization/SKILL.md) | GPU memory model and estimation, the fit ladder (precision, accumulation, checkpointing, 8-bit optimizers, QLoRA), cuda/mps/cpu device strategy, throughput and loss-curve triage, checkpoint/resume, distributed training |
+| **preference-tuning**None | [`finetuning/preference-tuning/SKILL.md`](finetuning/preference-tuning/SKILL.md) | SFT-only vs DPO vs ORPO/KTO vs RLHF selection, building and labeling chosen/rejected pairs, DPO (beta, reference model), reward-hacking detection (length bias, sycophancy, style collapse) |
+| **grpo-rlvr-training**None | [`finetuning/grpo-rlvr-training/SKILL.md`](finetuning/grpo-rlvr-training/SKILL.md) | Verifiable-reward RL (GRPO/RLVR) when a program checks success (unit tests, schemas, math): applicability preconditions, reward-function design, the inspection gate, variant selection |
+| **trace-to-training-data**None | [`finetuning/trace-to-training-data/SKILL.md`](finetuning/trace-to-training-data/SKILL.md) | Graded eval traces → SFT rows or preference pairs: rejection sampling, step-level masking, same-task pair construction, goldens holdout |
+| **checkpoint-promotion**None | [`finetuning/checkpoint-promotion/SKILL.md`](finetuning/checkpoint-promotion/SKILL.md) | Whether a trained checkpoint ships: four-stage gate, capability-drift budget, paired comparison vs base, forgetting checks, terminal PROMOTE or REJECT verdict |
+| **quantized-export**None | [`finetuning/quantized-export/SKILL.md`](finetuning/quantized-export/SKILL.md) | Exporting a promoted checkpoint for its target runtime: merged vs LoRA-only, format choice (FP8, AWQ INT4, GGUF), the pre/post smoke test |
 
 ### mlops
 
 | Skill | Path | Description |
 |-------|------|-------------|
-| **mlops** (entry) | [`mlops/SKILL.md`](mlops/SKILL.md) | MLOps skills navigation: tracking, serving, monitoring, pipelines — models run as software |
-| **experiment-tracking** | [`mlops/experiment-tracking/SKILL.md`](mlops/experiment-tracking/SKILL.md) | Run contract (config, seed, dataset version, commit, environment), MLflow vs W&B mapping, LLM-specific logging, eval-gated registry promotion |
-| **model-serving** | [`mlops/model-serving/SKILL.md`](mlops/model-serving/SKILL.md) | Managed-API vs self-hosted ladder, deployment anatomy, quantization, KV-cache capacity math, LoRA hot-swap vs merge, operational hardening |
-| **model-monitoring** | [`mlops/model-monitoring/SKILL.md`](mlops/model-monitoring/SKILL.md) | System/quality/business planes, LLM trace observability, drift via scheduled judge evals, cost dashboards and spend alarms, feedback loops |
-| **ml-pipelines** | [`mlops/ml-pipelines/SKILL.md`](mlops/ml-pipelines/SKILL.md) | Pipeline-as-DAG with idempotent steps, DVC vs git-lfs, orchestrator ladder, PR smoke gates, eval-gated promotion, lineage, environment discipline |
+| **mlops** (entry) | [`mlops/SKILL.md`](mlops/SKILL.md) | MLOps skills navigation: experiment tracking and model registry, model serving, production monitoring, ML pipelines with data versioning and CI/CD |
+| **experiment-tracking**None | [`mlops/experiment-tracking/SKILL.md`](mlops/experiment-tracking/SKILL.md) | Run contract (config, seed, dataset version, commit, environment, metrics), MLflow/W&B mapping, sweep hygiene, LLM-specific logging, eval-gated registry promotion via aliases |
+| **model-serving**None | [`mlops/model-serving/SKILL.md`](mlops/model-serving/SKILL.md) | Engine choice (Ollama, vLLM, TGI, Triton, llama.cpp) vs managed API, pinned artifact to OpenAI-compatible endpoint behind a gateway, serve-time quantization, KV-cache capacity math, LoRA hot-swap vs merge, probes, warmup, drain, canary, rollback |
+| **model-monitoring**None | [`mlops/model-monitoring/SKILL.md`](mlops/model-monitoring/SKILL.md) | System, quality, and business planes; LLM traces, scheduled judge evals on sampled traffic, spend alarms, feedback loops into eval sets, canary vs control |
+| **ml-pipelines**None | [`mlops/ml-pipelines/SKILL.md`](mlops/ml-pipelines/SKILL.md) | Pipeline-as-DAG with idempotent steps, DVC vs git-lfs, orchestrator ladder, PR smoke gates, eval-gated promotion, deploys as registry alias flips, lineage, pinned environments |
 
 ### evals
 
 | Skill | Path | Description |
 |-------|------|-------------|
-| **evals** (entry) | [`evals/SKILL.md`](evals/SKILL.md) | Evaluation skills navigation: design the measurement, grade with a judge, gate the regression |
-| **eval-design** | [`evals/eval-design/SKILL.md`](evals/eval-design/SKILL.md) | Assertion→metric→judge→human hierarchy, task-grounded eval sets from real traffic, paired A/B comparison, statistical honesty, failure analysis |
-| **llm-judge** | [`evals/llm-judge/SKILL.md`](evals/llm-judge/SKILL.md) | Pointwise vs pairwise selection, anchored rubrics, bias mitigations, calibration against human labels (Cohen's kappa), judge regression tests |
-| **regression-gates** | [`evals/regression-gates/SKILL.md`](evals/regression-gates/SKILL.md) | Pre-commit→PR→nightly→release gate ladder, floors plus relative thresholds, baseline update ritual, flake policy, pytest integration, escape hatch |
-
-## Child Indexes
-
-| Index Path | Contents |
-|------------|----------|
-| [`_shared/_index.md`](_shared/_index.md) | Shared references: workflow integration + templates, agent routing, model selection, severity |
-| [`prompt-engineering/_index.md`](prompt-engineering/_index.md) | Prompt engineering entry + prompt-design + context-engineering + structured-outputs (with references) |
-| [`llm-apps/_index.md`](llm-apps/_index.md) | LLM apps entry + rag-systems + agent-design + llm-api-patterns (with references) |
-| [`finetuning/_index.md`](finetuning/_index.md) | Fine-tuning entry + dataset-curation + peft-lora + training-optimization + preference-tuning + grpo-rlvr-training + trace-to-training-data + checkpoint-promotion + quantized-export (with references) |
-| [`mlops/_index.md`](mlops/_index.md) | MLOps entry + experiment-tracking + model-serving + model-monitoring + ml-pipelines (with references) |
-| [`evals/_index.md`](evals/_index.md) | Evals entry + eval-design + llm-judge + regression-gates (with references) |
+| **evals** (entry) | [`evals/SKILL.md`](evals/SKILL.md) | Evaluation skills navigation: eval design, LLM-as-judge, CI regression gates |
+| **eval-design**None | [`evals/eval-design/SKILL.md`](evals/eval-design/SKILL.md) | Task-grounded eval sets from real traffic, the assertion→metric→judge→human hierarchy, metric selection by task type, paired prompt A/B comparison, set sizing and statistical honesty, eval-set versioning, failure analysis |
+| **llm-judge**None | [`evals/llm-judge/SKILL.md`](evals/llm-judge/SKILL.md) | Pointwise vs pairwise selection, anchored rubrics, bias mitigations (position, length, self-preference, sycophancy), Cohen's kappa calibration against human labels, evidence-first structured prompts, judge versioning, cost control |
+| **regression-gates**None | [`evals/regression-gates/SKILL.md`](evals/regression-gates/SKILL.md) | Pre-commit→PR→nightly→release gate ladder, absolute floors plus relative-to-baseline thresholds with warn bands, baseline update ritual, flake policy for judge metrics, cost-bounded subsets, pytest integration, recorded escape hatch |
 
 ## Root References
 

@@ -112,7 +112,7 @@ self_test() {
 }
 
 repo_files() {
-	git ls-files -- 'agents/*.md' 'agents/_base/*.md' 'commands/*.md' \
+	git ls-files -- 'agents/*.md' 'commands/*.md' \
 		'skills/SKILL.md' 'skills/**/SKILL.md' \
 		| sort -u
 }

@@ -1,101 +1,63 @@
 ---
 name: checkpoint-promotion
 description: >-
-  Gates trained checkpoints on capability drift: four-stage gate, drift
-  budgets, paired comparison vs base, forgetting checks, ending in PROMOTE or
-  REJECT.
-  Use when a training run produces a checkpoint, when deciding whether tuned
-  weights ship, or when re-gating against new goldens. Not CI eval gates
-  (regression-gates).
+  Decide whether a trained checkpoint ships: four-stage gate, capability-drift
+  budget, paired comparison vs base, forgetting checks, terminal PROMOTE or
+  REJECT. Use when a training run produces a checkpoint or when re-gating one
+  against new goldens. Not CI eval gates (regression-gates).
 ---
 
 # Checkpoint Promotion
 
-You are here because a training run finished and someone has to decide whether
-those weights ship. `skills/finetuning/peft-lora`,
-`skills/finetuning/preference-tuning`, or `skills/finetuning/grpo-rlvr-training`
-produced the checkpoint; `skills/evals/eval-design` built the suite this skill
-re-runs. This is where that suite's numbers stop being observations and become
-a verdict. A checkpoint that trained cleanly and beat its target metric still
-does not ship until it clears all four stages below.
-
-**Input:** a trained checkpoint, a frozen baseline for the pre-tune model on
-the same eval suite, and a capability-drift suite pinned to a version.
-
-**Output format:** a promotion report covering all four stages as evidence,
-ending in a terminal `PROMOTE` or `REJECT` plus exactly one remediation when
-the verdict is `REJECT`.
-
-## Overview
-
 A fine-tune trades general capability for target-task performance, and the
-trade is invisible if you only measure the target task. This skill exists to
-measure the other side of it: what the model *lost*. That is a weights-level
-question with a numeric budget — how many points of general capability may a
-tune spend to buy its task gain — and it is decided once per checkpoint, not
-per commit.
+trade is invisible if you only measure the target task. This skill measures
+what the model lost and turns it into a verdict on the weights against a drift
+budget, once per checkpoint. A checkpoint that trained cleanly and beat its
+target metric still ships only after clearing all four stages.
 
-The distinction that keeps this skill from colliding with its neighbors: this
-is a **verdict on model weights against a drift budget**. It is not a CI
-threshold on prompt or retrieval changes (`skills/evals/regression-gates`), not
-a registry alias flip (`skills/mlops/experiment-tracking`), not a pipeline
-stage (`skills/mlops/ml-pipelines`), and it has nothing to do with software
-release versioning.
+**Input:** a trained checkpoint (from `skills/finetuning/peft-lora`,
+`preference-tuning`, or `grpo-rlvr-training`), a frozen baseline for the
+pre-tune model on the same suite, and a version-pinned capability-drift suite
+(built per `skills/evals/eval-design`).
 
-Owned by `ai-engineer:ml-engineer`. A `REJECT` that the team wants to override
-is an architecture decision — `ai-engineer:ai-architector`, recorded, not a
-verbal exception.
+**Output:** a promotion report with all four stages as evidence, ending in a
+terminal `PROMOTE` or `REJECT`, plus exactly one remediation on `REJECT`.
 
-## When to Use
+Owned by `ai-engineer:ml-engineer`. Overriding a `REJECT` is an architecture
+decision for `ai-engineer:ai-architector`, recorded in writing.
 
-- A training run produced a checkpoint and someone must decide whether it ships
-- Deciding whether tuned weights beat their base model in practice, not just on
-  the target metric
-- Re-gating a previously promoted checkpoint against an updated golden set
-- A tune gained on its task and you need to know what it cost elsewhere
-- Diagnosing suspected catastrophic forgetting after a fine-tune
+**Elsewhere:**
 
-**When NOT to use:**
-
-- CI gates on prompt, model, or retrieval changes with warn bands and baseline
-  update rituals → `skills/evals/regression-gates`
-- Designing the eval set, metrics, or judge itself → `skills/evals/eval-design`
-- Registry aliases, run lineage, and promotion bookkeeping →
-  `skills/mlops/experiment-tracking`
+- Per-change CI gates on prompt, model, or retrieval changes → `skills/evals/regression-gates`
+- Eval set, metrics, frozen baseline → `skills/evals/eval-design`
+- Judge position/length bias for stage 3 → `skills/evals/llm-judge`
+- Registry aliases, run lineage, logging the verdict → `skills/mlops/experiment-tracking`
 - Wiring promotion into a DAG or CI/CD → `skills/mlops/ml-pipelines`
-- Exporting the artifact once promoted → `skills/finetuning/quantized-export`
-- Fixing the training config that caused the drift →
-  `skills/finetuning/peft-lora`, `skills/finetuning/training-optimization`
+- Canary monitors for stage 4 → `skills/mlops/model-monitoring`
+- Exporting after `PROMOTE` (the only valid next step) → `skills/finetuning/quantized-export`
+- Dedup, decontamination, replay-mix construction → `skills/finetuning/dataset-curation`
+- Training config behind the drift (rank, LR) → `skills/finetuning/peft-lora`, `preference-tuning`, `training-optimization`
 
 ## The Four-Stage Gate
 
-Each stage gates the next: a stage-2 failure means stage 3 does not run. Stages
-2 and 3 share one expensive inference pass, so running them concurrently and
+Each stage gates the next: a stage-2 failure means stage 3 does not run.
+Stages 2 and 3 share one inference pass, so running them concurrently and
 applying gate order at verdict time is fine when every grader is
-deterministic — a judge-based comparison should still wait for stage 2, where
-the savings actually are.
+deterministic; a judge-based comparison should wait for stage 2.
 
-**1. Data quality.** Before any eval touches the checkpoint: confirm the
-training set was deduped, scan for eval-golden leakage, and check for label
-noise. A checkpoint trained on leaked goldens invalidates every later stage,
-because the numbers those stages produce are measuring memorization.
-Mechanics: `skills/finetuning/dataset-curation`.
-
-**2. Held-out plus frozen capability drift.** Re-run the pinned drift suite —
-general-capability benchmarks plus 200–500 domain-adjacent items — against the
-checkpoint and diff per benchmark against the frozen baseline, scored against
-the Drift Budget below.
-
-**3. Paired comparison vs. base.** Same prompts, checkpoint against base model,
-position-randomized when a judge is involved (`skills/evals/llm-judge`).
-**A holdout win that loses the paired comparison does not ship.** Stage-2
-numbers and stage-3 judgments have to agree; a win on frozen goldens plus a
-loss head-to-head is a real signal, not a discrepancy to explain away.
-
-**4. Canary.** A stratified small-percentage rollout with automatic rollback,
-for any checkpoint reaching production traffic
-(`skills/mlops/model-monitoring`). **Local-only deployments stop at stage 3** —
-that is the correct stopping point, not a shortcut.
+1. **Data quality.** Before any eval: training set deduped, scanned for
+   eval-golden leakage, checked for label noise
+   (`skills/finetuning/dataset-curation`). Leaked goldens invalidate every
+   later stage because those numbers then measure memorization.
+2. **Held-out plus frozen capability drift.** Re-run the pinned drift suite
+   (general-capability benchmarks plus 200–500 domain-adjacent items) and diff
+   per benchmark against the frozen baseline, scored with the Drift Budget.
+3. **Paired comparison vs. base.** Same prompts, checkpoint vs. base model,
+   position-randomized when a judge is involved. A holdout win that loses the
+   paired comparison does not ship: stages 2 and 3 have to agree.
+4. **Canary.** Stratified small-percentage rollout with automatic rollback for
+   any checkpoint reaching production traffic. Local-only deployments stop at
+   stage 3; that is the correct stopping point.
 
 ### Drift Budget
 
@@ -103,38 +65,31 @@ that is the correct stopping point, not a shortcut.
 |---|---|
 | ≤1 pt | Noise — proceed |
 | 2–5 pts | Re-run with seed variation before deciding |
-| >5 pts | **HARD FAIL** — no exception for task gains |
+| >5 pts | Hard fail — no exception for task gains |
 
-The hard-fail row governs the others. A checkpoint that gained 8 points on its
-target task and lost 6 points of general capability still fails here: task
-improvement never buys back a drift-budget breach. If the product genuinely
-accepts that trade, it is an `ai-engineer:ai-architector` decision with a
+The hard-fail row governs: +8 on the target task with −6 general still fails.
+Accepting that trade is an `ai-engineer:ai-architector` decision with a
 written rationale, not a threshold adjustment.
 
-**`RERUN` is not a verdict.** A 2–5 pt drift resolves to `PROMOTE` or `REJECT`
-only after the seed-variation re-run completes. `PROMOTE` requires landing back
-at ≤1 pt; any re-run still above 1 pt — whether in the 2–5 band or past the
-breach — resolves stage 2 to `REJECT`. No report reaches its verdict section
-with stage 2 still showing `RERUN`.
+`RERUN` is not a verdict. A 2–5 pt drift resolves only after the
+seed-variation re-run: `PROMOTE` requires landing back at ≤1 pt; anything
+still above 1 pt resolves stage 2 to `REJECT`.
 
-### Item count derives from the budget
+### Sample size and half-width
 
-The sample size is set by the decision you are making, not by convenience. A
-half-width smaller than the margin you are judging is the whole requirement: at
-typical accuracy, a few hundred items give a several-point half-width, and
-resolving a difference well inside the 5-point threshold takes on the order of
-a thousand.
+Size the suite so the half-width is smaller than the margin you are judging.
+At typical accuracy a few hundred items give a several-point half-width;
+resolving differences well inside the 5-pt threshold takes on the order of a
+thousand.
 
-**Report the half-width with every verdict.** A margin smaller than its own
-confidence interval is `REJECT (uncertain)` — not `PROMOTE`, and not
-`HARD FAIL`. Calling a 2-point drift measured with a 6-point half-width either
-way is a coin flip wearing a verdict's clothes. Worked arithmetic and a
-cautionary multi-run example: `references/gate-templates.md`.
+Report the half-width with every margin. A margin smaller than its own
+interval resolves to `REJECT (uncertain)` — neither `PROMOTE` nor hard fail.
+Arithmetic and a multi-run example: `references/gate-templates.md`.
 
 ## Catastrophic Forgetting
 
-Unmanaged fine-tuning loses real general capability, and stage 2 is what
-catches it. Reported loss rates cluster in three regimes:
+Stage 2 is what catches lost general capability. Reported loss rates cluster
+in three regimes:
 
 | Regime | Typical general-capability loss |
 |---|---|
@@ -142,41 +97,32 @@ catches it. Reported loss rates cluster in three regimes:
 | Basic management — some replay or a conservative learning rate | Roughly a third of unmanaged |
 | Replay plus regularization, disciplined | Small single digits |
 
-**A 10–30% general-data replay mix is the standard mitigation**: blend
-general-domain data into training rather than training on target-task data
-alone. Construction recipe: `skills/finetuning/dataset-curation`.
+The standard mitigation is a 10–30% general-data replay mix
+(`skills/finetuning/dataset-curation`).
 
-When a checkpoint hits the hard fail in stage 2, work this ladder in order:
+On a stage-2 hard fail, work this ladder in order, one lever per re-run:
 
-1. **Adjust the replay-mix fraction by swapping rows, not adding them.** Adding
-   rows confounds the mix fraction with total optimizer steps, so you cannot
-   attribute the change. Dose is not monotonic at small-run scale — re-check
-   drift after any swap rather than assuming more replay helps more.
+1. **Adjust the replay-mix fraction by swapping rows, not adding them** —
+   adding rows confounds mix fraction with optimizer steps. Dose is not
+   monotonic at small-run scale, so re-check drift after every swap.
 2. **Lower the learning rate.**
 3. **Fewer epochs.**
-4. **Smaller adapter rank** — the same rank and learning-rate levers
-   `skills/finetuning/peft-lora` and `skills/finetuning/preference-tuning` tune
-   for the run, applied here in reverse.
+4. **Smaller adapter rank.**
 
-This order is a default, not a law. **Remediation guidance derived from a
-single before/after run pair is a hypothesis** — label it low-confidence as
-soon as any lever produces a reversal, and prefer a seed-variation repeat over
-trusting the next rung blindly. A lever that clears the drift breach but drops
-a success-criterion metric below target is a two-sided tradeoff for a human,
+The order is a default. Guidance from a single before/after run pair is a
+hypothesis: label it low-confidence once any lever produces a reversal, and
+prefer a seed-variation repeat over the next rung. A lever that clears drift
+but drops a success-criterion metric below target is a tradeoff for a human,
 not a reason to keep descending.
 
-**Disclose drift-suite instruction reuse.** A replay row that copies the drift
-harness's exact instruction phrasing — not merely disjoint source items — makes
-that benchmark's post-replay score an upper bound. Flag it as
-instruction-familiar, or re-probe with a paraphrase, before treating a
-near-budget pass as clean.
+**Disclose drift-suite instruction reuse.** Replay rows that copy the drift
+harness's exact instruction phrasing make that benchmark's post-replay score
+an upper bound. Flag it as instruction-familiar or re-probe with a paraphrase
+before treating a near-budget pass as clean.
 
 ## The Verdict
 
-The report covers all four stages as evidence sections and **must end with a
-terminal `PROMOTE` or `REJECT`**, the evidence that produced it, and exactly
-one remediation when the verdict is `REJECT`. Downstream skills parse this
-block, so its shape is a contract:
+Downstream skills parse this block, so its shape is a contract:
 
 ```
 ## Verdict
@@ -190,20 +136,15 @@ Top remediation: swap the replay-mix fraction from 10% toward 20%, holding
 step count constant.
 ```
 
-- **`REJECT` is a result, not an error.** A checkpoint that fails the drift
-  budget or the paired comparison did its job by revealing that. Do not treat a
-  `REJECT` as a failed run needing this skill re-run; it is the correct output
-  of a working gate.
-- **One remediation, not a menu.** Evidence sections may list everything
-  observed; the verdict names the single highest-leverage fix from the ladder
-  above. A report hedging across three possible fixes has not done the
-  prioritization this skill exists to do.
-- **No auto-retraining.** This skill produces a verdict and a report, never a
-  re-triggered run. A `REJECT` hands remediation back to a human decision.
+- `REJECT` is a correct output of a working gate, not an error or a run to
+  retry.
+- Name one remediation — the highest-leverage rung of the ladder — not a menu.
+  Evidence sections may list everything observed.
+- No auto-retraining. The skill produces a verdict and report; remediation goes
+  back to a human.
 
-Full report template with all four stage sections, the drift scoring table, the
-paired-comparison protocol, and a replay-mix configuration example:
-`references/gate-templates.md`.
+Full report template, drift scoring table, paired-comparison protocol, and
+replay-mix config: `references/gate-templates.md`.
 
 ## Anti-Patterns
 
@@ -212,43 +153,22 @@ paired-comparison protocol, and a replay-mix configuration example:
 | Promoting on the target metric alone | The capability tax is invisible and cumulative | Run the drift suite; budget it |
 | Adjusting the threshold to pass a checkpoint | The budget stops meaning anything the first time it bends | `ai-engineer:ai-architector` decision, written down |
 | Reporting a margin without its half-width | An unresolvable difference gets read as a result | `REJECT (uncertain)` when the margin is inside the interval |
-| Drift suite unpinned or regenerated per run | Every comparison is against a different ruler | Freeze and version the suite; re-gate deliberately |
+| Drift suite unpinned, regenerated per run, or built from the checkpoint's failures | Every comparison is against a different ruler | Freeze and version the suite before training; re-gate deliberately |
+| Promoted checkpoint never re-gated after goldens change | The old verdict was against a ruler no longer in use | Re-gate against the updated suite |
 | Stage 3 skipped because stage 2 passed | Holdout wins that lose head-to-head do exist | Run both; require agreement |
 | Adding replay rows instead of swapping them | Confounds mix fraction with step count | Swap rows, hold steps constant |
 | Descending the whole ladder in one pass | Multiple changes, no attribution | One lever, re-measure, then decide |
 | `RERUN` left as the stage-2 outcome | The report has no verdict | Resolve to `PROMOTE` or `REJECT` after seed variation |
 
-## Red Flags
-
-- No frozen baseline exists for the pre-tune model on the same suite
-- The drift suite was built after the checkpoint, from the checkpoint's failures
-- Target-task gain quoted to two decimals; capability drift not quoted at all
-- The training set was never checked for eval-golden leakage
-- Replay rows copy the drift harness's instruction phrasing verbatim
-- A previously promoted checkpoint has never been re-gated against updated goldens
-- The verdict section lists three possible remediations
-
 ## Verification
 
-- [ ] Stage 1: training set deduped, decontaminated against goldens, label-noise scanned (`skills/finetuning/dataset-curation`)
+- [ ] Stage 1: training set deduped, decontaminated against goldens, label-noise scanned
 - [ ] Frozen baseline exists for the base model on the identical, version-pinned suite
-- [ ] Stage 2: drift measured per benchmark against the budget; half-width reported alongside every margin
+- [ ] Stage 2: drift measured per benchmark against the budget; half-width reported with every margin
 - [ ] Any 2–5 pt drift resolved by a seed-variation re-run; no stage left showing `RERUN`
-- [ ] Stage 3: paired comparison run on the same prompts, position-randomized if judged; stage-2 and stage-3 conclusions agree
+- [ ] Stage 3: paired comparison on the same prompts, position-randomized if judged; stages 2 and 3 agree
 - [ ] Stage 4 run for production traffic with predeclared rollback criteria, or explicitly stopped at stage 3 for a local deployment
 - [ ] Replay-mix fraction recorded; instruction reuse against the drift harness disclosed
 - [ ] Report ends in a terminal `PROMOTE` or `REJECT` with exactly one remediation on `REJECT`
 - [ ] Verdict, suite version, and checkpoint ID logged together (`skills/mlops/experiment-tracking`)
 - [ ] On `PROMOTE`, handoff to `skills/finetuning/quantized-export` carries the verdict
-
-## Related Skills
-
-- `references/gate-templates.md` — full report template, drift scoring table, paired-comparison protocol, sample-size arithmetic, replay-mix example
-- `skills/evals/eval-design` — builds the suite and the frozen baseline this skill re-runs and diffs
-- `skills/evals/regression-gates` — the CI ladder for prompt/model/retrieval changes; this skill is the one-off weights verdict, not a per-commit threshold
-- `skills/evals/llm-judge` — position and length bias controls for the stage-3 paired comparison
-- `skills/finetuning/quantized-export` — the only valid next step after `PROMOTE`
-- `skills/finetuning/dataset-curation` — dedup, decontamination, and replay-mix construction
-- `skills/finetuning/peft-lora`, `skills/finetuning/preference-tuning` — own the rank and learning-rate levers the forgetting ladder reaches for
-- `skills/mlops/experiment-tracking` — records the verdict against the run; owns registry aliases
-- `skills/mlops/model-monitoring` — the monitors a stage-4 canary compares against

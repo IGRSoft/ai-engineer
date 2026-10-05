@@ -7,6 +7,11 @@ invocation against each tool's docs (context7) and pin the versions in
 `uv.lock`, because an export produced by an unpinned toolchain is not
 reproducible.
 
+`tools.generate`, `tools.quantize`, and `BASE_REV` below are project
+placeholders, not published packages: point them at your own generation and
+quantization scripts (wrapping the pinned library) and your base model's
+commit hash.
+
 ## Contents
 
 - [Capture the pre-export baseline first](#capture-the-pre-export-baseline-first)
@@ -19,12 +24,12 @@ reproducible.
 
 ## Capture the pre-export baseline first
 
-This step is not optional and it cannot be done afterwards. Once the checkpoint
-is exported, the pre-export generations no longer exist to diff against, and
-regenerating them later on a different library version compares two unknowns.
+This cannot be done afterwards: once the checkpoint is exported, the
+pre-export generations no longer exist to diff against, and regenerating them
+later on a different library version compares two unknowns.
 
 ```bash
-# Run BEFORE any export step. Same seed and decoding config are reused
+# Run before any export step. Same seed and decoding config are reused
 # post-export — persisted here rather than re-typed, so the two runs are
 # provably identical rather than nominally identical.
 uv run python -m tools.generate \
@@ -50,6 +55,7 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 BASE, ADAPTER = "org/base-model", "artifacts/adapter"
+BASE_REV = "<commit-sha>"  # placeholder: the base model's commit hash, not a branch
 
 # dtype is pinned explicitly: merging under a different dtype than training
 # silently changes the merged weights, and the difference is small enough to
@@ -141,7 +147,7 @@ task evals, then keep the f16 GGUF as the re-quantization input.
 
 ## Smoke-test script skeleton
 
-The gate itself. It must exit non-zero on mismatch, or it is documentation
+The gate itself. It exits non-zero on mismatch; otherwise it is documentation
 rather than a gate.
 
 ```python

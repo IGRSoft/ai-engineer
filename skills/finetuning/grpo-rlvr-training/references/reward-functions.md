@@ -147,7 +147,7 @@ def unit_test_reward(
     return scores
 ```
 
-**Sandbox it for real.** A temporary directory is not isolation — the process
+**Sandbox it.** A temporary directory is not isolation — the process
 still has the training host's network and filesystem. Run this in a container
 or a locked-down execution service with no credentials mounted; route the
 design of that boundary to `ai-engineer:ai-security-auditor`. Sandboxing
@@ -203,7 +203,7 @@ def judge_reward(completions: list[str], prompts: list[str], **kwargs) -> list[f
     return [_judge_score(p, c) for p, c in zip(prompts, completions, strict=True)]
 ```
 
-Non-negotiables before a judge counts as a verifier:
+Before a judge counts as a verifier:
 
 - Agreement with human labels measured on a double-labeled slice and reported
   (`skills/evals/llm-judge`)
@@ -213,8 +213,6 @@ Non-negotiables before a judge counts as a verifier:
   run measures agreement with itself
 
 ## Building the inspection set
-
-The gate that precedes any training run.
 
 1. **Sample 50–100 completions** from the *base* model on the target prompts at
    the temperature the run will use. Samples from a different model or
@@ -232,5 +230,5 @@ The gate that precedes any training run.
    (`skills/mlops/experiment-tracking`) so a later reward change can be
    re-inspected against the same baseline rather than a fresh sample.
 
-Treat this file as the artifact: an inspection JSONL with no human sign-off is
-the same as no inspection.
+The inspection JSONL is the artifact; without human sign-off it does not
+count as an inspection.

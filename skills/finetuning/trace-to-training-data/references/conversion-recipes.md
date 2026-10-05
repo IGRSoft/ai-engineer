@@ -48,6 +48,7 @@ def trace_to_sft(trace: dict) -> dict:
     return {
         "messages": trace["messages"],
         "_provenance": {                      # stripped before training, kept in the card
+            "task_id": trace["task_id"],      # the goldens-holdout check keys on this
             "run_id": trace["run_id"],
             "trace_id": trace["trace_id"],
             "reward": trace["reward"],
@@ -65,10 +66,8 @@ bad grader's output impossible to withdraw later.
 Keeping the top-reward fraction rather than everything that passed.
 
 ```python
-import statistics
-
 def rejection_sample(traces: list[dict], *, keep_fraction: float) -> list[dict]:
-    """Keep the highest-reward passing traces, one per task.
+    """Keep the highest-reward fraction of passing traces within each task.
 
     Per-task grouping matters: a global top-N over all tasks silently drops
     every hard task, because hard tasks score lower everywhere. The result is
@@ -111,7 +110,7 @@ output, which is a stronger signal than any grader score.
 def correction_to_sft(trace: dict, corrected_output: str) -> dict:
     """Emit an SFT row from a human-corrected failing trace.
 
-    No reward threshold applies — the correction IS the label. The original
+    No reward threshold applies — the correction is the label. The original
     failing assistant turn is replaced, not appended, so the model never sees
     the failure as part of the target it should imitate.
     """
@@ -120,6 +119,7 @@ def correction_to_sft(trace: dict, corrected_output: str) -> dict:
     return {
         "messages": messages,
         "_provenance": {
+            "task_id": trace["task_id"],
             "run_id": trace["run_id"],
             "trace_id": trace["trace_id"],
             "source": "human_correction",     # highest-value, scarcest rows in the set
@@ -155,7 +155,8 @@ def mask_bad_steps(trace: dict, step_verdicts: list[str]) -> dict:
             {**m, "train_on": train_on.get(i, False)} if m["role"] == "assistant" else m
             for i, m in enumerate(trace["messages"])
         ],
-        "_provenance": {"run_id": trace["run_id"], "trace_id": trace["trace_id"],
+        "_provenance": {"task_id": trace["task_id"], "run_id": trace["run_id"],
+                        "trace_id": trace["trace_id"],
                         "masked_steps": sum(1 for v in train_on.values() if not v)},
     }
 ```
@@ -171,10 +172,27 @@ version (context7).
 ```python
 import statistics
 
+def _user_turn(messages: list[dict]) -> list[dict]:
+    """Prompt side: every turn before the first assistant turn (system + user).
+
+    Taken from the task definition, so all traces of one task share it, as
+    the identical-prompt rule for pairs requires.
+    """
+    first = next(i for i, m in enumerate(messages) if m["role"] == "assistant")
+    return messages[:first]
+
+def _assistant_turn(messages: list[dict]) -> list[dict]:
+    """Response side: the final assistant turn, in conversational form.
+
+    Assumes single-turn traces; multi-step trajectories go through step-level
+    masking instead of pairs.
+    """
+    return [m for m in messages if m["role"] == "assistant"][-1:]
+
 def build_pairs(traces: list[dict]) -> list[dict]:
     """Build same-task preference pairs, rejecting near mu-2sigma.
 
-    Same-task is non-negotiable: pairing across tasks teaches a preference
+    Same-task only: pairing across tasks teaches a preference
     between topics rather than between responses. Selecting the rejected member
     by distribution rather than by minimum avoids pairing against crashes and
     truncations, which teach a distinction the model already makes.
@@ -187,7 +205,7 @@ def build_pairs(traces: list[dict]) -> list[dict]:
     for task_id, group in by_task.items():
         passing = [t for t in group if t["verdict"] == "pass"]
         failing = [t for t in group if t["verdict"] != "pass"]
-        if not passing or len(group) < 4:      # too few traces to have a distribution
+        if not passing or not failing or len(group) < 4:   # need both sides and a distribution
             continue
         rewards = [t["reward"] for t in group]
         target = statistics.mean(rewards) - 2 * statistics.pstdev(rewards)
@@ -225,17 +243,20 @@ def assert_no_golden_leak(rows: list[dict], golden_ids: set[str]) -> None:
     that item a memorization test. The damage is invisible in training metrics
     and only shows up as a tune that evaluates well and behaves worse.
     """
+    untraceable = sum(1 for r in rows if not r.get("_provenance", {}).get("task_id"))
+    if untraceable:                     # a row we can't trace can't be cleared
+        raise SystemExit(f"GOLDEN LEAK CHECK: {untraceable} rows have no _provenance.task_id")
     leaked = {
         r["_provenance"]["task_id"] for r in rows
-        if r["_provenance"].get("task_id") in golden_ids
+        if r["_provenance"]["task_id"] in golden_ids
     }
     if leaked:
         raise SystemExit(f"GOLDEN LEAK: {len(leaked)} task ids in training set: {sorted(leaked)[:10]}")
 ```
 
 Task-ID matching catches the direct case. Near-duplicate leakage — a paraphrase
-of a golden that carries a different ID — needs the embedding-similarity sweep
-in `skills/finetuning/dataset-curation`'s decontamination section; run both.
+of a golden that carries a different ID — needs the n-gram decontamination
+check in `skills/finetuning/dataset-curation`; run both.
 
 ## Dataset card fields
 

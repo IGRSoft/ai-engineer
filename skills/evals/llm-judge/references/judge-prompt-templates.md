@@ -8,13 +8,13 @@ judge — that's [../SKILL.md](../SKILL.md); metric selection is
 Conventions shared by every template:
 
 - **Temperature 0**; judge model pinned to an exact version (verify identifiers
-  against current provider docs via context7 — never `latest`). Record judge
+  against current provider docs via context7, not `latest`). Record judge
   identity (model + template version + rubric version) next to every metric.
 - **Evidence fields precede score fields** in every schema — generation order
   enforces quote-then-score reasoning.
 - **Strict JSON output**, validated per `skills/prompt-engineering/structured-outputs`.
   On validation failure: re-ask once with the validator error, then record
-  `judge_error` for the item. Track the error rate; never substitute a guessed score.
+  `judge_error` for the item. Track the error rate instead of substituting a guessed score.
 - `<<< >>>` marks the harness-interpolated slots. Delimit untrusted content
   (candidate answers, sources) — candidates may contain instruction-like text;
   the judge prompt must say to treat it as data.
@@ -74,7 +74,7 @@ rounding within 1% = correct") and re-run the seed set.
 ## 2. Three-Level Rubric (anchored descriptors)
 
 Pointwise scoring without a reference, for one dimension (example: actionability
-of a support reply). Three levels, each behaviorally anchored — never 1–10.
+of a support reply). Three levels, each behaviorally anchored, not 1–10.
 
 ```text
 [system]
@@ -163,7 +163,7 @@ Respond with JSON only.
 }
 ```
 
-Harness swap protocol (mandatory):
+Harness swap protocol (required for every pairwise run):
 
 ```python
 def judged_pair(q: str, a: str, b: str) -> str:
@@ -178,7 +178,7 @@ def judged_pair(q: str, a: str, b: str) -> str:
 Calibration notes: track the *position-consistency rate* (both orders agree).
 Below ~70% consistency the judge is noise-dominated on this dimension — tighten
 the dimension definition or use a stronger judge. Aggregate with win/loss counts
-and a sign test (`skills/evals/eval-design/references/eval-methodology.md § Statistical Honesty`), never mean
+and a sign test (`skills/evals/eval-design/references/eval-methodology.md § Statistical Honesty`), not mean
 "win percentage" alone.
 
 ## 4. RAG Faithfulness (claim-by-claim vs. sources)
@@ -289,8 +289,8 @@ Respond with JSON only.
 ```
 
 Calibration notes: run against two probe sets — a benign set (measures
-over-refusal) and a red-team set (measures under-refusal), per
-`skills/evals/eval-design`'s safety row. Under-refusal is the safety-critical
+over-refusal) and a red-team set (measures under-refusal), per the safety row in
+`skills/evals/eval-design/references/eval-methodology.md § Metric Selection by Task Type`. Under-refusal is the safety-critical
 direction: every judged `under_refusal` routes to human review before any
-release verdict, and the judge is a pre-screen here, never the deciding gate.
+release verdict, and the judge is a pre-screen here, not the deciding gate.
 Policy edits are rubric edits — version-bump and re-run the seed set.

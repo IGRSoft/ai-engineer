@@ -2,51 +2,27 @@
 name: experiment-tracking
 description: >-
   Reproducible ML experiment tracking: the run contract (config, seed, dataset
-  version, code commit, environment hash, metrics), MLflow vs W&B concept
-  mapping, run hygiene for sweeps, LLM-specific logging (prompt and eval-set
-  versions, judge config, per-example outputs), and model-registry promotion
-  through dev → staging → prod aliases gated on evals. Use when logging a
-  training, fine-tuning, or eval run, setting up or reviewing MLflow/W&B,
-  organizing sweep runs, promoting or rolling back a registered model, or when
-  a reported metric cannot be traced back to the run that produced it.
+  version, commit, environment, metrics), MLflow/W&B mapping, sweep hygiene,
+  LLM-specific logging, and eval-gated registry promotion via aliases. Use when
+  logging a training, fine-tuning, or eval run, setting up MLflow/W&B,
+  promoting or rolling back a model, or when a metric can't be traced to its run.
 ---
 
 # Experiment Tracking
 
-## Overview
+Tracking turns training and eval runs into evidence: what went in (config, seed, dataset version, commit, environment), what came out (metrics, artifacts), and where it went (registry version, alias). The test: given only the tracker entry, a teammate can rebuild the artifact and get the same numbers. Start on day one (an unlogged run is gone); file-backed MLflow (`./mlruns`) works offline, no server needed. Owning agent: `ai-engineer:mlops-engineer`.
 
-A run you cannot reproduce is a rumor. Experiment tracking turns training and
-eval runs into evidence: each run records what went in (config, seed, dataset
-version, code commit, environment), what came out (metrics, artifacts), and
-where it went (registry version, alias). The acceptance test is one question:
-*given only the tracker entry, can a teammate rebuild the artifact and get the
-same numbers?*
+**Elsewhere:**
 
-Tracking is cheap to add on day one and impossible to retrofit — the run you
-did not log is gone. It needs no infrastructure to start: file-backed MLflow
-(`./mlruns`) works offline on a laptop; a tracking server is an upgrade, not a
-prerequisite.
-
-## When to Use
-
-- Launching any training, fine-tuning, or eval run whose numbers someone will act on
-- Setting up MLflow or W&B for a project, or reviewing an existing setup
-- Organizing hyperparameter sweeps and comparing their results
-- Promoting a model toward production, or rolling one back
-- Nobody can answer "which model is in prod and how exactly was it trained?"
-
-**When NOT to use:**
-
-- CI pass/fail thresholds on eval metrics → `skills/evals/regression-gates` (the tracker stores results; gates decide)
-- Designing the eval itself (sets, metrics, judges) → `skills/evals/eval-design`
-- Data/pipeline versioning mechanics (DVC stages, remotes) → `skills/mlops/ml-pipelines` — runs *reference* the DVC revision; DVC owns it
-- Deciding whether a checkpoint *earns* promotion — drift budget, paired comparison, forgetting checks → `skills/finetuning/checkpoint-promotion` (this skill owns the run contract and registry aliases; that one produces the PROMOTE/REJECT verdict recorded against them)
-- Deploying the promoted model → `skills/mlops/model-serving`
+- CI pass/fail thresholds on eval metrics → `skills/evals/regression-gates`
+- Designing evals → `skills/evals/eval-design`, `skills/evals/llm-judge`
+- DVC data/pipeline versioning and promotion CI/CD → `skills/mlops/ml-pipelines`
+- Whether a checkpoint earns promotion (PROMOTE/REJECT) → `skills/finetuning/checkpoint-promotion`
+- Deploying the promoted model and consuming aliases → `skills/mlops/model-serving`; prod trends vs run baselines → `skills/mlops/model-monitoring`
 
 ## The Reproducibility Contract
 
-Every tracked run logs all six fields. Five of six is zero of six — one
-missing field breaks the rebuild chain.
+Every tracked run logs all six fields; one missing field breaks the rebuild chain.
 
 | # | Field | Log as | Breaks without it |
 |---|-------|--------|-------------------|
@@ -57,11 +33,7 @@ missing field breaks the rebuild chain.
 | 5 | Environment | tag: `uv.lock` hash (+ container image digest if used) | Dependency drift changes results silently |
 | 6 | Metrics | step-indexed series + final summary | A run that proves nothing |
 
-Worked tracked-run launcher (MLflow, all six fields logged before any work): `references/tracking-implementation.md`.
-
-## Deep Dives
-
-Read `references/tracking-implementation.md` for the tracked-run launcher example, MLflow ↔ W&B concept mapping, run hygiene, LLM-specific logging fields, and the registry promotion flow.
+`references/tracking-implementation.md` has the tracked-run launcher (MLflow, all six fields logged before any work), the MLflow ↔ W&B mapping, run hygiene, LLM-specific logging fields, and the registry promotion flow.
 
 ## Anti-Patterns
 
@@ -76,27 +48,6 @@ Read `references/tracking-implementation.md` for the tracked-run launcher exampl
 | One experiment for everything | Cross-task comparisons meaningless | Experiment per task + model family; tags for slicing |
 | Metric without an eval-set version | Number cannot be compared to anything later | Tag every metric-producing run with `eval_set` |
 
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "I'll remember what this run was" | You will not, and your teammate never knew. Names + tags cost seconds. |
-| "Tracking slows down research iteration" | File-backed MLflow is offline and adds milliseconds. Re-running lost experiments is what slows iteration. |
-| "We only care about the best run" | The comparison *is* the result. Failed and mediocre runs are the evidence the best run beat something. |
-| "The checkpoint filename encodes the settings" | Filenames are not queryable, not complete, and lie after one rename. |
-| "We'll add tracking when we productionize" | The runs you most need to compare against are the early ones — exactly the ones that are gone. |
-| "Our team is one person" | Future-you at three months is a second person with no memory. |
-
-## Red Flags
-
-- Results live in a spreadsheet, a Slack thread, or terminal scrollback
-- A checkpoint named `final_v2_best.safetensors` with no run attached
-- Nobody can state the dataset version behind the model currently in prod
-- A reported metric with no eval-set version next to it
-- Sweep analysis means eyeballing a directory of output folders
-- A registry exists but serving loads a hardcoded version number (alias flip cannot roll back)
-- The same config re-run "to be sure" produces different numbers and nobody can say why
-
 ## Verification
 
 - [ ] Pick a recent run: rebuild its environment from the logged lockfile hash and relaunch from the logged commit + config + seed — metrics match
@@ -106,13 +57,3 @@ Read `references/tracking-implementation.md` for the tracked-run launcher exampl
 - [ ] Registry aliases `dev` / `staging` / `prod` resolve; serving reads the alias, not a version number
 - [ ] Promotion criteria written down and gated on evals (pinned set, temperature 0)
 - [ ] A teammate can answer "what is in prod and how was it trained?" from the tracker alone
-
-## Related Skills
-
-- `skills/mlops/ml-pipelines` — DVC data versioning that runs reference; CI/CD wiring around promotion
-- `skills/mlops/model-serving` — consuming registry aliases at deploy; revision pinning
-- `skills/mlops/model-monitoring` — production trends compared against run baselines
-- `skills/evals/regression-gates` — the gate logic promotion criteria delegate to
-- `skills/evals/eval-design` and `skills/evals/llm-judge` — building the evals whose results get logged
-
-Owning agent: `ai-engineer:mlops-engineer`.

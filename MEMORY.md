@@ -29,12 +29,11 @@ capability set from the start rather than migrating into it:
   (`ai-code-fixer`), sonnet/medium 40 (`ai-engineer` router), sonnet/high 50
   (the four domain implementers, `ai-test-generator`, `ai-security-auditor`,
   `ai-performance-engineer`), opus/xhigh 60 (`ai-architector`).
-- **`disallowed-tools: Write, Edit`** — declared on the two review-only agents
-  (`ai-security-auditor`, `ai-performance-engineer`) as defense-in-depth on top
-  of their already Write/Edit-free `tools:` allow-lists. Fixes route to
-  `ai-code-fixer`.
-- **Fully-qualified `Task(plugin:agent)` references** — all delegations use the
-  `Task(ai-engineer:<agent>)` / `subagent_type="ai-engineer:<agent>"` form; no
+- **Review-only agents** — `ai-security-auditor` and `ai-performance-engineer`
+  have Write/Edit-free `tools:` allow-lists, so no `disallowedTools` is needed.
+  Fixes route to `ai-code-fixer`.
+- **Fully-qualified `Agent(plugin:agent)` references** — all delegations use the
+  `Agent(ai-engineer:<agent>)` / `subagent_type="ai-engineer:<agent>"` form; no
   bare agent names anywhere. Cross-plugin targets keep their own prefix
   (`corpflow:*`, `system-developer:*`, etc.).
 - **Scoped `Bash(cmd:*)` allowlists** — each agent's `tools:` enumerates only
@@ -87,9 +86,7 @@ following stay orchestrator-owned and are deliberately **not** implemented here:
   with corpflow's meta-prompt agent (`corpflow:prompt-engineer`, which owns
   Claude Code agent/skill/command prompts). The `ai-` prefix on colliding
   Tier-2 names mirrors the sibling plugins' prefix families (`sys-` in
-  system-developer, `fe-`/`be-` in frontend/backend-developer). The agent's
-  description carries the disambiguation both ways: product prompts here,
-  meta-prompts to corpflow.
+  system-developer, `fe-`/`be-` in frontend/backend-developer).
 - **Smoke-scale training rule** — DV never launches full training runs: capped
   `max_steps`/epochs on a data subsample, verify the loss curve moves
   (decreasing, no NaN), and document the full-run launch plan (command, data,
@@ -132,7 +129,7 @@ following stay orchestrator-owned and are deliberately **not** implemented here:
 ## corpflow Registration (pending companion change)
 
 Standalone install works today: slash commands (`/ai-engineer:*`), skills, and
-direct `Task(ai-engineer:*)` delegation. Auto-routing from the corpflow
+direct `Agent(ai-engineer:*)` delegation. Auto-routing from the corpflow
 worktask (DV dispatch on AI markers, `--platform ai`) requires edits **in the
 corpflow repo** — exact before/after snippets in
 `docs/corpflow-registration.md`. Until that PR lands, route AI worktasks by

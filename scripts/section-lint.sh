@@ -14,13 +14,12 @@
 #
 # Required-H2 check (advisory — warn lines only, NEVER affects the exit code),
 # calibrated against this plugin's real files (2026-07 inventory):
-#   agents/*.md   — must carry "## Workflow Integration", and one of
-#                   "## Response Approach" OR "## Core Workflow"
+#   agents/*.md   — must carry "## Response Approach" OR "## Core Workflow"
 #                   (prefix-matched: several agents suffix the heading, e.g.
 #                   "## Response Approach (Update Workflow)"; ai-architector
-#                   uses "## Core Workflow"). agents/_base/* are exempt.
+#                   uses "## Core Workflow").
 #   commands/*.md — must carry the review-code exemplar skeleton H2s:
-#                   CRITICAL BEHAVIORAL RULES, Usage, Options, Output Format,
+#                   Rules, Usage, Options, Output Format,
 #                   Error Handling, See Also.
 #
 # The length lint is strict (exit 1 on any overrun). The repo carries
@@ -29,7 +28,7 @@
 # failing state.
 #
 # Usage:
-#   scripts/section-lint.sh              # lint agents/, agents/_base/, commands/,
+#   scripts/section-lint.sh              # lint agents/, commands/,
 #                                        # skills/**  (excludes templates/, scripts/,
 #                                        # fixtures/ — scaffolds and test vectors,
 #                                        # not agent-facing prose)
@@ -54,16 +53,13 @@ HEAD_RE = re.compile(r'^#{1,6} ')
 # PREFIXES — a file passes a group when any real (fence-exempt) heading
 # starts with any alternative. Advisory only: misses warn, never fail.
 REQUIRED = {
-    'agent': [('## Workflow Integration',),
-              ('## Response Approach', '## Core Workflow')],
-    'command': [('## CRITICAL BEHAVIORAL RULES',), ('## Usage',),
+    'agent': [('## Response Approach', '## Core Workflow')],
+    'command': [('## Rules',), ('## Usage',),
                 ('## Options',), ('## Output Format',),
                 ('## Error Handling',), ('## See Also',)],
 }
 
 def required_for(path):
-    if re.search(r'(^|/)agents/_base/', path):
-        return None                       # shared templates — exempt
     if re.search(r'(^|/)agents/[^/]+\.md$', path):
         return REQUIRED['agent']
     if re.search(r'(^|/)commands/[^/]+\.md$', path):
@@ -158,13 +154,13 @@ self_test() {
 		printf 'c%.0s' {1..800}; printf '\n'; } >"${td}/leaf.md"
 	# fixture 6: frontmatter only, no headings
 	printf -- '---\nname: a\ndescription: b\n---\npreamble only\n' >"${td}/plain.md"
-	# fixture 7: agent file satisfying the required groups via the Core
+	# fixture 7: agent file satisfying the required group via the Core
 	# Workflow alternative — must produce no warning
 	mkdir -p "${td}/agents"
-	printf -- '## Workflow Integration\nx\n## Core Workflow\ny\n' >"${td}/agents/arch.md"
-	# fixture 8: agent file missing Workflow Integration (suffixed Response
-	# Approach present) — must warn but still exit 0 (advisory)
-	printf -- '## Response Approach (Fix Application Workflow)\nz\n' >"${td}/agents/gap.md"
+	printf -- '## Core Workflow\ny\n' >"${td}/agents/arch.md"
+	# fixture 8: agent file with neither Response Approach nor Core Workflow
+	# — must warn but still exit 0 (advisory)
+	printf -- '## Capabilities\nz\n' >"${td}/agents/gap.md"
 
 	lint "${td}/ok.md" "${td}/plain.md" >/dev/null \
 		|| { echo "section-lint self-test: FAIL (ok/plain fixtures flagged)" >&2; exit 2; }
@@ -186,9 +182,9 @@ self_test() {
 }
 
 repo_files() {
-	# git `*` matches `/`, so the agents/skills globs already recurse; the
-	# explicit agents/_base and skills patterns document intent, sort -u dedupes.
-	git ls-files -- 'agents/*.md' 'agents/_base/*.md' 'commands/*.md' \
+	# git `*` matches `/`, so the skills glob already recurses; the explicit
+	# skills/** pattern documents intent, sort -u dedupes.
+	git ls-files -- 'agents/*.md' 'commands/*.md' \
 		'skills/*.md' 'skills/**/*.md' \
 		| sort -u \
 		| grep -Ev '/(templates|scripts|fixtures)/' || true

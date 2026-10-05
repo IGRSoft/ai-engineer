@@ -50,9 +50,9 @@ degenerate input, multi-intent, out-of-scope. Tags drive stratified CI subsets
 | Safety/compliance behavior | Full risk-taxonomy coverage + human review | Coverage beats raw N |
 
 **Version eval sets like code.** The set is a versioned artifact — JSONL in git (or
-DVC-tracked when large), with a manifest. Bump the version on *any* example change.
-**The eval-set version appears next to every reported metric**; a metric without
-its eval-set version is unreproducible and incomparable.
+DVC-tracked when large), with a manifest. Bump the version on any example change. The eval-set version
+appears next to every reported metric; without it a metric is unreproducible and
+incomparable.
 
 ```jsonl
 {"id": "inv-0042", "tags": ["extraction", "multi-currency", "adversarial"], "source": "prod-2026-05", "input": {"document": "…"}, "expected": {"total": "1,204.50", "currency": "EUR"}}
@@ -62,7 +62,7 @@ its eval-set version is unreproducible and incomparable.
 ```yaml
 # evals/datasets/invoice-extraction/manifest.yaml
 name: invoice-extraction
-version: 2026.06.2            # bump on ANY example change; metrics cite this
+version: 2026.06.2            # bump on any example change; metrics cite this
 size: 240
 provenance: {prod_traffic: 180, failure_reports: 38, synthetic_backfill: 22}
 tags: [multi-currency, handwritten, adversarial, empty-input, multi-page]
@@ -74,23 +74,23 @@ license_note: prod examples scrubbed per data-handling policy 2026-04
 | Task type | Primary metrics | Notes |
 |-----------|-----------------|-------|
 | Classification / routing | Accuracy, per-class F1, confusion matrix | Macro-F1 when classes are imbalanced; report the confusion matrix, not one number |
-| Extraction (structured fields) | Field-level precision/recall/F1; per-field exact match | Never whole-blob equality — one wrong field must not zero the example. Schema validity is a tier-1 assertion (`skills/prompt-engineering/structured-outputs`) |
-| Generation (freeform) | Judge rubric dimensions + targeted assertions (must-mention, must-not-mention, format, length bounds) | ROUGE/BLEU correlate weakly with quality — use them as tripwires, never as gates |
+| Extraction (structured fields) | Field-level precision/recall/F1; per-field exact match | No whole-blob equality — one wrong field shouldn't zero the example. Schema validity is a tier-1 assertion (`skills/prompt-engineering/structured-outputs`) |
+| Generation (freeform) | Judge rubric dimensions + targeted assertions (must-mention, must-not-mention, format, length bounds) | ROUGE/BLEU correlate weakly with quality — use them as tripwires, not gates |
 | Summarization | Faithfulness judge + coverage assertions on key facts | Split "faithful to source" from "covers what matters" |
 | RAG | Faithfulness + answer relevance (judge) **and** retrieval metrics (recall@k, MRR) measured separately | Separate retrieval failure from generation failure or you cannot fix either — `skills/llm-apps/rag-systems/references/retrieval-evaluation.md` |
 | Agent / tool use | End-to-end task success rate, tool-call validity, step/token budget adherence | Trajectory assertions (tool X called before Y, no forbidden tools) |
-| Safety / refusal | Refusal-when-required recall + over-refusal rate on a benign probe set | Always measure both directions — optimizing one silently degrades the other |
+| Safety / refusal | Refusal-when-required recall + over-refusal rate on a benign probe set | Measure both directions — optimizing one silently degrades the other |
 
 ## Prompt A/B Comparison
 
-This skill owns prompt A/B. The protocol:
+The protocol:
 
 1. **Same eval set** — identical pinned version for both variants
 2. **One variable** — change the prompt only; same model, params, retrieval config.
    Change two things and the delta is unattributable.
 3. **Deterministic runs** — temperature 0 (plus a fixed seed where the provider
-   supports one), pinned model ID (verify identifiers against current provider
-   docs via context7 — never hardcode from memory)
+   supports one), pinned model ID (check identifiers against current provider
+   docs rather than memory)
 4. **Paired comparison** — record per-example results side by side; compare
    wins/losses/ties, not aggregate means alone
 5. **Report** — deltas + win/loss counts + eval-set version + run config
@@ -125,7 +125,7 @@ pairs (B wins or B loses) carry signal; ties are inert. With ~30 discordant pair
 you can reliably detect only lopsided splits (roughly 2:1 or worse). A true 1–2%
 quality delta needs several hundred examples to distinguish from noise — below
 that N, an apparent small win is a coin flip. **Ties go to the simpler/cheaper
-variant. Don't ship on vibes.**
+variant.**
 
 ## Statistical Honesty
 
@@ -133,7 +133,7 @@ variant. Don't ship on vibes.**
   nondeterminism, judge ties). Rerun the *same* variant 2–3× once; the spread you
   see is your noise floor. Any delta inside it is not a result.
 - **Small-N humility.** Report counts, not just percentages: "3 of 20 failed",
-  never "15%". One flipped example at N=20 moves a metric 5 points.
+  not "15%". One flipped example at N=20 moves a metric 5 points.
 - **Sign test over means for paired judge scores.** Judge scores are ordinal —
   a mean of 1–5 ratings is not meaningful. Count per-example wins/losses and run
   an exact sign test on the discordant pairs:
@@ -149,7 +149,7 @@ def sign_test_p(wins: int, losses: int) -> float:
     return min(1.0, 2 * tail)
 
 sign_test_p(14, 4)   # 82 ties → p ≈ 0.031: likely a real improvement
-sign_test_p(6, 3)    # 91 ties → p ≈ 0.51: noise — do not report as a win
+sign_test_p(6, 3)    # 91 ties → p ≈ 0.51: noise, not a win
 ```
 
 - **No metric shopping.** Decide the primary metric and the shipping threshold
@@ -162,7 +162,7 @@ sign_test_p(6, 3)    # 91 ties → p ≈ 0.51: noise — do not report as a win
   provably absent from training data — run exact and near-duplicate scans across
   both sets. A model that memorized the eval set produces flawless, meaningless
   metrics. The scrubbing workflow lives in `skills/finetuning/dataset-curation`.
-- **Leakage into prompts.** Never paste eval examples into few-shot exemplars or
+- **Leakage into prompts.** Don't paste eval examples into few-shot exemplars or
   system prompts — the eval silently becomes a memorization test. Keep exemplar
   sources disjoint from eval data, and re-check after every prompt edit.
 - **Refresh cadence.** Production drifts. Harvest new failures into the set on a
@@ -178,11 +178,11 @@ sign_test_p(6, 3)    # 91 ties → p ≈ 0.51: noise — do not report as a win
 Metrics say *that* something failed; only transcripts say *why*.
 
 ```
-run eval ──► read failing transcripts (10–20 minimum — never metrics alone)
+run eval ──► read failing transcripts (10–20 minimum, not just metrics)
          ──► tag each failure with a mode
              (wrong-field, hallucinated-value, format-break,
               unwarranted-refusal, retrieval-miss, truncation, …)
-         ──► cluster tags ──► fix the BIGGEST cluster only
+         ──► cluster tags ──► fix the biggest cluster only
          ──► add cluster examples to the eval set (version bump)
          ──► re-run on the SAME pinned version ──► compare ──► repeat
 ```

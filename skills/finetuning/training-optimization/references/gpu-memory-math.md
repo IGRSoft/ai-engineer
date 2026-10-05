@@ -15,7 +15,7 @@ Skip this file if:
 
 All numbers are estimates for planning; overheads (CUDA context, allocator
 fragmentation, framework buffers) are real, so plan with ≥10–15% headroom
-and always verify on the smoke run.
+and verify on the smoke run.
 
 ## Bytes per Component
 
@@ -108,7 +108,7 @@ Consequences for planning:
 1. **Estimate** with the tables above for your params/dtype/method.
 2. **Smoke run** (capped steps, subsample — the [../SKILL.md](../SKILL.md)
    smoke-scale rule).
-3. **Verify** with the allocator, not vibes:
+3. **Verify** with the allocator:
 
 ```python
 """Peak-memory report for a smoke run. Call after trainer.train()."""
@@ -128,9 +128,9 @@ def report_peak() -> str:
    reads higher than `max_memory_allocated` — expect a ~0.5–1 GB+ gap).
    Record both numbers in the run log. When `nvidia-smi` is absent (Mac/CPU
    host), record allocator numbers only and note the reduced verification
-   depth in the artifact — never hard-fail on a missing GPU.
-4. **Compare** to the estimate. An unexplained gap beyond ~20–30% must be
-   found before the full run — usual suspects: an eval loop building
+   depth in the artifact rather than failing.
+4. **Compare** to the estimate. An unexplained gap beyond ~20–30% gets
+   explained before the full run — usual suspects: an eval loop building
    gradient graphs (missing `torch.inference_mode()`), a second model copy
    (reference model, EMA), fragmentation, or activations far above the
    guess (seq outliers in data).
@@ -145,7 +145,7 @@ at the first rung that fits with headroom.
    expandable-segments option (env var name varies by torch version — verify
    current docs via context7).
 2. **Micro-batch → 1**, cap sequence length (structured truncation only —
-   never cut off the answer span; see
+   don't cut off the answer span; see
    [../../dataset-curation/references/data-formats.md](../../dataset-curation/references/data-formats.md)).
 3. **Gradient checkpointing on.**
 4. **8-bit / paged optimizer** (matters for full FT or very large adapters).

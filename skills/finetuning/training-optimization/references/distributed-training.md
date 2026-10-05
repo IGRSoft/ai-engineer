@@ -33,7 +33,7 @@ to shard.
 | Strategy | What it does | Use when | Cost |
 |----------|--------------|----------|------|
 | DDP | Full model replica per GPU; all-reduce gradients | Model + optimizer fit on one GPU; you want data-parallel speedup | Comms per step; per-GPU memory unchanged |
-| FSDP (ZeRO-3-class) | Shards params + grads + optimizer states across GPUs | Model/optimizer do NOT fit on one GPU | More comms; wrap-policy and state-dict config complexity |
+| FSDP (ZeRO-3-class) | Shards params + grads + optimizer states across GPUs | Model/optimizer don't fit on one GPU | More comms; wrap-policy and state-dict config complexity |
 | DeepSpeed ZeRO-1/2/3 | Shards optimizer / +grads / +params (stage-selectable) | Same class of problem as FSDP; ecosystem preference | JSON config surface; version coupling |
 | CPU/NVMe offload (FSDP or ZeRO variants) | Spills shards to host memory/disk | Last resort before more GPUs | Severe throughput hit |
 | Tensor / pipeline parallel | Splits individual layers/stages across GPUs | Very large models, pretraining scale | Out of scope for this plugin's fine-tuning work — consult `ai-engineer:ai-architector` |
@@ -57,7 +57,7 @@ fits on 1 GPU? ── yes → single GPU + accumulation (done)
 
 ## accelerate Basics
 
-Generate the config interactively — do not hand-write it from memory (field
+Generate the config interactively rather than hand-writing it (field
 names and values change across accelerate versions):
 
 ```bash
@@ -121,11 +121,11 @@ Launch-time discipline:
   inline at save time risks OOM gathering the full model on one rank.
   (Utility names differ per stack and version — verify current FSDP/
   DeepSpeed/accelerate docs via context7.)
-- Never assume a sharded checkpoint loads at a different world size without
+- Don't assume a sharded checkpoint loads at a different world size without
   conversion; record sharding strategy, world size, and consolidation
   status in the run config (`skills/mlops/experiment-tracking`).
 - Consolidated artifacts are safetensors, stored in a registry/DVC/object
-  storage — never git, never pickle.
+  storage — not git, not pickle.
 
 ## Pre-Launch Checklist
 

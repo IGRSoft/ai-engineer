@@ -1,8 +1,4 @@
-<!-- TEMPLATE. Copy to the root of an integrating plugin as CORPFLOW.md and replace every
-PLACEHOLDER. Normative contract: corpflow skills/cross-plugin-handoff/references/plugin-contract.md.
-Keep it one self-contained file; splitting it into references/ rebuilds the coupling it replaced.
-Never add a `## Routing` or `## Models` heading — both are reserved for a CORPFLOW.md at a *user
-project* root or at user scope, `~/.claude/CORPFLOW.md` (override template: corpflow templates/PROJECT-CORPFLOW.md). -->
+<!-- Never add a `## Routing` or `## Models` heading: both are reserved for a CORPFLOW.md at a user project root or `~/.claude/CORPFLOW.md`. -->
 
 # corpflow Integration — ai-engineer
 
@@ -61,6 +57,8 @@ Build Evidence is eval reports, metric tables, and training transcripts under `.
   `metadata.always_required_tests`.
 - Denied and `--no-test` does not fit → record `requests_test_evidence: <what and why>` in your
   artifact, or return `verdict: blocked`. Never reach for the toolchain.
+- AI QA is `go` only when the tests pass and the eval gate holds (`ai-engineer:regression-gates`). A
+  red gate is a `no-go` blocker; any override rationale goes in the QA artifact and PR.
 
 ## Worktree isolation (DV)
 
@@ -129,8 +127,6 @@ handoff:
 ---
 ```
 
-#### Pairing rule
-
 `refs.decisions` and the `architecture` object travel together — one without the other makes DR
 report `missing_input`, either without AR trips the inverse guard.
 
@@ -151,8 +147,7 @@ unrecognised — the stage reads as neither passed nor failed. `needs_changes` i
 
 AR writes `.context/ai-architecture.md` and returns ≤500 tokens for `corpflow:software-architector` to merge.
 DR, SR and QA write no artifact. DV-support returns `{support_role, findings}` to its parent.
-Blocked → `verdict: blocked` + `error_escalated_to:`, narrative in
-`.context/errors/<agent-basename>.md`.
+Blocked → `verdict: blocked` + `error_escalated_to:`, narrative in `.context/errors/<agent-basename>.md`.
 
 ## Closing elicitation sweep (BINDING)
 
@@ -247,13 +242,21 @@ DR and SR consultations end the return with exactly one `json` fence, placed las
 `consultant-return.v1` object (`schema_version`, `verdict`, `severity_counts`, `findings[]`) with
 lowercase severities. A rejected return is re-dispatched once and never hand-fixed.
 
+### Return verification
+
+Routing a stage to a specialist, `ai-engineer` checks the return before passing it on: frontmatter
+present, artifact at the row's `metadata.artifact`, `state.json` patched or the reason logged; for
+DV a fresh `### build-evidence` (`python -VV`, `uv.lock` versions, ruff/type-check, transcript under
+`.context/logs/`, an eval row when prompts, models or retrieval changed) and the screenshot skip
+line or a `screenshots-<TASK_ID>.md` with `source: cli-fallback` rows; on rework every
+`gate_blockers[]` item answered in `.context/errors/<agent-basename>.md`. Frontmatter missing → WARN
+and add minimal `handoff:` frontmatter from the specialist's summary.
+
 ## Orchestrator agent roles
 
 This plugin's own multi-stage commands name a **role**, never an id, so this table is the only place
 an id appears. Resolve the id, then check your available agent list: **present** → dispatch it;
 **absent** → apply the call site's own `Error handling:` line. Never a hard halt.
-
-### Which roles never route through corpflow
 
 **Roles with a local equivalent are not dispatched through corpflow at all.** Architect, QA
 engineer, and security reviewer resolve to routers that come straight back here, so app-layer work
@@ -278,10 +281,6 @@ orchestrator's architect. Routing system-level design at the local architect is 
 | the orchestrator's project manager | `corpflow:project-manager` |
 | the orchestrator's worktask engineer | `corpflow:workflow-engineer` |
 | the orchestrator's platform router | `corpflow:developer` |
-| the orchestrator's meta-prompt engineer | `corpflow:prompt-engineer` |
-
-A standard that is absent is simply unavailable — the skill's own guidance stands alone. Never
-fork a standard's text into this plugin; a copy drifts silently.
 
 ## Keeping the seam single
 
@@ -290,6 +289,7 @@ fork a standard's text into this plugin; a copy drifts silently.
 - Hooks say "the orchestrator" generically, so they work standalone.
 - Shared standards are the exception, referenced by id: `corpflow:code-comment-standard`,
   `corpflow:security-review-process`, `corpflow:claude-constitution`, `corpflow:logging-conventions`.
+  An absent standard is unavailable and the skill's own guidance stands; never fork its text here.
 - ai-engineer's version does not track corpflow's. Bump the target below when the contract changes.
 
 | | |

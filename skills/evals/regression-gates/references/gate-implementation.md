@@ -63,16 +63,15 @@ policy:
 
 - **Deterministic settings everywhere:** temperature 0, fixed seeds where
   supported, pinned model IDs (verify against current provider docs via
-  context7), pinned eval-set version. This is the base agent contract — a gate
-  without it measures the weather.
+  Context7), pinned eval-set version. Without them the gate measures noise.
 - **Judge nondeterminism** survives temperature 0. Two remedies, use both:
   **cached verdicts** keyed by `hash(input, output, judge_identity)` — unchanged
   outputs re-judge identically and free — and an **N-run majority vote** (N=3)
   for uncached verdicts that land inside the warn band, where single-call noise
   decides pass/fail.
 - **Flake budget.** Track gate flake rate: same commit, different verdicts. When
-  it exceeds a small budget (a percent, not a vibe), fix determinism — do not
-  widen thresholds, and do not normalize "re-run until green".
+  it exceeds a small budget (a percent), fix determinism rather than widening
+  thresholds or re-running until green.
 - **Quarantine list**, exactly like flaky tests: a known-unstable example moves
   to quarantine — still executed and reported, no longer blocking — with an
   owner, a linked issue, and an **expiry date**. Quarantine growth without
@@ -180,20 +179,20 @@ eval-smoke:
 ```
 
 Gate failures must point at transcripts (the artifact upload above), because the
-fix workflow is `skills/evals/eval-design/references/eval-methodology.md § Failure Analysis` — nobody can act
+fix workflow is `skills/evals/eval-design/references/eval-methodology.md § Failure Analysis Workflow` — nobody can act
 on "field_f1 dropped 0.03" alone.
 
 ## Escape Hatch Protocol
 
-Sometimes a red gate must be overridden — a hotfix outranks a warn-band metric,
-or the gate itself is wrong. Overrides are legitimate **only when recorded**:
+A red gate may be overridden — a hotfix outranks a warn-band metric, or the
+gate itself is wrong — but only when recorded:
 
 1. **Recorded rationale** — who overrode, why, which metrics were red, expiry.
 2. **Follow-up issue** — filed before merge, linked in the override record;
    fixing the regression or the gate is now scheduled work.
 3. **Annotation in the metrics artifact** — the run is marked `overridden`, so
    it can never silently become a baseline.
-4. **Never a threshold edit in disguise.** Changing `gates.yaml` in the same PR
+4. **No threshold edit in disguise.** Changing `gates.yaml` in the same PR
    that fails it is an unrecorded override; threshold changes ship separately
    with their own review.
 
@@ -205,8 +204,3 @@ reason: P0 hotfix for prod incident 1382 outranks a warn-band regression
 follow_up: repo#1391          # re-run + fix scheduled
 expires: 2026-07-29
 ```
-
-In worktask context the same rule surfaces as the QA verdict: `no-go` carries
-the eval failure into `metadata.gate_blockers[]`, and any override rationale
-lives in the QA artifact and PR — never only in chat
-(`CORPFLOW.md`).
