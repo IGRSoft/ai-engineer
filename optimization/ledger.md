@@ -82,6 +82,7 @@ Answered 2026-10-05. Each group runs as one Opus task in this order, one commit 
 | G5 Security IDs & exit codes | done | `chore(optimization): Apply G5 security ID and exit code decisions` |
 | G6 Content fixes | done | `chore(optimization): Apply G6 content fix decisions` |
 | G7 `_shared` rows (process the three todo rows above per the brief) | done | `chore(optimization): Apply G7 shared reference cleanup` |
+| G8 Follow-ups | todo | |
 
 ### G1 Agent infrastructure
 - Move `agents/_base/ai-agent.md` to `skills/_shared/agent-base.md` (a reference doc, not an agent). Drop `inherits:` from every agent and copy into each agent only the base rules it needs (some are already copied). Update references to the old path.
@@ -123,18 +124,20 @@ Answered 2026-10-05. Each group runs as one Opus task in this order, one commit 
 - quantized-export `references/export-commands.md`: label `tools.generate`, `tools.quantize` and `BASE_REV` as project placeholders.
 - README.md:66: change `/system-developer:code-review` to `/system-developer:review-code`. Leave CHANGELOG.md history alone.
 
+### G8 Follow-ups
+- CORPFLOW.md: keep the ≤280-line budget, remove the ≤260 row from the footer, and trim the file to 280 lines or fewer.
+- regression-gates: state the AI QA rule only in CORPFLOW.md; the skill points to it.
+- mlops-engineer, ai-test-generator and rag-audit: replace "tee transcripts" with `>> log 2>&1` redirects, as in build-test.
+- structured-outputs/SKILL.md and agent-design/references/tool-design.md: rename "insecure output handling" to "improper output handling".
+- Drop the frontmatter from skills/_shared/model-selection.md, severity-matrix.md and framework-detection.md; check that no script reads it.
+
 ### Decided: keep as is
 - `.context/...` corpflow paths in peft-lora and training-optimization.
 - rag-audit's own grading rubric alongside rag-systems' Verification list.
 - The one-line "every change ships with an eval run" pointers in each skill.
+- ai-performance-engineer gets no build-test line (benchmarks aren't a gate).
 - Emphasis inside judge templates and repair prompts, since that text goes to the product model.
 - Provider-neutral caveats in structured-outputs.
 
 ## Needs decision
 
-- CORPFLOW.md is 285 lines after G4 (was 275) and its footer lists two size budgets, ≤260 and ≤280 (a third duplicate ≤280 row was dropped). Which budget holds, and should the file be trimmed to it?
-- regression-gates/SKILL.md still states the AI QA rule (QA passes only when tests pass and the eval gate holds), now also in CORPFLOW.md. Keep it in the skill or cut it there?
-- ai-performance-engineer runs `uv run pytest` benchmarks but did not get the build-test line, since it is review-only and benchmarks aren't a build or test gate. Add it there too?
-- G5 applied `>> log 2>&1` (append), not `> log`, because each build-test phase and each eval-run suite appends to one shared log. `tail` is a built-in read-only command; build-test lists `Bash(tail:*)` anyway and dropped `Bash(tee:*)`. Redirect targets are checked against Edit rules and working dirs, so `.context/logs/` inside the repo still passes. mlops-engineer, ai-test-generator and rag-audit still say "tee transcripts to `.context/logs/`" (generic, outside G5's two commands). Switch them to redirects too?
-- G5: structured-outputs/SKILL.md and agent-design/references/tool-design.md still name the old category "insecure output handling" (no ID). Rename to "improper output handling" (LLM05:2025)?
-- G7: model-selection.md, severity-matrix.md and framework-detection.md keep `name`/`description`/`effort` frontmatter, but they aren't SKILL.md files, so Claude Code never loads them as skills and the fields do nothing. Drop the frontmatter, or keep it as metadata?
