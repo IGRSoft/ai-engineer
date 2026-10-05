@@ -16,7 +16,7 @@ This ledger is also the completed list. When a command task cleans up an agent o
 
 | path | type | status | done by | words before → after | note |
 |---|---|---|---|---|---|
-| commands/analyze-security.md | command | todo | | 1960 → | |
+| commands/analyze-security.md | command | done | commands/analyze-security.md | 1960 → 1402 | Cut extended-thinking block, shouted rules, duplicated usage/workflow steps and rule restatements; error cases to a table; dropped invalid per-call `effort` override; fixed pip-audit/uv.lock note |
 | commands/build-test.md | command | todo | | 2459 → | |
 | commands/data-audit.md | command | todo | | 2034 → | |
 | commands/deploy-check.md | command | todo | | 2017 → | |
@@ -32,7 +32,7 @@ This ledger is also the completed list. When a command task cleans up an agent o
 | agents/ai-engineer.md | agent | todo | | 1307 → | |
 | agents/ai-performance-engineer.md | agent | todo | | 1251 → | |
 | agents/ai-prompt-engineer.md | agent | todo | | 1255 → | |
-| agents/ai-security-auditor.md | agent | todo | | 945 → | |
+| agents/ai-security-auditor.md | agent | done | commands/analyze-security.md | 945 → 816 | Persona + base-inheritance note to one line; dropped caller-facing Model Notes; merged Map/Recommend into output format; `disallowed-tools` → `disallowedTools`; pip-audit runs on exported requirements, not uv.lock |
 | agents/ai-test-generator.md | agent | todo | | 1307 → | |
 | agents/llm-engineer.md | agent | todo | | 961 → | |
 | agents/ml-engineer.md | agent | todo | | 1369 → | |
@@ -67,3 +67,10 @@ This ledger is also the completed list. When a command task cleans up an agent o
 
 ## Needs decision
 
+- **`inherits:` frontmatter (all agents)** — not a Claude Code field; subagents never load `agents/_base/ai-agent.md`, so its constraints/routing don't reach them. Inline what each agent needs, or drop the field? (found via commands/analyze-security.md)
+- **`disallowed-tools` → `disallowedTools`** — agent frontmatter only recognizes camelCase. Fixed in ai-security-auditor; ai-performance-engineer, README.md, MEMORY.md, skills/_shared/model-selection.md still say `disallowed-tools`. (Redundant anyway where `tools` already omits Write/Edit.)
+- **Per-call `effort` override** — skills/_shared/model-selection.md says to pass `model`/`effort` on the Task() call; the Agent tool takes `model` only. Rewrite the override path.
+- **`estimated-cost` command frontmatter** — not a Claude Code field (ignored); README advertises it. Keep as plugin metadata or drop?
+- **OWASP LLM IDs** — the auditor's LLM01-LLM10 table follows the 2023 v1.1 numbering (LLM05 Supply Chain, LLM06 Sensitive Info…); the 2025 list renumbers (LLM02 Sensitive Info, LLM03 Supply Chain, LLM05 Improper Output Handling, new LLM07/08). Report IDs are an output interface used by analyze-security, review-code, rag-audit — update together?
+- **Relative `skills/_shared/...` paths** in agent/command bodies resolve against the user's project cwd, not the plugin root. Use `${CLAUDE_PLUGIN_ROOT}` or inline the needed bits?
+- **`## CRITICAL BEHAVIORAL RULES` heading** — all-caps heading kept because scripts/section-lint.sh requires it on every command; rename in the lint and all commands together?
