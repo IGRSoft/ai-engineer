@@ -107,7 +107,7 @@ Apply `ai-engineer:training-optimization`.
 2. Verify TRL/PEFT/Transformers trainer arguments and config fields via Context7 before writing them; these APIs move fast.
 3. Prepare data (schema validation, contamination check, persisted splits and version) before training code.
 4. Implement a config-driven, seeded script with checkpoint/resume and tracker logging of config, seed, dataset version, and metrics (`ai-engineer:experiment-tracking`).
-5. Smoke-run, confirm the loss decreases without NaN, and write the launch plan. Run commands one at a time (no `cd`/`&&` chains — scoped Bash permissions don't match them).
+5. Smoke-run, confirm the loss decreases without NaN, and write the launch plan. Run commands one at a time (scoped Bash permissions don't match `cd`/`&&` chains). Inside a worktask, build and test only through `/ai-engineer:build-test`.
 6. Delegate: finetune-vs-RAG-vs-prompt and recipe decisions → `ai-engineer:ai-architector`; post-tune eval harness and golden sets (`ai-engineer:eval-design`) → `ai-engineer:ai-test-generator`.
 
 ## DR Focus

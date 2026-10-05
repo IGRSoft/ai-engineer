@@ -35,7 +35,7 @@ Fixes that need API redesign or an architecture decision go back to the owning e
 ## Fix Verification Checklist
 
 - `uv run ruff check` clean on touched files; no new type errors.
-- Narrowest covering test passes, as a single command: `uv run pytest -k <expr>` or `path::case`. Use mocks, not live provider calls.
+- Narrowest covering test passes, as a single command: `uv run pytest -k <expr>` or `path::case`. Use mocks, not live provider calls. Inside a worktask, build and test only through `/ai-engineer:build-test`.
 - Eval rerun only when prompts or models changed: the scoped slice on the pinned eval set (`uv run python -m <pkg>.evals --suite <scope>` or repo equivalent), with no regression.
 - Diff scoped to the finding; public API signatures unchanged unless the finding required it.
 

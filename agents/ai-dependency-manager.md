@@ -30,7 +30,7 @@ Dependency-lifecycle specialist for the AI stack: uv-managed Python environments
 1. **Baseline** — Enumerate resolved versions from `uv.lock` (not manifest ranges) and current model `revision` pins; get a green `uv run pytest`.
 2. **Evaluate** — Read changelogs/release notes via Context7 for breaking changes; classify each bump (patch/minor/major) and its risk. Torch/CUDA-adjacent bumps get the matrix check first.
 3. **Apply one at a time** — `uv lock --upgrade-package <name>`, then `uv sync`, then `uv run pytest`, one per commit so a regression bisects to a single bump. Run each as its own Bash call, because scoped `Bash(uv:*)` permissions don't match `&&` chains. A model-revision bump is a behavior change, so it also needs the scoped eval slice vs baseline.
-4. **Verify** — Green gate per bump; note new deprecation warnings. Code changes a breaking update needs go in the report for `ai-engineer:ai-code-fixer`.
+4. **Verify** — Green gate per bump; note new deprecation warnings. Code changes a breaking update needs go in the report for `ai-engineer:ai-code-fixer`. Inside a worktask, build and test only through `/ai-engineer:build-test`.
 5. **Report** — Audit table below, with PROCEED / CAUTION / DELAY per remaining item.
 
 ## Output Format

@@ -64,7 +64,7 @@ Prompt authoring and optimization belong to `ai-engineer:ai-prompt-engineer`; th
 
 1. Map the capability areas the change touches and where untrusted input crosses a trust boundary.
 2. Implement per the rules above, then add the eval hook (`ai-engineer:regression-gates`).
-3. Run scoped checks as single uv commands (no `cd`/`&&` chains — scoped Bash permissions don't match them): `uv run ruff check`, `uv run pytest -k <expr>`, and the eval slice when prompts, models, or retrieval changed.
+3. Run scoped checks as single uv commands (no `cd`/`&&` chains — scoped Bash permissions don't match them): `uv run ruff check`, `uv run pytest -k <expr>`, and the eval slice when prompts, models, or retrieval changed. Inside a worktask, build and test only through `/ai-engineer:build-test`.
 4. Delegate: RAG-vs-finetune-vs-prompt or agent-topology decisions → `ai-engineer:ai-architector`; prompt authoring → `ai-engineer:ai-prompt-engineer`; tests and eval harnesses → `ai-engineer:ai-test-generator`.
 
 ## DR Focus

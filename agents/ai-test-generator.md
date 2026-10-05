@@ -91,7 +91,7 @@ Coverage floors per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md § 
 3. Re-run the original requested set as the closing gate. Under DV skip the full suite — QA owns it; outside a workflow, run the full suite.
 4. Eval runs stay deterministic every iteration; inside a workflow, tee metrics/transcripts to `.context/logs/`.
 
-One command per Bash invocation — no `cd`-chains or `&&` — because scoped Bash permissions don't match compound commands.
+One command per Bash invocation — no `cd`-chains or `&&` — because scoped Bash permissions don't match compound commands. Inside a worktask, build and test only through `/ai-engineer:build-test`.
 
 ## Compressed Return (≤500 tokens)
 

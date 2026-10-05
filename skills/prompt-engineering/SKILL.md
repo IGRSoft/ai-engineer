@@ -47,7 +47,6 @@ Every leaf and reference file with a longer summary: [_index.md](_index.md).
 | Style or format still wrong after prompting | [peft-lora](../finetuning/peft-lora/SKILL.md) |
 | Calling the provider (caching depends on prompt structure) | [llm-api-patterns](../llm-apps/llm-api-patterns/SKILL.md) |
 
-Owner: `ai-engineer:ai-prompt-engineer` (product prompts only; Claude Code
-meta-prompts go to the orchestrator's meta-prompt engineer). Prompt vs RAG vs
+Owner: `ai-engineer:ai-prompt-engineer` (product prompts only). Prompt vs RAG vs
 fine-tune → `ai-engineer:ai-architector`; injection-surface review →
 `ai-engineer:ai-security-auditor`.

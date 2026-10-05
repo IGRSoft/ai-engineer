@@ -60,6 +60,7 @@ Build Evidence is eval reports, metric tables, and training transcripts under `.
   `metadata.always_required_tests`.
 - Denied and `--no-test` does not fit → record `requests_test_evidence: <what and why>` in your
   artifact, or return `verdict: blocked`. Never reach for the toolchain.
+- AI QA is `go` only when the tests pass and the eval gate holds (`ai-engineer:regression-gates`).
 
 ## Worktree isolation (DV)
 
@@ -224,6 +225,17 @@ On re-dispatch after a DR or QA rejection, `metadata.gate_blockers[]` carries th
 review artifact's `## blockers`. **Fix those and nothing else**: address every entry or say in the
 artifact why one is not actionable, and dispute via `error_escalated_to:` rather than by ignoring.
 
+## Return verification
+
+When `ai-engineer` routes a stage to a specialist, it checks the return before passing it on:
+handoff frontmatter present and the artifact named `<stage>-N.md`; `state.json` patched or the
+reason logged; for DV, `### build-evidence` from this run (`python -VV`, framework versions from
+`uv.lock`, ruff/type-check status, test-transcript path under `.context/logs/`, an eval row when
+prompts, models, or retrieval changed); the screenshot skip-rationale line, or when armed a
+`screenshots.md` with `source: cli-fallback` rows; on rework, every `gate_blockers[]` item
+answered in `.context/errors/<agent-basename>.md`. Frontmatter missing → log a WARN and add minimal
+`handoff:` frontmatter from the specialist's summary.
+
 ## Orchestrator agent roles
 
 This plugin's own multi-stage commands name a **role**, never an id, so this table is the only place
@@ -251,7 +263,6 @@ orchestrator's architect. Routing system-level design at the local architect is 
 | the orchestrator's project manager | `corpflow:project-manager` |
 | the orchestrator's worktask engineer | `corpflow:workflow-engineer` |
 | the orchestrator's platform router | `corpflow:developer` |
-| the orchestrator's meta-prompt engineer | `corpflow:prompt-engineer` |
 
 A standard that is absent is simply unavailable — the skill's own guidance stands alone. Never
 fork a standard's text into this plugin; a copy drifts silently.
@@ -269,7 +280,6 @@ fork a standard's text into this plugin; a copy drifts silently.
 |---|---|
 | Targets corpflow | `4.0.27` |
 | Size budget | ≤260 lines |
-| Size budget | ≤280 lines |
 | Size budget | ≤280 lines |
 | Contract source | `corpflow skills/cross-plugin-handoff/references/plugin-contract.md` |
 | Template | `corpflow skills/cross-plugin-handoff/templates/CORPFLOW.md` |

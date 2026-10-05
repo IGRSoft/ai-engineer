@@ -86,9 +86,7 @@ following stay orchestrator-owned and are deliberately **not** implemented here:
   with corpflow's meta-prompt agent (`corpflow:prompt-engineer`, which owns
   Claude Code agent/skill/command prompts). The `ai-` prefix on colliding
   Tier-2 names mirrors the sibling plugins' prefix families (`sys-` in
-  system-developer, `fe-`/`be-` in frontend/backend-developer). The agent's
-  description carries the disambiguation both ways: product prompts here,
-  meta-prompts to corpflow.
+  system-developer, `fe-`/`be-` in frontend/backend-developer).
 - **Smoke-scale training rule** — DV never launches full training runs: capped
   `max_steps`/epochs on a data subsample, verify the loss curve moves
   (decreasing, no NaN), and document the full-run launch plan (command, data,

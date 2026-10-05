@@ -30,7 +30,7 @@ Claude Code plugin for AI engineering — **LLM applications** (RAG, agent loops
 | `llm-engineer` | sonnet / high | Production LLM applications: RAG pipelines, agent loops and tool use, structured outputs, provider SDKs with streaming, caching, fallback routing. |
 | `ml-engineer` | sonnet / high | LLM training and fine-tuning: PyTorch, Transformers/TRL/PEFT, LoRA/QLoRA, DPO preference tuning, dataset curation, smoke-scale verification. |
 | `mlops-engineer` | sonnet / high | Serving, deployment, and ML operations: vLLM/TGI/Ollama/Triton, quantized deploys, MLflow/W&B tracking, DVC pipelines, drift monitoring. |
-| `ai-prompt-engineer` | sonnet / high | Product prompt engineering — the prompts shipped *inside* your LLM product — with eval-driven optimization. (Claude Code meta-prompts belong to the orchestrator's meta-prompt engineer.) |
+| `ai-prompt-engineer` | sonnet / high | Product prompt engineering — the prompts shipped *inside* your LLM product — with eval-driven optimization. |
 | `ai-architector` | opus / xhigh | AI system architecture: prompt-vs-RAG-vs-fine-tune-vs-hybrid decisions, agent topology, serving stack, build-vs-buy, cost/latency modeling. AR-stage consultant. |
 | `ai-test-generator` | sonnet / high | pytest suites plus LLM eval harnesses — golden sets, LLM-judge scoring, regression gates — with pinned eval sets and deterministic settings. |
 | `ai-security-auditor` | sonnet / high (review-only) | OWASP LLM Top 10 audit: prompt injection, insecure output handling, model supply chain (pickle vs safetensors, unpinned revisions), secret/PII leakage, ungated agency. No Write/Edit in `tools`. |

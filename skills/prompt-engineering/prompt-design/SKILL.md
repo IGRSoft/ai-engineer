@@ -15,8 +15,7 @@ Application prompts degrade instead of crashing, regress silently when
 edited, and are the main prompt-injection surface. Structure them, version
 them, keep untrusted input out of instructions, and measure every change.
 
-Owned by `ai-engineer:ai-prompt-engineer`. Claude Code meta-prompts (agents,
-commands, skills) belong to the orchestrator's meta-prompt engineer.
+Owned by `ai-engineer:ai-prompt-engineer`.
 
 **Elsewhere:**
 
