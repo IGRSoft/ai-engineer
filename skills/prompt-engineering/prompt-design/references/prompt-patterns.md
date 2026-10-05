@@ -92,7 +92,7 @@ Nothing outside these two tag blocks.
 
 **When it hurts:** trivial tasks (latency + tokens for nothing); strict-format extraction where reasoning contaminates output; models running native extended thinking, where manual CoT scaffolds duplicate or conflict with built-in reasoning — see [claude-prompting.md](claude-prompting.md) § Extended Thinking.
 
-**Failure mode:** reasoning bleeds into the parsed answer. Always fence reasoning and answer in separate labeled regions and parse only the answer region.
+**Failure mode:** reasoning bleeds into the parsed answer. Fence reasoning and answer in separate labeled regions and parse only the answer region.
 
 ## 6. Few-Shot Table Extraction
 
@@ -113,7 +113,7 @@ line items, return [].
 </example>
 ```
 
-**Failure mode:** the model invents rows to have something to output, or copies literal example values. The empty-result example is the antidote — never ship table extraction without one. Validate downstream per `../../structured-outputs/SKILL.md`.
+**Failure mode:** the model invents rows to have something to output, or copies literal example values. The empty-result example is the antidote — ship table extraction with one. Validate downstream per `../../structured-outputs/SKILL.md`.
 
 ## 7. Refusal / Escape Hatch
 

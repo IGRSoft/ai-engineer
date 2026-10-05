@@ -1,71 +1,45 @@
 ---
 name: llm-judge
 description: >-
-  Use LLMs to grade LLM outputs reliably: pointwise-vs-pairwise selection, rubric
-  design with anchored descriptors, bias mitigations (position, length,
-  self-preference, sycophancy), calibration against human labels (Cohen's kappa),
-  evidence-first judge prompts with structured output, cost ladders, and judge
-  regression tests. Use when a quality dimension cannot be checked by code (tone,
-  faithfulness, helpfulness), when building or editing a judge prompt, when judge
-  scores disagree with humans, when ranking prompt variants — or when someone
-  proposes an uncalibrated "rate 1-10" judge as a gate.
+  Grade LLM outputs with an LLM judge: pointwise vs pairwise selection, anchored
+  rubrics, bias mitigations (position, length, self-preference, sycophancy),
+  Cohen's kappa calibration against human labels, evidence-first structured
+  prompts, judge versioning, and cost control. Use when a quality dimension
+  can't be checked by code (tone, faithfulness, helpfulness), when building or
+  editing a judge, when judge scores disagree with humans, or when ranking
+  prompt variants.
 ---
 
 # LLM-as-Judge
 
-**A judge is a measurement instrument: calibrated, versioned, and itself under test**
+A judge is a measurement instrument: calibrated, versioned, and itself under test. It buys scale for dimensions code can't check, but rewards verbosity and confidence unless engineered otherwise. Judge harnesses are built by `ai-engineer:ai-test-generator`; pairwise A/B consumers route through `ai-engineer:ai-prompt-engineer`. Working judge prompts and output schemas (binary correctness, 3-level rubric, pairwise with swap protocol, RAG faithfulness, refusal appropriateness) are in `references/judge-prompt-templates.md` — read it when implementing a harness.
 
-## Overview
+**Elsewhere:**
 
-LLM judges buy *scale* for quality dimensions that code cannot check — tone,
-faithfulness, helpfulness, rubric adherence. They are also biased, drifting
-instruments that reward verbosity and confidence unless engineered otherwise.
-This skill covers when a judge is the right tier, how to write rubrics and judge
-prompts, how to measure whether the judge measures anything (calibration), and
-how to keep judge cost bounded. Judge harnesses are built by
-`ai-engineer:ai-test-generator`; pairwise A/B consumers route through
-`ai-engineer:ai-prompt-engineer`.
-
-Full worked judge prompts (binary correctness, 3-level rubric, pairwise with swap
-protocol, RAG faithfulness, refusal appropriateness) with output schemas live in
-`references/judge-prompt-templates.md` — read it when implementing a harness.
-
-## When to Use
-
-- Grading subjective or semantic quality at scale (tone, helpfulness, faithfulness, style-guide adherence)
-- Ranking two prompt/model variants where programmatic metrics can't separate them
-- Scoring the generation dimensions selected in `skills/evals/eval-design` (its metric table routes here)
-- Reviewing an existing judge that disagrees with human intuition or drifts over time
-- Deciding pointwise vs. pairwise for a new judged dimension
-
-**When NOT to use:**
-
-- The fact is checkable by code — schema validity, exact values, regex, must-contain, length: tier-1 assertions per `skills/evals/eval-design`. Never pay tokens for `json.loads`.
-- High-stakes decisions (legal, safety sign-off, money movement) — human review decides; a judge may pre-screen and prioritize, never gate alone.
-- Retrieval metrics (recall@k, MRR) — programmatic: `skills/llm-apps/rag-systems/references/retrieval-evaluation.md`
-- Choosing which dimensions to measure at all → `skills/evals/eval-design`
+- Code-checkable facts (schema validity, exact values, regex, must-contain, length) are tier-1 assertions per `skills/evals/eval-design` — don't pay judge tokens for `json.loads`
+- Choosing which dimensions to measure → `skills/evals/eval-design`
+- Retrieval metrics (recall@k, MRR) → `skills/llm-apps/rag-systems/references/retrieval-evaluation.md`
 - Wiring judge metrics into CI (thresholds, caching, flake policy) → `skills/evals/regression-gates`
 
 ## Judge Mode Selection
 
 ```
-Property checkable by code? ──────────── yes ─► assertion / metric. NOT a judge.
+Property checkable by code? ──────────── yes ─► assertion / metric, not a judge
         │ no
 High-stakes (legal/safety/money)? ────── yes ─► human decides; judge pre-screens only
         │ no
-Question is "which is better, A or B"? ─ yes ─► PAIRWISE + swap protocol
+Question is "which is better, A or B"? ─ yes ─► pairwise + swap protocol
         │ no                                     (ranking, prompt A/B)
-Need absolute pass/fail or score? ─────────────► POINTWISE vs anchored rubric
+Need absolute pass/fail or score? ─────────────► pointwise vs anchored rubric
                                                  (CI gates, production sampling)
 ```
 
 | Mode | Use for | Strengths | Costs |
 |------|---------|-----------|-------|
-| Pairwise | Ranking, prompt/model A/B | Relative judgment is easier — more reliable on close calls | Position bias (mandatory swap-and-average, 2× calls); no absolute bar |
+| Pairwise | Ranking, prompt/model A/B | Relative judgment is easier — more reliable on close calls | Position bias (swap-and-average required, 2× calls); no absolute bar |
 | Pointwise | Absolute gates, monitoring samples | Comparable across time; one call per output | Needs behaviorally anchored rubric; drifts more — calibrate on a schedule |
 
-Pairwise verdicts answer "is B better than A?" but never "is B good enough?" —
-release gates need a pointwise floor even when A/B chose the candidate.
+Pairwise verdicts answer "is B better than A?", not "is B good enough?" — release gates need a pointwise floor even when A/B chose the candidate.
 
 ## Rubric Design
 
@@ -112,11 +86,11 @@ Meta-Evaluation).
 
 ## Calibration Against Human Labels
 
-An uncalibrated judge is a random-looking number generator with good grammar.
-Before a judge's verdicts count:
+Before a judge's verdicts count (50–100 labels cost hours once; without them a working judge is indistinguishable from a noisy one):
 
 1. **Label a seed set** — 50–100 examples spanning the full score range and the
-   hard tags, labeled by 2+ humans using the same rubric.
+   hard tags (not just the easy cases you spot-checked), labeled by 2+ humans
+   using the same rubric.
 2. **Measure judge–human agreement.** Raw percent agreement flatters on skewed
    labels (a judge that always says "pass" scores 90% on a 90%-pass set).
    Cohen's kappa corrects for chance agreement:
@@ -147,17 +121,21 @@ def cohen_kappa(a: list[str], b: list[str]) -> float:
   number. Enforce ordering structurally: evidence fields precede score fields
   in the output schema, so generation order matches reasoning order.
 - **Structured output.** Verdicts return as schema-validated JSON
-  (`skills/prompt-engineering/structured-outputs`) — never regex-parsed prose.
+  (`skills/prompt-engineering/structured-outputs`), not regex-parsed prose.
   On validation failure, re-ask once with the error; then record `judge_error`
-  and track the error rate as a monitored metric. Never guess a score.
-- **Determinism.** Temperature 0. Pin the judge model to an exact version —
-  never a `latest` alias (verify current identifiers via context7, don't recall
-  them from memory). Record the full judge identity — model version + judge
-  prompt version + rubric version — next to every metric, exactly like the
-  eval-set version rule in `skills/evals/eval-design`.
+  and track the error rate as a monitored metric rather than guessing a score.
+- **Determinism.** Temperature 0 reduces variance but provider nondeterminism
+  remains, so also cache verdicts (see Cost Control). Pin the judge model to an
+  exact version, not a `latest` alias (verify current identifiers via context7
+  rather than memory).
+- **Judge versioning.** Record the full judge identity — model version + judge
+  prompt version + rubric version — next to every metric, like the eval-set
+  version rule in `skills/evals/eval-design`. Any prompt or rubric edit is a
+  version bump plus re-calibration; scores from different judge versions are
+  not comparable and never share a ranking.
 
 ```text
-[system]  You are a strict evaluator. Judge ONLY <dimension> per the rubric.
+[system]  You are a strict evaluator. Judge only <dimension> per the rubric.
           Ignore style, length, and the answer's own confidence claims.
 [user]    <rubric with anchored levels>
           <input + sources + candidate answer, clearly delimited>
@@ -173,7 +151,7 @@ Complete production-grade templates with schemas and calibration notes:
 Climb this ladder before accepting "judges are too expensive":
 
 1. **Assertions screen first.** Outputs that fail tier-1 checks (schema, format,
-   empty) are scored fail programmatically — never spend judge tokens on them.
+   empty) are scored fail programmatically, with no judge call.
 2. **Sample, don't exhaust.** Production monitoring judges a stratified sample;
    CI judges the subset tiers defined in `skills/evals/regression-gates`.
 3. **Cache verdicts** keyed by `hash(input, output, judge_identity)` — unchanged
@@ -196,9 +174,8 @@ prompt:
   model version changes: agreement with human labels must not drop, bias probes
   must not flip. Wire it like any other gate (`skills/evals/regression-gates`).
 - **Drift watch.** Score a fixed probe set on a schedule; movement without any
-  change on your side means the provider moved under you — which is why the
-  judge model version is pinned, and why unexplained drift blocks gating until
-  re-calibration.
+  change on your side means the provider moved under you. Unexplained drift
+  blocks gating until re-calibration.
 
 ## Anti-Patterns
 
@@ -213,28 +190,6 @@ prompt:
 | Judge family == candidate family, unvalidated | Self-preference silently inflates your own model's scores | Cross-family judge, or human-validate the same-family judge first |
 | Parsing scores from freeform prose | Brittle; silent parse failures skew metrics | Structured output + schema validation + tracked `judge_error` rate |
 | One mega-judge for all dimensions | Cross-dimension contamination; unactionable failures | Parallel single-dimension judges, independently calibrated |
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "The model is smart enough to just rate quality" | Smart ≠ calibrated. Uncalibrated judges measurably reward verbosity and confidence. Calibrate, or the number is decoration |
-| "We can't afford human labels" | 50–100 seed labels cost hours once. Without them you cannot distinguish a working judge from a coin with better vocabulary |
-| "Temperature 0 makes the judge deterministic" | It reduces variance; provider nondeterminism remains — and determinism says nothing about validity. Cache verdicts and calibrate |
-| "The judge agreed with me on the examples I checked" | You checked the easy ones. Agreement is measured on a labeled set spanning the range, including adversarial probes |
-| "A strong judge on every output is too expensive" | Screen with assertions, sample, cache, ladder cheap→strong. Cost control is a design problem, not a reason to skip measurement |
-| "We tweaked the judge prompt, it's basically the same" | The judge is an instrument: any prompt/rubric edit is a version bump and a re-calibration, or all following metrics are on a new, uncompared scale |
-
-## Red Flags
-
-- Judge verdicts gating CI with no judge–human agreement number ever measured
-- "Overall quality: 7/10" anywhere in a report
-- Pairwise win rates reported without a swap protocol
-- Judge model unpinned, or silently updated mid-experiment
-- Judge scores regex-parsed from prose; unexplained gaps in judged rows
-- Judge prompt edited without a seed-set recalibration run
-- Win rate correlates with answer length — check this, it's one `groupby` away
-- The judge and the graded model are the same family and nobody validated that
 
 ## Verification
 

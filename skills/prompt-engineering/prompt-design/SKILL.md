@@ -1,42 +1,29 @@
 ---
 name: prompt-design
 description: >-
-  Design production application prompts: anatomy (role → context → instructions
-  → examples → output contract), instruction hierarchy with injection-resistant
-  layering, few-shot design, positive framing, and prompts as versioned files.
-  Use when writing or restructuring a system/user prompt for an LLM feature,
-  when untrusted input flows into a prompt, when a prompt grows monolithic,
-  when few-shot examples underperform, or when deciding whether to keep
-  prompting or escalate to RAG/fine-tuning. Product prompts only — Claude Code
-  meta-prompts → the orchestrator's meta-prompt engineer.
+  Design production LLM-app prompts: five-segment anatomy, instruction
+  hierarchy with delimited untrusted input, few-shot design, positive framing,
+  and prompts as versioned files. Use when writing or restructuring a
+  feature's system/user prompt, when untrusted input flows into a prompt, when
+  few-shot examples underperform, or when deciding whether to escalate to RAG
+  or fine-tuning. Product prompts only, not Claude Code agents or skills.
 ---
 
 # Prompt Design
 
-**A production prompt is an interface contract with a probabilistic dependency — structure it, version it, injection-proof it, measure it**
+Application prompts degrade instead of crashing, regress silently when
+edited, and are the main prompt-injection surface. Structure them, version
+them, keep untrusted input out of instructions, and measure every change.
 
-## Overview
+Owned by `ai-engineer:ai-prompt-engineer`. Claude Code meta-prompts (agents,
+commands, skills) belong to the orchestrator's meta-prompt engineer.
 
-Application prompts fail differently from code: they degrade instead of crashing, they regress silently when edited, and they are the primary attack surface for prompt injection. This skill covers the structural discipline that keeps prompts reliable: a fixed anatomy with deliberate ordering, an explicit privilege hierarchy that keeps untrusted input out of instruction segments, few-shot examples engineered like test fixtures, and prompt files that are versioned, owned, and changelogged like any other interface.
+**Elsewhere:**
 
-Owning agent: `ai-engineer:ai-prompt-engineer` (product/application prompts). Claude Code meta-prompts — agents, commands, skills — belong to the orchestrator's meta-prompt engineer, not here.
-
-## When to Use
-
-- Writing the system/user prompt for a new LLM feature
-- Untrusted input (user text, retrieved documents, tool output) flows into a prompt
-- A prompt has grown into an unstructured monolith and edits cause regressions
-- Few-shot examples underperform, contradict instructions, or leak into outputs
-- Reviewing a PR that adds or changes prompt text
-- Choosing where prompt files live and how they are versioned
-
-**When NOT to use:**
-
-- Deciding *what content* goes into the window (budgets, history, retrieval packing) → [context-engineering](../context-engineering/SKILL.md)
-- Output must be machine-parseable JSON → [structured-outputs](../structured-outputs/SKILL.md)
+- What goes into the window (budgets, history, retrieval packing) → [context-engineering](../context-engineering/SKILL.md)
+- Machine-parseable JSON output → [structured-outputs](../structured-outputs/SKILL.md)
 - Measuring whether a prompt change helped → `skills/evals/eval-design`
 - Retrieval quality (chunking, embeddings, reranking) → `skills/llm-apps/rag-systems`
-- Claude Code agent/command/skill prompts → the orchestrator's meta-prompt engineer
 
 ## Prompt Anatomy
 
@@ -56,7 +43,7 @@ Every production prompt has five segments in this order:
 └──────────────────────────────────────────────────────────┘
 ```
 
-Ordering matters because attention is not uniform:
+Order matters because attention is not uniform:
 
 - **Role first** — everything after it is interpreted through the role; a role stated late cannot re-frame instructions already read.
 - **Output contract last** — the format spec sits closest to generation (recency), which is where format compliance is decided.
@@ -73,7 +60,7 @@ Ordering matters because attention is not uniform:
 
 ## Instruction Hierarchy and Injection-Resistant Layering
 
-Prompts have privilege levels. Instructions flow down; data flows up — content from a lower layer must never rewrite a higher one:
+Prompts have privilege levels. Instructions flow down; data flows up — content from a lower layer does not rewrite a higher one. Injection also arrives by accident: pasted emails, retrieved docs, and tool output carry instruction-like text daily.
 
 ```
 privilege
@@ -84,18 +71,18 @@ privilege
       ├──────────────────────────────────────────────────────┤
       │ USER        the end-user's request                    │ per request
       ├──────────────────────────────────────────────────────┤
- low  │ RETRIEVED / TOOL OUTPUT — UNTRUSTED                   │ per request
-      │   delimited + labeled, treated as DATA, never rules   │
+ low  │ RETRIEVED / TOOL OUTPUT — untrusted                   │ per request
+      │   delimited + labeled, treated as data, not rules     │
       └──────────────────────────────────────────────────────┘
    ▼
  trust in instruction-like content found at this layer
 ```
 
-Non-negotiable rules:
+Rules:
 
-1. **Untrusted input is NEVER interpolated into system/developer segments.** No f-strings, no template slots for user text in privileged files.
-2. **Untrusted content is always delimited and labeled as data** — wrapped in tags with a source label, placed in the user turn.
-3. **The system prompt states the data rule explicitly**: content inside data delimiters is information to analyze, never instructions to follow.
+1. **Untrusted input stays out of system/developer segments** — no f-strings or template slots for user text in privileged files.
+2. **Untrusted content is delimited and labeled as data** — wrapped in tags with a source label, placed in the user turn.
+3. **The system prompt states the data rule**: content inside data delimiters is information to analyze, not instructions to follow.
 4. **Escape delimiter collisions** — strip or escape the closing delimiter inside untrusted content, or an attacker closes your tag and writes "instructions" outside it.
 5. **Validate model output at trust boundaries** (shell, DB, file APIs) — see [structured-outputs](../structured-outputs/SKILL.md); injection review is `ai-engineer:ai-security-auditor` territory.
 
@@ -159,11 +146,11 @@ Reply in 1-3 plain-text sentences. State only causes explicitly present in
 Refer to tooling generically ("our system"), never by internal name.
 ```
 
-Keep hard "never" statements for absolutes (security, safety, compliance) — and pair each retained negative with its positive alternative so the model knows what to do instead.
+Keep "never" for absolutes (security, safety, compliance) — and pair each retained negative with its positive alternative so the model knows what to do instead.
 
 ## Prompts as Versioned Files
 
-Prompts are behavior. Behavior that isn't versioned can't be diffed, rolled back, or blamed.
+Prompts are behavior; unversioned behavior can't be diffed, rolled back, or blamed.
 
 ```
 prompts/
@@ -177,8 +164,8 @@ prompts/
 
 Rules:
 
-- **Code loads and renders — never inlines.** No prompt literals in application code; the only interpolation surface is the user template's delimited data slots.
-- **Every semantic change bumps the version** and adds a CHANGELOG line with the eval delta (deterministic run: temperature 0, pinned eval-set version — `skills/evals/eval-design`).
+- **Code loads and renders, never inlines.** No prompt literals in application code; the only interpolation surface is the user template's delimited data slots. Log the loaded version per call so the live version is always known.
+- **Every semantic change bumps the version** and adds a CHANGELOG line with the eval delta (deterministic run: temperature 0, pinned eval-set version — `skills/evals/eval-design`). A 20-case golden set catches most regressions pre-ship.
 - **Rollback = repointing the version**, not reverting a code deploy.
 - **Owners review prompt diffs** like API changes — a one-word edit is a behavior change.
 
@@ -207,7 +194,7 @@ def render_user(name: str, *, version: str, **data: str) -> str:
 
 - Keep the **core** — role, rules, examples, output contract — in provider-neutral markdown. It is the reviewed, versioned asset.
 - Isolate provider specifics in a **thin adapter**: message-role mapping, structuring idioms (XML tags for Claude), feature use (prefill, native structured-output modes, thinking budgets).
-- Fork the adapter, never the core — forked cores drift apart within weeks.
+- Fork the adapter, not the core — forked cores drift apart within weeks.
 - Model IDs, parameter names, and limits are volatile: keep model choice in config, and verify current names/limits against provider docs (context7) rather than memory.
 
 Claude-specific techniques (XML structuring, prefilling, extended thinking, long-context placement): `references/claude-prompting.md`.
@@ -233,30 +220,10 @@ The prompt-vs-RAG-vs-fine-tune decision framework is owned by `ai-engineer:ai-ar
 | User input f-stringed into the system prompt | Prompt injection into the privileged segment | Delimited data slots in the user turn only |
 | Negative pile-up ("don't X, never Y, avoid Z") | Behavior underspecified; model picks a different wrong thing | Positive contract; reserve "never" for absolutes |
 | Examples that contradict the output contract | Model imitates examples, ignores prose | Byte-match examples to the contract; version them together |
-| One mega-prompt serving every intent | Rules conflict; every edit regresses another path | One prompt per feature; shared core via composition |
+| One mega-prompt serving every intent (>2k tokens, no sections or version — `skills/_shared/severity-matrix.md`) | Rules conflict; every edit regresses another path | One prompt per feature; shared core via composition |
+| Appending another rule after each incident | Instruction count dilutes compliance | Restructure, add an example, or escalate |
 | Editing prompts without an eval run | Regressions ship silently | Eval gate per change — `skills/evals/regression-gates` |
 | Provider syntax baked into the core prompt | Lock-in; per-provider forks drift | Agnostic core + thin provider adapter |
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|---|---|
-| "It's just a string, versioning is overkill" | The prompt *is* the behavior. Unversioned means no diff, no rollback, no blame for a production behavior change. |
-| "Our users would never inject" | Injection arrives by accident too — pasted emails, retrieved docs, and tool output carry instruction-like text daily. |
-| "One more rule will fix it" | Instruction count dilutes compliance. Restructure, add an example, or escalate — don't stack rule #47. |
-| "The model should just know this" | It knows distributions, not your product. Say it (instructions) or show it (examples). |
-| "We'll write examples once it works" | Examples are how it starts working. They're cheaper than ten instruction rewrites. |
-| "We'll eval it after launch" | Post-launch you eval user complaints instead. A 20-case golden set catches most regressions pre-ship. |
-
-## Red Flags
-
-- A prompt exists only as a string inside a `.py` file
-- `f"...{user_input}..."` anywhere in a system/developer segment
-- Behavior changed but `prompts/CHANGELOG.md` has no new entry
-- Examples in a different format than the output contract
-- A prompt >2k tokens with no sections or version (monolith smell — `skills/_shared/severity-matrix.md`)
-- Nobody can state which prompt version is live in production
-- The same "fix" sentence appended after every incident
 
 ## Verification
 
@@ -265,19 +232,13 @@ The prompt-vs-RAG-vs-fine-tune decision framework is owned by `ai-engineer:ai-ar
 - [ ] System prompt states that delimited content is data, never instructions
 - [ ] Few-shot examples byte-match the contract; ≥1 edge case; escape hatch demonstrated
 - [ ] Prompt is a versioned file with owner + CHANGELOG entry (eval delta, pinned eval-set version, temperature 0)
-- [ ] Code loads and renders prompts — zero inline prompt literals
+- [ ] Code loads and renders prompts — zero inline prompt literals; loaded version logged
 - [ ] Provider specifics isolated in an adapter; core is provider-neutral
 - [ ] Escalation table reviewed before adding iteration #4 (`ai-engineer:ai-architector` for the call)
 
-## Deep-Dive References
+## References and Related
 
-- `references/prompt-patterns.md` — ~10 reusable patterns (role anchoring, delimited input, CoT, refusal hatch, self-check…) with before/after examples and failure modes
+- `references/prompt-patterns.md` — 10 reusable patterns (role anchoring, delimited input, CoT, refusal hatch, self-check…) with before/after and failure modes
 - `references/claude-prompting.md` — Claude-specific: XML tags, prefilling, extended thinking, tool-use prompting, long-context placement
-
-## Related Skills
-
-- [context-engineering](../context-engineering/SKILL.md) — what goes into the window (budgets, packing, compaction)
-- [structured-outputs](../structured-outputs/SKILL.md) — machine-readable output contracts and validation
-- `skills/evals/eval-design` — golden sets and metrics for measuring prompt changes
 - `skills/llm-apps/llm-api-patterns` — provider-call discipline (timeouts, retries, caching)
-- Agents: `ai-engineer:ai-prompt-engineer` (owner), `ai-engineer:ai-security-auditor` (injection review), `ai-engineer:ai-architector` (escalation decisions)
+- Agents: `ai-engineer:ai-security-auditor` (injection review), `ai-engineer:ai-architector` (escalation decisions)
