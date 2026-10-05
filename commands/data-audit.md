@@ -8,7 +8,7 @@ allowed-tools: Read, Agent, Glob, Grep, Bash
 
 Audit fine-tuning and eval datasets before they steer a training run. Runs the `ai-engineer:dataset-curation` gates read-only — schema, duplication, contamination, PII/secrets, license/provenance, distribution — adds an `ai-engineer:ml-engineer` deep pass, and emits a P0-P3 report with every remediation routed to an owner.
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
 1. **Read-only.** Don't edit datasets, ledgers, splits, or configs; remediation is routed (Phase 9), not applied. Ephemeral tooling only (`uv run --with datasketch …`), never `uv add`.
 2. **Never echo sensitive values.** Report PII/secret hits as `file:line` + pattern class + count. Don't quote the value in any form — truncated, masked, or prefix — because a secret copied into a report is a second leak.

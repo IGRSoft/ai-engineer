@@ -10,7 +10,7 @@ Detect an AI/ML project's Python environment, sync its dependencies, verify it i
 
 AI/ML projects have no compile step, so "build" means the environment resolves and the package imports. Those are separate failures with separate owners, and a test-only run hides both. This is also the DR compile-only gate (`--no-test`).
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
 1. **One environment manager.** Take the first match in the detection table (or `--manager`); don't run two managers in one invocation.
 2. **No delegation on success.** When sync, import, and tests pass, report and stop.

@@ -8,7 +8,7 @@ allowed-tools: Read, Agent, Glob, Grep, Bash
 
 Sweep the AI surfaces in scope against the OWASP Top 10 for LLM Applications by delegating to the review-only `ai-engineer:ai-security-auditor`, armed with whichever scanners this machine has. Findings come back mapped to LLM01-LLM10 plus CWE, ranked P0-P3, deduplicated against any same-session code review, and routed to a remediation agent.
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
 1. **Read-only.** Neither this command nor the auditor edits files. Remediation is routed, not applied: code fixes → `ai-engineer:ai-code-fixer`, dependency/pin fixes → `ai-engineer:ai-dependency-manager`. There is deliberately no `--fix` flag.
 2. **Resolve the scope once**, print the file list, and pass it to the auditor. `--deps-only` / `--prompts-only` filter that list rather than re-deriving it.

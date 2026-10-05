@@ -8,7 +8,7 @@ allowed-tools: Read, Agent, Write, Edit, Glob, Grep, Bash
 
 Optimize a production application prompt by measurement: baseline it on a pinned eval set, have the prompt engineer draft N single-variable variants, measure each under identical deterministic settings, and rank them with the winning diff. Default is report-only; `--apply` writes the winner back as a version bump. A prompt edit is a behavior change to a probabilistic dependency, so without a fixed measurement "better" is an anecdote.
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
 1. **No eval set, no optimization.** If none exists and `--eval-set` wasn't given, offer one scaffold via `ai-engineer:ai-test-generator`. If the user declines, stop with the "no eval set" error.
 2. **Apply only a measured winner.** `--apply` runs only after the baseline and every variant were measured on the same pinned eval set, and only for a variant that beats the baseline with no guard-metric regression. Otherwise apply nothing and say so.

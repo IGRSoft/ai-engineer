@@ -3,11 +3,6 @@
 Quick navigation for cross-cutting references shared by all ai-engineer
 agents, commands, and skills.
 
-## Workflow Integration
-
-| File | Description |
-|------|-------------|
-
 ## Routing & Models
 
 | File | Description |

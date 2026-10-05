@@ -8,7 +8,7 @@ allowed-tools: Read, Agent, Glob, Grep, Bash
 
 Review changes to AI systems with one read-only specialist per surface present — LLM application code, training code, serving/pipeline configs, prompt assets — plus an OWASP-LLM security pass, then synthesize one deduplicated P0-P3 report. One generalist pass misses most of these defects, because an unbounded agent loop, train/test contamination, an unpinned serving revision, and an injectable system prompt each need a different review skill. `--fix` hands P0/P1 findings to the code fixer under a minimal-diff gate.
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
 1. **Resolve the scope once** (Phase 0), print the concrete file list, and pass that same list to every reviewer; reviewers don't re-scope.
 2. **Reviewers are read-only** and return findings only. Edits happen only in the `--fix` step, after synthesis, for P0/P1.

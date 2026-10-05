@@ -8,7 +8,7 @@ allowed-tools: Read, Agent, Glob, Grep, Bash
 
 Turn "should we fine-tune?" into an evidence-backed plan or an honest "no". Gather the project's real context (data on hand, current prompt/RAG stack, eval assets, hardware), put the method decision to `ai-engineer:ai-architector`, and only on a fine-tune or hybrid verdict assemble the plan: data requirements, method and config, GPU memory math, hyperparameter starting points, eval gates, launch, promotion, and export. Most requests are better served by prompting or retrieval, which is why the verdict runs first and can end the command.
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
 1. **Read-only; never start training.** No Write/Edit. Bash is for probes only (`nvidia-smi`, `wc -l` on found datasets, `uv tree`). Training commands (`uv run python -m training.*`, `accelerate launch`, TRL scripts) appear only as text in the plan for the executor, including the smoke run.
 2. **Honor the verdict.** On "don't fine-tune", emit Output Format B and stop: no data plan, configs, or launch plan for a method that lost.

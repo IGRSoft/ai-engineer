@@ -8,7 +8,7 @@ allowed-tools: Read, Agent, Glob, Grep, Bash
 
 Audit a retrieval-augmented generation pipeline end to end, read-only. Map the pipeline as implemented (not as documented) from the code, grade every present stage against the `ai-engineer:rag-systems` checklists, run the retrieval eval harness when one exists, and fan out to the LLM engineer for the deep pass and the security auditor for the injection/ACL slice. Deliverables: the pipeline map and a P0-P3 findings report with grounding and freshness issues called out. Start from code, not the prompt, because most "the model hallucinates" bugs are retrieval bugs.
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
 1. **Read-only.** No file edits, index mutations, or config changes; Bash is for queries (grep, wc, `uv run` of an existing harness). Remediation is routed in the report, not applied.
 2. **Map first.** Emit the pipeline map (stage → implementation → `file:line`, or MISSING) before any finding. A missing stage is itself a finding, graded by consequence: absent rerank may be fine; absent refusal rule, citations, or ACL pre-filter is not.

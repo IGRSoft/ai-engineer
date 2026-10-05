@@ -8,7 +8,7 @@ allowed-tools: Read, Agent, Glob, Grep, Bash
 
 Audit a model-serving deployment before it takes traffic: locate the serving surface, walk the nine-item readiness checklist from `ai-engineer:model-serving`, add a config deep pass (`ai-engineer:mlops-engineer`) and a capacity pass (`ai-engineer:ai-performance-engineer`), and return one verdict — GO / NO-GO / GO-WITH-RISKS — with a per-item table and P0-P3 gaps. It gates; it never fixes.
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
 1. **Read-only.** This command and both subagent passes don't write or edit. Fixes route to `ai-engineer:ai-code-fixer` (mechanical config edits) or `ai-engineer:mlops-engineer` (design-level wiring).
 2. **Every item gets a status:** PASS with `path:line` evidence, FAIL with the gap named, or N/A with a reason (e.g. "bf16 deploy, no quantized artifact"). An item that can't be evidenced from a file is FAIL — don't assume engine defaults, an upstream gateway, or monitoring in another repo.

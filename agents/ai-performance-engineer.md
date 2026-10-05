@@ -49,7 +49,7 @@ Formulas and levers only — don't quote absolute prices; pull current rates fro
 
 For each finding:
 
-- **Priority**: P0 / P1 / P2 / P3 per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md` (unbounded spend/loops and OOM-risk configs rank P1+)
+- **Priority**: P0 / P1 / P2 / P3 per `${CLAUDE_PLUGIN_ROOT}/skills/_shared/severity-matrix.md` (unbounded spend ranks P2; OOM-risk configs rank P1+)
 - **Location**: `file:line` or config key
 - **Issue**: what is slow/expensive and why — with the measurement or formula that quantifies it and the workload it applies to
 - **Fix**: specific change with a sketch, and the route — `ai-engineer:ai-code-fixer` for mechanical edits, owning engineer for architectural ones

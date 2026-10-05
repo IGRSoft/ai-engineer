@@ -8,7 +8,7 @@ allowed-tools: Read, Agent, Glob, Grep, Bash
 
 Discover the eval harnesses the repo actually has, run them with the pinned eval set and deterministic settings via `uv run`, compare metrics against a baseline or the configured thresholds, and report a metrics table, a regression list, and provenance (eval-set version, seeds, model revisions). A metric without its eval-set version and determinism config can't support a delta, so provenance is part of every number.
 
-## CRITICAL BEHAVIORAL RULES
+## Rules
 
 1. **Report only measured metrics.** Every number comes from a command run this session and teed to `.context/logs/`. A suite that didn't run is "not run" — not estimated or copied from an earlier report.
 2. **Determinism first.** Run with the harness's pinned eval-set version and temperature 0 / fixed seeds. A suite that is nondeterministic by construction (judge scoring, sampling) is flagged with a pointer to the flake policy in `ai-engineer:regression-gates`; its noisy delta isn't a regression verdict.
