@@ -1,21 +1,20 @@
 # Fine-Tuning Skills Index
 
-Quick navigation for the `skills/finetuning/` subtree. Start at
-[SKILL.md](SKILL.md) for the guided entry with stack snapshot and decision
-tree.
+Every leaf and reference in `skills/finetuning/`. Start at
+[SKILL.md](SKILL.md) for the stack snapshot and routing table.
 
 ## Skills
 
 | Skill | Use it for |
 |-------|------------|
-| [dataset-curation/SKILL.md](dataset-curation/SKILL.md) | Chat-format normalization (messages schema, chat templates), exact + near-dup dedup, eval-set decontamination, PII/secret scrubbing gates, license/provenance ledgers, stratified splits, dataset versioning |
-| [peft-lora/SKILL.md](peft-lora/SKILL.md) | When adapters beat full fine-tuning or RAG, LoRA/QLoRA config anatomy (r, alpha, dropout, target_modules), smoke-scale SFTTrainer loops, adapter save/merge/serve lifecycle, before/after eval discipline |
-| [training-optimization/SKILL.md](training-optimization/SKILL.md) | GPU memory model with estimation formulas, bf16/fp16/tf32 precision, gradient accumulation vs batch size, gradient checkpointing, 8-bit optimizers, cuda/mps/cpu strategy, throughput and loss-curve triage, checkpoint/resume |
-| [preference-tuning/SKILL.md](preference-tuning/SKILL.md) | SFT-only vs DPO vs ORPO/KTO vs RLHF/PPO selection, preference-pair construction and labeling rubrics, DPO mechanics (beta, reference model), reward-hacking detection (length bias, sycophancy) and mitigations |
-| [grpo-rlvr-training/SKILL.md](grpo-rlvr-training/SKILL.md) | Reinforcement learning from verifiable rewards: the two applicability preconditions, the GRPO reference recipe (group-size floor, KL leash, smoke scale), the mandatory reward-inspection gate, and DAPO/Dr.GRPO/GSPO variant selection by observed symptom |
-| [trace-to-training-data/SKILL.md](trace-to-training-data/SKILL.md) | Converting already-graded eval traces into training data: top-reward rejection sampling, expert-corrected failures, step-level masking for multi-step trajectories, same-task preference pairs, goldens-holdout and PII hygiene |
-| [checkpoint-promotion/SKILL.md](checkpoint-promotion/SKILL.md) | The four-stage weights gate (data quality, capability drift, paired comparison vs base, canary), the drift budget with its >5pt hard fail, sample size derived from the budget, catastrophic-forgetting escalation ladder, terminal PROMOTE/REJECT contract |
-| [quantized-export/SKILL.md](quantized-export/SKILL.md) | Merged vs LoRA-only as an axis independent of precision, format map (FP8, AWQ INT4, GGUF+imatrix), the long-context/code/math INT4 override, and the mandatory pre/post smoke test with its failure signatures |
+| [dataset-curation/SKILL.md](dataset-curation/SKILL.md) | Raw sources → JSONL: messages-schema normalization, exact + near-dup dedup, eval-set decontamination, PII/secret scrubbing, license ledgers, stratified splits, versioning |
+| [peft-lora/SKILL.md](peft-lora/SKILL.md) | Whether an adapter beats RAG or full fine-tuning, LoRA/QLoRA config starting points, smoke-scale SFTTrainer loops, merge-vs-serve, before/after evals |
+| [training-optimization/SKILL.md](training-optimization/SKILL.md) | GPU memory model and estimation, the fit ladder (precision, accumulation, checkpointing, 8-bit optimizers, QLoRA), cuda/mps/cpu strategy, throughput and loss-curve triage, checkpoint/resume |
+| [preference-tuning/SKILL.md](preference-tuning/SKILL.md) | SFT-only vs DPO vs ORPO/KTO vs RLHF, building and labeling chosen/rejected pairs, DPO (beta, reference model), reward-hacking detection |
+| [grpo-rlvr-training/SKILL.md](grpo-rlvr-training/SKILL.md) | Verifiable-reward RL (GRPO/RLVR): applicability preconditions, reward-function design, the inspection gate, variant selection |
+| [trace-to-training-data/SKILL.md](trace-to-training-data/SKILL.md) | Graded traces → SFT rows or preference pairs: rejection sampling, step-level masking, same-task pairs, goldens holdout |
+| [checkpoint-promotion/SKILL.md](checkpoint-promotion/SKILL.md) | Four-stage gate, capability-drift budget, paired comparison vs base, forgetting checks, terminal PROMOTE/REJECT |
+| [quantized-export/SKILL.md](quantized-export/SKILL.md) | Merged vs LoRA-only, format choice (FP8, AWQ INT4, GGUF), the pre/post smoke test |
 
 ## References
 
@@ -35,9 +34,8 @@ tree.
 
 | Topic | Location |
 |-------|----------|
-| Fine-tune vs prompt vs RAG decision | `${CLAUDE_SKILL_DIR}/prompt-engineering/prompt-design/SKILL.md` + `ai-engineer:ai-architector` |
-| Tracking runs and registry promotion | `${CLAUDE_SKILL_DIR}/mlops/experiment-tracking/SKILL.md` |
-| Versioned data → train → eval pipelines (DVC) | `${CLAUDE_SKILL_DIR}/mlops/ml-pipelines/SKILL.md` |
-| Serving the tuned adapter or merged weights | `${CLAUDE_SKILL_DIR}/mlops/model-serving/SKILL.md` |
-| Before/after measurement, win-rates | `${CLAUDE_SKILL_DIR}/evals/eval-design/SKILL.md` |
-| Workflow stage participation | `CORPFLOW.md` |
+| Fine-tune vs prompt vs RAG decision | [prompt-design](../prompt-engineering/prompt-design/SKILL.md) + `ai-engineer:ai-architector` |
+| Tracking runs and registry promotion | [experiment-tracking](../mlops/experiment-tracking/SKILL.md) |
+| Versioned data → train → eval pipelines (DVC) | [ml-pipelines](../mlops/ml-pipelines/SKILL.md) |
+| Serving the tuned adapter or merged weights | [model-serving](../mlops/model-serving/SKILL.md) |
+| Before/after measurement, win-rates | [eval-design](../evals/eval-design/SKILL.md) |
