@@ -1,15 +1,14 @@
 # MLOps Skills Index
 
-Quick navigation for the `skills/mlops/` subtree. Start at
-[SKILL.md](SKILL.md) for the guided entry with stack snapshot and decision
-tree.
+Quick navigation for the `skills/mlops/` subtree. Guided entry with the
+stack snapshot: [SKILL.md](SKILL.md).
 
 ## Skills
 
 | Skill | Use it for |
 |-------|------------|
-| [experiment-tracking/SKILL.md](experiment-tracking/SKILL.md) | Run contract (config, seed, dataset version, commit, environment hash, metrics), MLflow vs W&B concept mapping, sweep hygiene, LLM-specific logging (prompt/eval-set versions, judge config), registry promotion through dev → staging → prod gated on evals |
-| [model-serving/SKILL.md](model-serving/SKILL.md) | Managed-API vs self-hosted ladder (Ollama, vLLM, TGI, Triton, llama.cpp), deployment anatomy from pinned artifact to OpenAI-compatible endpoint, quantization (GPTQ/AWQ/GGUF), KV-cache capacity math, LoRA hot-swap vs merge, readiness/warmup/drain/canary/rollback |
+| [experiment-tracking/SKILL.md](experiment-tracking/SKILL.md) | Run contract (config, seed, dataset version, commit, environment, metrics), MLflow/W&B mapping, sweep hygiene, LLM-specific logging, eval-gated registry promotion via aliases |
+| [model-serving/SKILL.md](model-serving/SKILL.md) | Engine choice (Ollama, vLLM, TGI, Triton, llama.cpp) vs managed API, pinned artifact to OpenAI-compatible endpoint behind a gateway, serve-time quantization, KV-cache capacity math, LoRA hot-swap vs merge, probes/warmup/drain/canary/rollback |
 | [model-monitoring/SKILL.md](model-monitoring/SKILL.md) | System/quality/business monitoring planes, LLM trace observability, drift detection via scheduled judge evals on sampled traffic, per-feature cost dashboards and spend alarms, feedback loops into eval sets and fine-tuning data |
 | [ml-pipelines/SKILL.md](ml-pipelines/SKILL.md) | Pipeline-as-DAG with idempotent steps, DVC stages/remotes/metrics vs git-lfs, orchestrator ladder (make → cron → Airflow/Dagster/Prefect-class), PR smoke gates, eval-gated promotion, lineage, environment discipline (uv.lock in images, pinned CUDA bases) |
 
@@ -26,9 +25,8 @@ tree.
 
 | Topic | Location |
 |-------|----------|
-| Producing the artifacts being served (adapters, merges) | `${CLAUDE_SKILL_DIR}/finetuning/peft-lora/SKILL.md` |
-| Training-side GPU memory and throughput | `${CLAUDE_SKILL_DIR}/finetuning/training-optimization/SKILL.md` |
-| Client-side reliability against served endpoints | `${CLAUDE_SKILL_DIR}/llm-apps/llm-api-patterns/SKILL.md` |
-| Judge evals scheduled on production traffic | `${CLAUDE_SKILL_DIR}/evals/llm-judge/SKILL.md` |
-| Eval thresholds behind promotion gates | `${CLAUDE_SKILL_DIR}/evals/regression-gates/SKILL.md` |
-| Workflow stage participation | `CORPFLOW.md` |
+| Producing the artifacts being served (adapters, merges) | [finetuning/peft-lora/SKILL.md](../finetuning/peft-lora/SKILL.md) |
+| Training-side GPU memory and throughput | [finetuning/training-optimization/SKILL.md](../finetuning/training-optimization/SKILL.md) |
+| Client-side reliability against served endpoints | [llm-apps/llm-api-patterns/SKILL.md](../llm-apps/llm-api-patterns/SKILL.md) |
+| Judge evals scheduled on production traffic | [evals/llm-judge/SKILL.md](../evals/llm-judge/SKILL.md) |
+| Eval thresholds behind promotion gates | [evals/regression-gates/SKILL.md](../evals/regression-gates/SKILL.md) |
