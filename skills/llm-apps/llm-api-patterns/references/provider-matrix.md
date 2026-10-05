@@ -1,24 +1,8 @@
 # Provider Capability Matrix (dimensions, not snapshots)
 
-Use this when:
+For choosing between managed APIs and self-hosted serving, declaring per-hop capability requirements for a fallback chain, and planning a provider migration. Client discipline (timeouts, retries, streaming, caching) is in [../SKILL.md](../SKILL.md); operating self-hosted servers is in `skills/mlops/model-serving`.
 
-- Choosing between managed APIs and self-hosted open-weights serving
-- Declaring per-hop capability requirements for a fallback chain
-- Planning or reviewing a migration between providers
-- Checking which capability *mechanisms* differ before assuming parity
-
-Skip this file if:
-
-- You need client discipline (timeouts, retries, streaming, caching) — use
-  [../SKILL.md](../SKILL.md)
-- You are operating the self-hosted servers themselves — use
-  `skills/mlops/model-serving`
-
-**Hard rule for this file:** cells name the capability *mechanism* and where
-to verify it — never model IDs, token limits, prices, or feature snapshots.
-All of those churn monthly. Resolve current specifics from provider docs via
-context7 (`resolve-library-id` → `query-docs` for the provider SDK/API docs)
-at decision time, and pin what you verified in your own config.
+Cells name the capability *mechanism* and where to verify it, never model IDs, token limits, prices, or feature snapshots, because those churn monthly. Resolve current specifics from provider docs via context7 at decision time, and pin what you verified in your own config.
 
 ## Provider Categories
 
@@ -43,10 +27,9 @@ at decision time, and pin what you verified in your own config.
 | Multimodal | Image input class; other modalities per model family — verify | Image/audio classes per model family — verify | Image/audio/video classes per model family — verify | Depends on model weights + server support for the modality — verify | Depends on model weights + runner support — verify |
 | Context length class | Per model family — verify current docs | Per model family — verify current docs | Per model family — verify current docs | Set by model weights × server config (max length settings, memory) | Set by model weights × host RAM/VRAM and runner config |
 
-Reading the matrix: a row tells you *what kind of mechanism* to look for and
-that the mechanisms are **not interchangeable** — a fallback hop or migration
-that assumes they are will corrupt outputs quietly. The verify pointer is the
-cell's real content.
+Each row names the kind of mechanism to look for. Mechanisms are not
+interchangeable: a fallback hop or migration that assumes they are corrupts
+outputs quietly.
 
 ## Dimension Notes (what differs mechanically)
 

@@ -1,67 +1,33 @@
 ---
 name: llm-api-patterns
 description: >-
-  Production LLM provider-API integration: timeout and retry/backoff
-  discipline, rate-limit handling, streaming with TTFT and mid-stream error
-  recovery, prompt caching via stable-prefix structure, batch APIs for
-  offline work, provider/model fallback chains with circuit breakers, cost
-  accounting hooks, request-level observability, and secrets hygiene.
-  Use when writing or reviewing any code that calls an LLM API, when requests
-  hang or fail without retries, when hitting 429s or rate limits, when spend
-  is untracked or spiking, or when adding streaming, caching, batching, or
-  multi-provider fallback.
+  Production LLM provider-API calls: timeouts and retry/backoff, rate limits,
+  streaming with TTFT and mid-stream recovery, prompt caching, batch APIs,
+  fallback chains with circuit breakers, cost accounting, and secrets. Use when
+  writing or reviewing code that calls an LLM API, when calls hang, 429, or
+  spend spikes, or when adding streaming, caching, batching, or fallback.
 ---
 
 # LLM API Patterns
 
-## Overview
+A provider API bills per token and fails like any remote dependency, plus mid-stream truncation, refusals, and silent model deprecations. This skill covers the client side, also against self-hosted endpoints. Parameter names, error codes, limits, model IDs, and prices change often: verify them against current provider docs (context7), not memory; the mechanisms here stay stable. Owning agent: `ai-engineer:llm-engineer`; key handling, leakage, and output-trust findings go to `ai-engineer:ai-security-auditor`.
 
-A provider API is a remote dependency that bills per token and fails in every
-way distributed systems fail — plus a few of its own (mid-stream truncation,
-content refusals, silent model deprecations). Production integration is client
-discipline: bounded calls, honest retries, streamed UX, cache-shaped prompts,
-routed fallbacks, and a cost ledger.
+**Elsewhere:**
 
-One rule governs this whole skill: **parameter names, error codes, limits,
-model IDs, and prices are volatile — never code them from memory; verify
-against current provider docs (context7)**. This skill teaches the mechanisms
-that stay stable across those churns.
+- Retrieval pipeline → `skills/llm-apps/rag-systems`; loop and tool orchestration → `skills/llm-apps/agent-design`
+- Prompt content → `skills/prompt-engineering/prompt-design`; output schemas → `skills/prompt-engineering/structured-outputs`
+- Operating self-hosted inference (servers, GPUs, quantization) → `skills/mlops/model-serving`
+- Comparing provider capabilities or planning a migration → `references/provider-matrix.md`
 
-Owning agent: `ai-engineer:llm-engineer`. Key handling, leakage, and
-output-trust findings route to `ai-engineer:ai-security-auditor`.
+## Call Discipline
 
-## When to Use
-
-- Writing or reviewing any code path that calls an LLM provider API
-- Requests hang, fail without retry, or retry-storm into rate limits
-- Adding streaming, prompt caching, batch processing, or fallback routing
-- Spend is untracked, spiking, or unattributable to features
-- Standing up observability for LLM calls (latency, tokens, request IDs)
-
-**When NOT to use:**
-
-- Designing the retrieval pipeline the calls serve — see
-  `skills/llm-apps/rag-systems`
-- Designing the loop and tool orchestration around the calls — see
-  `skills/llm-apps/agent-design`
-- Prompt content and iteration — see `skills/prompt-engineering/prompt-design`;
-  output schemas — see `skills/prompt-engineering/structured-outputs`
-- Operating self-hosted inference (vLLM/TGI/Ollama servers, GPUs,
-  quantization) — see `skills/mlops/model-serving`; this skill covers the
-  *client* side either way
-- Comparing provider capabilities or planning a migration — read
-  `references/provider-matrix.md`
-
-## Call Discipline (non-negotiables)
-
-Classify before you handle — the failure taxonomy drives every client
-decision:
+Classify failures first; the class decides the handling:
 
 | Class | Typical signals | Action |
 |-------|-----------------|--------|
 | Transient | Timeouts, connection resets, 429, 5xx, provider "overloaded" codes | Retry with exponential backoff + jitter; honor server retry hints |
-| Semantic | 400/422 invalid request, schema violations, context overflow | Never retry — the same request fails the same way; fix and alert |
-| Auth/permission | 401/403, expired or mis-scoped key | Never retry; rotate/fix credentials, alert |
+| Semantic | 400/422 invalid request, schema violations, context overflow | Don't retry (it fails the same way); fix and alert |
+| Auth/permission | 401/403, expired or mis-scoped key | Don't retry; rotate/fix credentials, alert |
 | Content | Refusals, safety stops, empty completions | Not an HTTP error — handle in application logic, count separately |
 
 The exact status codes and error type names vary per provider and SDK
@@ -69,16 +35,16 @@ version — verify the current retryable set via provider docs (context7).
 
 Rules:
 
-1. **Timeout ALWAYS.** Explicit connect + read timeouts on every call; a
-   missing timeout is a hung worker under incident load. Streaming needs an
-   *idle* (per-chunk) timeout too — a stream that stops emitting is a failure
-   even though the socket is open.
+1. **Explicit timeouts.** Connect + read timeouts on every call; some SDKs
+   default to none or minutes, and a missing timeout is a hung worker under
+   incident load. Streaming also needs an *idle* (per-chunk) timeout: a
+   stream that stops emitting has failed even though the socket is open.
 2. **Retry only transient classes.** Cap attempts, use exponential backoff
    with full jitter, and let a server-provided retry-after hint override your
    own delay.
-3. **Respect rate-limit headers.** Providers expose retry-after and
-   remaining-quota style headers (names vary — verify); feed them into your
-   scheduler instead of discovering limits by 429.
+3. **Respect rate-limit headers.** Feed retry-after and remaining-quota
+   headers (names vary) into your scheduler instead of discovering limits by
+   429. More retries on 429 extend the outage.
 4. **Bound concurrency client-side.** A semaphore or queue in front of the
    client turns provider limits into a plan instead of an error storm.
 
@@ -108,8 +74,7 @@ def call_with_backoff(request: CompletionRequest) -> CompletionResponse:
     raise AssertionError("unreachable")
 ```
 
-Semantic errors deliberately propagate: retrying a malformed request only
-spends money reproducing the bug.
+Semantic errors propagate on purpose: retrying a malformed request only pays to reproduce the bug.
 
 ## Streaming
 
@@ -167,11 +132,12 @@ layout, not an infra flag:
 ```
 
 - Order prompt parts by change frequency: stable first, volatile last. One
-  timestamp interpolated into the system block zeroes the hit rate.
+  timestamp interpolated into the system block zeroes the hit rate. Decide
+  the layout up front: retrofitting caching reorders the prompt and
+  invalidates its evals.
 - Some providers cache automatically; others need explicit cache-control
-  breakpoints, with minimum-length and TTL-class behavior that differs —
-  verify the mechanism and current parameter names via provider docs
-  (context7).
+  breakpoints, with differing minimum-length and TTL rules. Verify the
+  mechanism and parameter names.
 - Measure: usage responses report cache-read vs fresh input tokens; monitor
   the hit rate and alarm on collapse (a prompt refactor that reorders
   segments is the usual cause).
@@ -183,8 +149,8 @@ class — for offline work only: evals, backfills, enrichment, migrations.
 - Key every item with your own `custom_id`; results return unordered.
 - Handle per-item failures — a batch is not transactional; resubmit only the
   failed subset (idempotent by your ids).
-- Never put interactive traffic on a batch path, and never let batch jobs
-  bypass the same cost ledger as online traffic.
+- Keep interactive traffic off the batch path, and run batch jobs through
+  the same cost ledger as online traffic.
 
 ## Fallback Routing and Circuit Breakers
 
@@ -214,16 +180,16 @@ breaker:
 - **Capability parity caveat:** structured-output modes, tool-call formats,
   multimodality, and context classes differ across providers
   (`references/provider-matrix.md`). Declare per-hop capability requirements
-  and skip hops that cannot satisfy them — a fallback that silently drops
-  tool use is an outage with extra steps.
+  and skip hops that cannot satisfy them; a fallback that silently drops
+  tool use is an outage. Exercise the chain in a drill before you rely on it.
 - **Degrade knowingly:** tag every response with the hop that served it, so
   quality dips correlate with routing, and degraded modes surface in logs.
 - **Circuit breakers:** per provider+model key; open on error-rate threshold,
   probe half-open, close on success. Breakers turn a provider incident into a
   routing event instead of a retry storm.
 - **Parity is an eval question:** any hop added to the chain runs the eval set
-  (pinned version, temperature 0) before it may serve traffic —
-  `skills/evals/regression-gates`.
+  (pinned version, temperature 0) before it serves traffic
+  (`skills/evals/regression-gates`).
 
 ## Cost Accounting and Observability
 
@@ -257,16 +223,17 @@ def record_usage(request: CompletionRequest, usage: Usage) -> None:
   use the provider's tokenizer/counting endpoint where offered (verify via
   docs) rather than a lookalike tokenizer.
 - **Cost logging as a mechanism:** compute cost as `tokens × rate`, with
-  rates loaded from a config you maintain with effective dates. Never
-  hardcode prices in code or docs — they change; the *join* of usage ledger ×
-  rates table is the mechanism that survives every price change.
+  rates loaded from a config you maintain with effective dates, not prices
+  hardcoded in code or docs; the join of usage ledger × rates table survives
+  every price change.
 - **Budget alarms:** per-route daily token budgets with warning and hard-stop
   thresholds; runaway agents are the classic trigger (budget design:
   `skills/llm-apps/agent-design`).
 - **Histograms, not averages:** TTFT, total latency, and tokens-per-request
   are long-tailed; p50/p95/p99 or the dashboard lies.
 - **Secrets:** API keys come from env vars or a secret manager, injected at
-  runtime — never in code, notebooks, prompts, logs, or committed configs.
+  runtime; keep them out of code, notebooks, prompts, logs, and committed
+  configs (including tracked `.env` files).
   Scan the repo (`gitleaks`-class tooling) and route findings to
   `ai-engineer:ai-security-auditor`.
 
@@ -283,28 +250,6 @@ def record_usage(request: CompletionRequest, usage: Usage) -> None:
 | Prices hardcoded in code | Ledger silently wrong after every pricing change | Rates config with effective dates; join at read time |
 | Model IDs scattered as string literals | Deprecations become a 14-file hunt | Single config of aliases → concrete IDs, verified via docs |
 | API keys in code or notebooks | Leakage into VCS and logs | Env/secret manager only; repo scanning in CI |
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "The SDK surely has sane default timeouts" | Verify — several default to none or minutes-class. Own your timeouts explicitly. |
-| "More retries will fix the 429s" | 429 means *slow down*: honor retry-after and bound concurrency. More retries extend the outage. |
-| "We'll add caching later as an optimization" | Caching is a prompt-*structure* decision. Retrofitting reorders the prompt, which invalidates prompt evals — design cache-first now. |
-| "We'll catch cost spikes on the invoice" | That is up to 30 days late. Per-request usage logging plus a budget alarm is a day of work. |
-| "Both providers support JSON output, switching is trivial" | The mechanisms differ (`references/provider-matrix.md`); behavior differs more. Every provider/model change re-runs the eval set. |
-| "The model ID is stable, hardcoding is fine" | Providers deprecate on their schedule, not yours. Aliases in config, verified via current docs (context7). |
-
-## Red Flags
-
-- `client.complete(...)` with no timeout argument anywhere in the codebase
-- A bare `except Exception: retry()` around provider calls
-- Zero usage/latency log lines per call — spend unattributable to features
-- Grep finds the same model ID string in a dozen files
-- Cache hit rate unmonitored, or prompt segments ordered user-turn-first
-- Fallback chain exists but has never been exercised (no chaos/drill test)
-- Streaming handler without an idle timeout or a cancellation path
-- A `.env` file with real keys tracked in git
 
 ## Verification
 
